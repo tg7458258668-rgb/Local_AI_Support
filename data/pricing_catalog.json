@@ -1,0 +1,187 @@
+{
+  "products": [
+    {
+      "product": "U-MOCO GRA",
+      "version": "旗舰版",
+      "base_price": "¥601,000",
+      "historical_offer": "",
+      "source": "GRA旗舰版.pages",
+      "doc_name": "GRA旗舰版_20260506150602",
+      "configuration": [
+        "I U-MOCO",
+        "U-MOCO GRA +6米轨道 报价清单",
+        "U-MOCO GRA 臂展2米",
+        "机械臂示教器",
+        "U-MOCO GRA 旗舰",
+        "FZ自动跟焦模块&双电机",
+        "U-MOCO摇杆控制器",
+        "视频采集卡（SDI/HDMI",
+        "软件",
+        "影视轨道",
+        "U-MOCO 机械臂软件悠",
+        "动智控软件节点版（终使",
+        "U-MOCO 机械臂软件悠",
+        "动智控软件时间线版（3"
+      ]
+    },
+    {
+      "product": "U-MOCO GRA + PRO",
+      "version": "专业版",
+      "base_price": "¥1,030,000",
+      "historical_offer": "¥850,000",
+      "source": "U-MOCO_PRO_GRA_10轨道.pages",
+      "doc_name": "U-MOCO_PRO_GRA_10轨道_20260506150604",
+      "configuration": [
+        "U-MOCO",
+        "U-MOCO PRO 臂展2.7米负载50公斤 报价清单",
+        "U-MOCO PRO 臂展2.7米",
+        "机械臂示教器",
+        "U-MOCOPRO旗",
+        "摇杆控制器基础版",
+        "视频采集卡（SDI/HDM）",
+        "U-MOCO 机械臂软件",
+        "U-MOCO 机械臂专业版功能授权",
+        "地面轨道电机",
+        "影视地面轨道"
+      ]
+    },
+    {
+      "product": "U-MOCO GRA + PRO + EXT",
+      "version": "专业版",
+      "base_price": "¥1,030,000",
+      "historical_offer": "¥850,000",
+      "source": "U-MOCO_PRO_GRA_10轨道.pdf",
+      "doc_name": "U-MOCO_PRO_GRA_10轨道_20260506150606",
+      "configuration": [
+        "U-MOCO PRO 臂展2.7米负载50公斤 报价清单",
+        "U-MOCO PRO 旗",
+        "U-MOCO PRO 臂展2.7米",
+        "机械臂示教器",
+        "摇杆控制器基础版",
+        "视频采集卡(SDI/HDMI)",
+        "U-MOCO 机械臂软件",
+        "U-MOCO 机械臂专业版功能授权",
+        "地面轨道电机",
+        "影视地面轨道"
+      ]
+    },
+    {
+      "product": "U-MOCO PRO",
+      "version": "旗舰版",
+      "base_price": "¥778,000",
+      "historical_offer": "",
+      "source": "U-MOCO_PRO旗舰版.pages",
+      "doc_name": "U-MOCO_PRO旗舰版_20260506150607",
+      "configuration": [
+        "I U-MOCO",
+        "U-MOCO PRO 报价清单",
+        "U-MOCO PRO 臂展2.7米",
+        "机械臂示教器",
+        "U-MOCO摇杆控制器",
+        "U-MOCO",
+        "影视轨道电机",
+        "U-MOCO 机械臂软件",
+        "U-MOCO 机械臂专业版功能授权",
+        "XR虚拟拍摄跟踪FreeD协议"
+      ]
+    },
+    {
+      "product": "U-MOCO AIR + MINI",
+      "version": "",
+      "base_price": "¥416,000",
+      "historical_offer": "",
+      "source": "mini专业版_freed跟踪_副本.pages",
+      "doc_name": "mini专业版_freed跟踪_副本_20260506150644",
+      "configuration": [
+        "U-MOCO",
+        "U-MOCO AIR 报价",
+        "U-MOCO AIR",
+        "机械臂示教器",
+        "U-MOCO AIR",
+        "摇杆控制器",
+        "U-MOCO 机械臂软件 OS"
+      ]
+    },
+    {
+      "product": "U-MOCO MINI",
+      "version": "专业版",
+      "base_price": "¥328,000",
+      "historical_offer": "",
+      "source": "mini标准版报价.pages",
+      "doc_name": "mini标准版报价_20260506150653",
+      "configuration": [
+        "I,I U-MOCO",
+        "U-MOCO MINI 专业版 报价清单",
+        "U-MOCO MINI"
+      ]
+    },
+    {
+      "product": "U-MOCO GRA + EXT",
+      "version": "旗舰版",
+      "base_price": "¥508,000",
+      "historical_offer": "¥442,000",
+      "source": "台湾GRA_4米地轨报价.pdf",
+      "doc_name": "台湾GRA_4米地轨报价_20260506150701",
+      "configuration": [
+        "U-MOCO GRA",
+        "U-MOCO GRA",
+        "机械臂示教器",
+        "多功能挂载兔笼",
+        "摇杆控制器基础版",
+        "自动跟焦模块及双跟焦电机",
+        "轨道电机驱动",
+        "视频采集卡(SDI/HDMI)",
+        "U-MOCO 机械臂软件",
+        "U-MOCO 机械臂专业版功能授权",
+        "影视地面轨道"
+      ]
+    },
+    {
+      "product": "U-MOCO EXT",
+      "version": "旗舰版",
+      "base_price": "¥818,000.00",
+      "historical_offer": "",
+      "source": "广州电视台报价U-MOCO_EXT_8米轨道_20260506150710.pages",
+      "doc_name": "广州电视台报价U-MOCO_EXT_8米轨道_20260506150710",
+      "configuration": [
+        "I,I U-MOCO",
+        "U-MOCO EXT 臂展3.3米 报价清单",
+        "U-MOCO EXT 臂展3.3米",
+        "机械臂示教器",
+        "U-MOCO EXT 旗舰版",
+        "摇杆控制器",
+        "视频采集卡（SDVHDMD）",
+        "U-MOCO 机械臂软件",
+        "U-MOCO 机械臂专业版功能授权",
+        "地面轨道电机"
+      ]
+    }
+  ],
+  "accessories": [
+    {
+      "name": "影视地面轨道",
+      "unit": "米",
+      "reference_price": "¥15,000",
+      "source": "历史报价单"
+    },
+    {
+      "name": "影视地面轨道",
+      "unit": "节/2米",
+      "reference_price": "¥12,500",
+      "source": "历史报价单"
+    },
+    {
+      "name": "FreeD 跟踪协议",
+      "unit": "套",
+      "reference_price": "",
+      "source": "历史配置项"
+    },
+    {
+      "name": "自动跟焦模块",
+      "unit": "套",
+      "reference_price": "",
+      "source": "历史配置项"
+    }
+  ],
+  "updated_at": ""
+}

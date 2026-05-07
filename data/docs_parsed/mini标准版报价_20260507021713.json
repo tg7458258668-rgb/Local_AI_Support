@@ -1,0 +1,27 @@
+{
+  "doc_name": "mini标准版报价_20260507021713",
+  "display_name": "mini标准版报价",
+  "source_file": "mini标准版报价.pages",
+  "file_type": "pages",
+  "doc_type": "报价单",
+  "extraction_method": "pages_preview_ocr",
+  "text_char_count": 127,
+  "price_fields": {
+    "总价（含税13%）": "¥328,000",
+    "全部金额": "¥328,000"
+  },
+  "quote_items": [
+    "U-MOCO MINI 专业版 报价清单",
+    "设备报价",
+    "单价 数量",
+    "¥328,000",
+    "合计",
+    "¥",
+    "总价（含税13%）：¥"
+  ],
+  "summary": "",
+  "key_points": [],
+  "missing_fields": [],
+  "text": "[OCR preview.jpg]\nI,I U-MOCO\nU-MOCO MINI 专业版 报价清单\n名称\n内容\n设备报价\n单价 数量\n¥328,000\n1\n单位\n合计\n套\n¥\n328,000\nU-MOCO MINI\n总价（含税13%）：¥\n328,000",
+  "updated_at": "2026-05-07 02:17:14"
+}

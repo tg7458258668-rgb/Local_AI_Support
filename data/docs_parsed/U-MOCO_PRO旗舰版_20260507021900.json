@@ -1,0 +1,27 @@
+{
+  "doc_name": "U-MOCO_PRO旗舰版_20260507021900",
+  "display_name": "U-MOCO+PRO旗舰版",
+  "source_file": "U-MOCO_PRO旗舰版.pages",
+  "file_type": "pages",
+  "doc_type": "报价单",
+  "extraction_method": "pages_preview_ocr",
+  "text_char_count": 328,
+  "price_fields": {
+    "总价（含税13%）": "¥778,000",
+    "全部金额": "¥778,000"
+  },
+  "quote_items": [
+    "U-MOCO PRO 报价清单",
+    "设备报价",
+    "¥778,000",
+    "单价|数量|单位",
+    "套¥",
+    "合计",
+    "总价（含税13%）："
+  ],
+  "summary": "",
+  "key_points": [],
+  "missing_fields": [],
+  "text": "[OCR preview.jpg]\nI U-MOCO\nU-MOCO PRO 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-倒挂挂载板套件\n影视多功能接口模块（SDVHDMIN挂口等）\n-U-MOCO摇杆控制器\nU-MOCO\nPRO 旗舰版\n-影视专用线束（臂体内走线）\n-多功能骑士轮套件\n-影视轨道电机\n-图像信息数据收集（SDI/HDMI）\n-U-MOCO 机械臂软件\n-U-MOCO 机械臂专业版功能授权\n-培训（不含差旅）\n-XR虚拟拍摄跟踪FreeD协议\n设备报价\n¥778,000\n单价|数量|单位\n1\n套¥\n合计\n778,000\n总价（含税13%）：\n*\n7718.，000",
+  "updated_at": "2026-05-07 02:19:00"
+}

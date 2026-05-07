@@ -1,0 +1,35 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Test, type-check, and coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime output
+*.log
+*.pid
+runtime/
+
+# OS/editor files
+.DS_Store
+
+# Local backups
+*.bak
+
+# Local vector database storage
+data/qdrant_storage/

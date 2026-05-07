@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>本地 AI 客服</title>
+  <link rel="stylesheet" href="/static/chat-v2.css?v=20260507-1" />
+</head>
+<body>
+  <div class="chat-page">
+    <div class="chat-shell">
+      <header class="chat-topbar">
+        <div>
+          <h1>本地 AI 客服</h1>
+          <p>连接你本地知识库的简易聊天页</p>
+        </div>
+
+        <div class="topbar-right">
+          <label class="debug-switch">
+            <input type="checkbox" id="debug-toggle" />
+            <span>显示调试信息</span>
+          </label>
+          <a href="/admin" class="admin-link">进入后台</a>
+        </div>
+      </header>
+
+      <section class="test-panel">
+        <div class="test-panel-header">
+          <div>
+            <div class="panel-title">测试客户</div>
+            <div id="memory-status" class="panel-subtitle">未填写客户 ID，不会写入长期记忆。</div>
+          </div>
+          <button id="refresh-memory-btn" type="button" class="mini-btn">刷新记忆</button>
+        </div>
+
+        <div class="test-fields">
+          <label class="test-field">
+            <span>渠道</span>
+            <select id="channel-input">
+              <option value="api">API</option>
+              <option value="wechat">微信</option>
+              <option value="feishu">飞书</option>
+            </select>
+          </label>
+          <label class="test-field">
+            <span>客户 ID</span>
+            <input id="user-id-input" type="text" placeholder="例如：test_customer_001" />
+          </label>
+          <label class="test-field">
+            <span>会话 ID</span>
+            <input id="conversation-id-input" type="text" placeholder="例如：demo_session_001" />
+          </label>
+        </div>
+
+        <div id="memory-summary" class="memory-summary empty">当前没有加载客户画像。</div>
+      </section>
+
+      <main id="chat-box" class="chat-body">
+        <div class="msg msg-ai">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-bubble">
+            <div class="msg-text">
+              你好，我是本地 AI 客服助手。你可以直接问我产品、保修、售后等问题。
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="chat-composer">
+        <div class="composer-left">
+          <textarea
+            id="question-input"
+            class="composer-input"
+            placeholder="请输入你的问题，例如：电池保修多久？"
+            rows="3"
+          ></textarea>
+          <div class="composer-tip">快捷发送：Ctrl + Enter（Mac 可用 Command + Enter）</div>
+        </div>
+
+        <div class="composer-right">
+          <button id="send-btn" class="btn btn-primary">发送</button>
+          <button id="clear-btn" class="btn btn-secondary">清空</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="/static/chat-v2.js?v=20260507-1"></script>
+</body>
+</html>

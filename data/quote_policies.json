@@ -1,0 +1,15 @@
+{
+  "mode": "draft_only",
+  "default_when_unconfigured": "list_price_only",
+  "max_discount_percent": "",
+  "min_margin_note": "",
+  "approval_required": [
+    "优惠价",
+    "低于标价",
+    "交付时间",
+    "合同条款",
+    "特殊定制"
+  ],
+  "reply_style": "sales_talk",
+  "template": "先复述客户场景，再推荐方案，给参考标价和可选项，最后说明优惠/交付/合同需要人工确认。"
+}

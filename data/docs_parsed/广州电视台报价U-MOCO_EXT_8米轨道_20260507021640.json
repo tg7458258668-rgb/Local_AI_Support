@@ -1,0 +1,29 @@
+{
+  "doc_name": "广州电视台报价U-MOCO_EXT_8米轨道_20260507021640",
+  "display_name": "广州电视台报价U-MOCO+EXT+8米轨道",
+  "source_file": "广州电视台报价U-MOCO_EXT_8米轨道_20260507021640.pages",
+  "file_type": "pages",
+  "doc_type": "报价单",
+  "extraction_method": "pages_preview_ocr",
+  "text_char_count": 309,
+  "price_fields": {
+    "总价（含税13%）": "¥818,000.00",
+    "合计": "¥818,000.00",
+    "全部金额": "¥818,000.00"
+  },
+  "quote_items": [
+    "U-MOCO EXT 臂展3.3米 报价清单",
+    "设备报价",
+    "单价 数量 单位",
+    "合计",
+    "¥818,000.00",
+    "1套¥818,000.00",
+    "总价（含税13%）：",
+    "¥ 818,000.00"
+  ],
+  "summary": "",
+  "key_points": [],
+  "missing_fields": [],
+  "text": "[OCR preview.jpg]\nI,I U-MOCO\nU-MOCO EXT 臂展3.3米 报价清单\n名称\n内容\n-U-MOCO EXT 臂展3.3米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块\n（SDVHDMI/V挂\n口等）\nU-MOCO EXT 旗舰版\n-摇杆控制器\n-影视专用线束\n-多功能骑士轮\n-视频采集卡（SDVHDMD）\n-U-MOCO 机械臂软件\n-U-MOCO 机械臂专业版功能授权\n-培训（不含差旅）\n-地面轨道电机\n设备报价\n单价 数量 单位\n合计\n¥818,000.00\n1套¥818,000.00\n总价（含税13%）：\n¥ 818,000.00",
+  "updated_at": "2026-05-07 02:16:40"
+}

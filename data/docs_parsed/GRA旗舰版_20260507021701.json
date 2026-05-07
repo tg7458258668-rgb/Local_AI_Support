@@ -1,0 +1,30 @@
+{
+  "doc_name": "GRA旗舰版_20260507021701",
+  "display_name": "GRA旗舰版",
+  "source_file": "GRA旗舰版.pages",
+  "file_type": "pages",
+  "doc_type": "报价单",
+  "extraction_method": "pages_preview_ocr",
+  "text_char_count": 375,
+  "price_fields": {
+    "总价（含税13%）": "¥601,000",
+    "合计": "¥508,000",
+    "全部金额": "¥508,000、¥15,500、¥1、¥601,000"
+  },
+  "quote_items": [
+    "U-MOCO GRA +6米轨道 报价清单",
+    "设备报价",
+    "单价",
+    "合计",
+    "¥ 508,000",
+    "套¥ 508,000",
+    "¥ 15,500",
+    "6¥1*",
+    "总价（含税13%）：¥601,000"
+  ],
+  "summary": "",
+  "key_points": [],
+  "missing_fields": [],
+  "text": "[OCR preview.jpg]\nI U-MOCO\nU-MOCO GRA +6米轨道 报价清单\n名称\n内容\n-U-MOCO GRA 臂展2米\n负载22公斤\n集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-L挂 套件\n-骑士轮套件\nU-MOCO GRA 旗舰\n-影视多功能接口模块\n版\n（SDIHDMI/V挂口等）\n-FZ自动跟焦模块&双电机\n套装\n-U-MOCO摇杆控制器\n影视专用线束\n视频采集卡（SDI/HDMI\n-FEED跟踪协议\n软件\n影视轨道\n-U-MOCO 机械臂软件悠\n动智控软件节点版（终使\n用权）\n-U-MOCO 机械臂软件悠\n动智控软件时间线版（3\n年）\n一节2米\n设备报价\n单价\n数量\n单位\n合计\n¥ 508,000\n1\n套¥ 508,000\n¥ 15,500\n6¥1*\n93,000\n总价（含税13%）：¥601,000",
+  "updated_at": "2026-05-07 02:17:02"
+}

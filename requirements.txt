@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+jinja2
+requests
+qdrant-client
+pydantic
+python-docx
+PyMuPDF
+python-multipart

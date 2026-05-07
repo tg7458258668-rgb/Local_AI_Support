@@ -1,0 +1,28 @@
+{
+  "doc_name": "mini专业版_freed跟踪_副本_20260507021725",
+  "display_name": "mini专业版+freed跟踪_副本",
+  "source_file": "mini专业版_freed跟踪_副本.pages",
+  "file_type": "pages",
+  "doc_type": "报价单",
+  "extraction_method": "pages_preview_ocr",
+  "text_char_count": 208,
+  "price_fields": {
+    "总价（含税13%）": "¥416,000",
+    "全部金额": "¥208,000、¥416,000"
+  },
+  "quote_items": [
+    "设备报价",
+    "U-MOCO AIR 报价",
+    "¥208,000",
+    "单价 数量 单位",
+    "合计",
+    "1套¥208,000",
+    "总价（含增值税专用发票）：",
+    "¥416,000"
+  ],
+  "summary": "",
+  "key_points": [],
+  "missing_fields": [],
+  "text": "[OCR preview.jpg]\nU-MOCO\n设备报价\nU-MOCO AIR 报价\n名称\n内容\n-U-MOCO AIR\n-集成一体化底座\n-机械臂示教器\n-相机多功能支架\n-相机倒挂支架\nU-MOCO AIR\n-摇杆控制器\n-影视专用线束\n-多功能滑轮\n-U-MOCO 机械臂软件 OS\n-培训（3天）\n¥208,000\n单价 数量 单位\n合计\n1套¥208,000\n总价（含增值税专用发票）：\n¥416,000",
+  "updated_at": "2026-05-07 02:17:25"
+}

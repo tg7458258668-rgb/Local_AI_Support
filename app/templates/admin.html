@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>本地 AI 客服管理后台</title>
+  <link rel="stylesheet" href="/static/admin.css?v=faq-editor-24" />
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>管理后台</h1>
+        <p>本地 AI 客服系统</p>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-tab="dashboard">系统概览</button>
+        <button class="nav-btn" data-tab="docs">知识库</button>
+        <button class="nav-btn" data-tab="faqs">FAQ</button>
+        <button class="nav-btn" data-tab="rules">优先规则</button>
+        <button class="nav-btn" data-tab="quote-policies">报价规则</button>
+        <button class="nav-btn" data-tab="quote-archives">报价档案</button>
+        <button class="nav-btn" data-tab="memories">客户记忆</button>
+        <button class="nav-btn" data-tab="logs">系统日志</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/" class="back-link">返回聊天页</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="page-title">系统概览</h2>
+          <p id="page-desc">查看系统状态、资料库状态和日志</p>
+        </div>
+        <div class="top-actions">
+          <button class="ghost-btn" id="refreshAllBtn" type="button">刷新数据</button>
+        </div>
+      </header>
+
+      <section class="tab-panel active" id="tab-dashboard">
+        <div class="card-grid">
+          <div class="card stat-card health-card">
+            <div class="card-title">服务健康</div>
+            <div class="health-summary">
+              <div>
+                <span class="health-kicker">本地客服系统</span>
+                <strong id="healthOverallText">检测中</strong>
+              </div>
+              <span id="healthOverallBadge" class="status-badge gray">未知</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">FastAPI 后端</span>
+              <span id="backendStatus" class="status-badge gray">未知</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Ollama 模型服务</span>
+              <span id="ollamaStatus" class="status-badge gray">未知</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Qdrant 向量库</span>
+              <span id="qdrantStatus" class="status-badge gray">未知</span>
+            </div>
+            <div class="health-detail-grid">
+              <div><span>聊天接口</span><strong>/ask</strong></div>
+              <div><span>新版 API</span><strong>/api/v1/chat</strong></div>
+              <div><span>后台 API</span><strong>/api/admin</strong></div>
+            </div>
+            <div class="runtime-path">
+              <span>当前运行目录</span>
+              <strong id="backendBaseDir">检测中...</strong>
+            </div>
+          </div>
+
+          <div class="card stat-card data-card">
+            <div class="card-title">资料库概况</div>
+            <div class="dashboard-metrics">
+              <div class="metric-tile"><span id="docCount">0</span><small>文档数</small></div>
+              <div class="metric-tile"><span id="chunkCount">0</span><small>文档片段</small></div>
+              <div class="metric-tile"><span id="faqCount">0</span><small>FAQ 条目</small></div>
+              <div class="metric-tile"><span id="ruleCount">0</span><small>规则条目</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card service-control-card">
+          <div class="service-control-head">
+            <div>
+              <div class="card-title">系统控制</div>
+              <div class="sub-info">启动器运行在 7999 端口，可同时管理业务服务和 Qdrant 向量库。</div>
+            </div>
+            <a class="launcher-link" href="http://127.0.0.1:7999" target="_blank">打开启动器</a>
+          </div>
+          <div class="service-control-grid">
+            <div class="status-row">
+              <span class="status-label">业务服务</span>
+              <span id="serviceRunningStatus" class="status-badge gray">未知</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">业务 PID</span>
+              <span id="servicePidText" class="mono-text">-</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Qdrant 向量库</span>
+              <span id="qdrantRunningStatus" class="status-badge gray">未知</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">Qdrant 方式</span>
+              <span id="qdrantModeText" class="mono-text">-</span>
+            </div>
+            <div class="status-row">
+              <span class="status-label">启动器</span>
+              <span id="launcherStatus" class="status-badge gray">未检测</span>
+            </div>
+            <div class="status-row wide-row">
+              <span class="status-label">启动器目录</span>
+              <span id="launcherBaseDirText" class="mono-text">-</span>
+            </div>
+          </div>
+          <div class="service-actions">
+            <button id="serviceStartBtn" type="button" class="primary-btn">启动全部</button>
+            <button id="serviceRestartBtn" type="button" class="ghost-btn">重启全部</button>
+            <button id="serviceStopBtn" type="button" class="danger-btn">关闭全部</button>
+            <button id="qdrantStartBtn" type="button" class="ghost-btn">只启动 Qdrant</button>
+          </div>
+          <div id="serviceControlMessage" class="service-control-message">如按钮不可用，请先打开“本地 AI 客服启动器”。</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">文档名称</div>
+          <div id="docNameList" class="tag-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">最近日志</div>
+          <pre id="dashboardLog" class="log-box">加载中...</pre>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-docs">
+        <div class="card doc-upload-card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">上传知识库文件</div>
+              <div class="sub-info">支持选择一个或多个 txt、md、docx、pdf、pages 自动入库；图片会保存但暂不 OCR。</div>
+            </div>
+          </div>
+          <form id="docUploadForm" class="doc-upload-form">
+            <label class="doc-file-picker" for="docUploadFile">
+              <input id="docUploadFile" type="file" accept=".txt,.md,.docx,.pdf,.pages,.png,.jpg,.jpeg,.webp" multiple />
+              <span class="doc-file-icon">+</span>
+              <span class="doc-file-main">
+                <strong id="docFilePickerTitle">选择知识库文件</strong>
+                <small id="docFilePickerHint">支持 txt、md、docx、pdf、pages；可多选</small>
+              </span>
+            </label>
+            <input id="docUploadName" type="text" placeholder="文档名称（可选）" />
+            <input id="docUploadCategory" type="text" placeholder="分类，例如：售后政策 / 产品说明" />
+            <button id="docUploadBtn" type="submit" class="primary-btn">上传所选文件</button>
+          </form>
+          <div id="docUploadSelection" class="upload-selection hidden"></div>
+          <div id="docUploadNotice" class="action-notice hidden"></div>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-title">知识库内容</div>
+            <div class="toolbar-actions">
+              <div class="segmented-control docs-view-toggle">
+                <button id="docViewModeBtn" type="button" class="active">文档视图</button>
+                <button id="chunkViewModeBtn" type="button">片段视图</button>
+              </div>
+              <input id="docSearchInput" type="text" placeholder="搜索 doc_name / section / text" />
+              <button id="docSearchBtn" type="button">搜索</button>
+            </div>
+          </div>
+          <div id="docsCount" class="sub-info"></div>
+          <div class="docs-bulk-bar">
+            <label class="docs-select-all">
+              <input id="docSelectAll" type="checkbox" />
+              <span>选择当前展示文档</span>
+            </label>
+            <div id="docSelectionInfo" class="docs-selection-info">未选择文档</div>
+            <button id="docBatchDeleteBtn" type="button" class="danger-btn" disabled>批量删除</button>
+          </div>
+          <div class="table-wrap docs-table-wrap">
+            <table class="docs-table">
+              <colgroup>
+                <col class="docs-col-check" />
+                <col class="docs-col-id" />
+                <col class="docs-col-name" />
+                <col class="docs-col-section" />
+                <col class="docs-col-category" />
+                <col class="docs-col-method" />
+                <col class="docs-col-content" />
+                <col class="docs-col-actions" />
+              </colgroup>
+              <thead id="docsTableHead">
+                <tr>
+                  <th>选择</th>
+                  <th>ID</th>
+                  <th>文档</th>
+                  <th>章节</th>
+                  <th>分类</th>
+                  <th>解析</th>
+                  <th>内容</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="docsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-faqs">
+        <div class="faq-page">
+          <div class="faq-list-panel card">
+            <div class="faq-left-top">
+              <div>
+                <div class="card-title">FAQ 列表</div>
+                <div id="faqsCount" class="sub-info">加载中...</div>
+              </div>
+              <div class="faq-action-grid">
+                <button id="faqAddBtn" type="button" class="primary-btn">新增 FAQ</button>
+                <button id="faqReindexBtn" type="button" class="ghost-btn">FAQ 重新入库</button>
+                <button id="faqToggleSearchBtn" type="button" class="ghost-btn">搜索</button>
+                <button id="faqSearchResetBtn" type="button" class="ghost-btn">清空</button>
+              </div>
+            </div>
+
+            <div id="faqSearchPopover" class="search-popover hidden">
+              <div class="search-popover-header">
+                <span>搜索 FAQ</span>
+                <button id="faqSearchPopoverClose" type="button" class="icon-btn">×</button>
+              </div>
+              <div class="search-popover-body">
+                <input id="faqKeywordInput" type="text" placeholder="输入关键词搜索问题、答案、标签、来源" />
+                <button id="faqSearchBtn" type="button" class="primary-btn">立即搜索</button>
+              </div>
+            </div>
+
+            <div class="faq-list-wrap">
+              <div id="faqList" class="faq-list"></div>
+            </div>
+          </div>
+
+          <div class="faq-editor-panel card">
+            <div class="faq-editor-header">
+              <div>
+                <div class="card-title" id="faqEditorTitle">FAQ 编辑器</div>
+                <div class="sub-info" id="faqEditorHint">点击左侧 FAQ 开始编辑，或新建一条 FAQ。</div>
+              </div>
+              <div class="faq-editor-status-row">
+                <span class="mini-label">当前模式</span>
+                <span id="faqEditorMode" class="status-badge gray">新建</span>
+              </div>
+            </div>
+
+            <div class="faq-right-tools">
+              <div class="faq-tools-card">
+                <div class="faq-tools-title">统计</div>
+                <div class="faq-tools-stats">
+                  <div class="mini-stat-card">
+                    <span>总数</span>
+                    <strong id="faqTotalCount">0</strong>
+                  </div>
+                  <div class="mini-stat-card mini-stat-card-green">
+                    <span>已启用</span>
+                    <strong id="faqActiveCount">0</strong>
+                  </div>
+                  <div class="mini-stat-card mini-stat-card-red">
+                    <span>未启动</span>
+                    <strong id="faqInactiveCount">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="faq-tools-card">
+                <div class="faq-tools-title">筛选</div>
+                <div class="faq-tools-filters">
+                  <select id="faqCategoryFilter">
+                    <option value="">全部类别</option>
+                  </select>
+
+                  <select id="faqStatusFilter">
+                    <option value="">全部状态</option>
+                    <option value="active">已启用</option>
+                    <option value="inactive">未启动</option>
+                  </select>
+                </div>
+                <div id="faqSearchCurrent" class="search-current">当前筛选：全部 FAQ</div>
+              </div>
+            </div>
+
+            <div id="faqActionNotice" class="action-notice hidden"></div>
+
+            <form id="faqForm" class="faq-form">
+              <div class="faq-form-grid">
+                <div class="form-group hidden" id="faqIdRow">
+                  <label for="faqIdInput">FAQ ID</label>
+                  <input id="faqIdInput" type="text" placeholder="系统自动生成" readonly />
+                  <div class="field-tip">FAQ ID 由系统自动生成，不允许手动修改。</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="faqStatusInput">状态</label>
+                  <select id="faqStatusInput">
+                    <option value="active">已启用</option>
+                    <option value="inactive">未启动</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="faqCategoryInput">分类</label>
+                  <div class="inline-select-row">
+                    <select id="faqCategoryInput">
+                      <option value="">请选择分类</option>
+                    </select>
+                    <button type="button" id="faqManageCategoryBtn" class="ghost-btn">管理分类</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="faqPriorityInput">优先级（数字越小越高）</label>
+                  <input id="faqPriorityInput" type="number" min="1" value="1" />
+                  <div class="field-tip">建议：1 = 高优先级，2 = 中优先级，3 = 普通优先级</div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="faqSourceInput">来源</label>
+                  <input id="faqSourceInput" type="text" placeholder="例如：产品手册V1 / 客服规则 / 售后政策手册V1" />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="faqTagsInput">标签</label>
+                  <input id="faqTagsInput" type="text" placeholder="多个标签用英文逗号分隔，例如：产品, 型号, 档案" />
+                </div>
+
+                <div class="form-group full-width">
+                  <div class="label-row">
+                    <label>问题列表</label>
+                    <button type="button" id="addQuestionBtn" class="text-btn">+ 新增一行</button>
+                  </div>
+                  <div id="faqQuestionsList" class="line-list"></div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="faqAnswerInput">答案</label>
+                  <textarea id="faqAnswerInput" rows="8" placeholder="请输入 FAQ 标准答案"></textarea>
+                </div>
+              </div>
+
+              <div class="form-footer">
+                <div class="left-actions">
+                  <button type="button" id="faqNewBtn" class="ghost-btn">清空新建</button>
+                  <button type="button" id="faqDuplicateBtn" class="ghost-btn">另存为新 FAQ</button>
+                </div>
+                <div class="right-actions">
+                  <button type="button" id="faqDeleteBtn" class="danger-btn">删除</button>
+                  <button type="submit" id="faqSaveBtn" class="primary-btn">保存 FAQ</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-rules">
+        <div class="rule-page">
+          <div class="rule-list-panel card">
+            <div class="rule-left-top">
+              <div>
+                <div class="card-title">规则列表</div>
+                <div id="rulesCount" class="sub-info">加载中...</div>
+              </div>
+              <div class="rule-action-grid">
+                <button id="ruleAddBtn" type="button" class="primary-btn">新增规则</button>
+                <button id="ruleReloadBtn" type="button" class="ghost-btn">重新加载规则</button>
+                <button id="ruleToggleSearchBtn" type="button" class="ghost-btn">搜索</button>
+                <button id="ruleSearchResetBtn" type="button" class="ghost-btn">清空</button>
+              </div>
+            </div>
+
+            <div id="ruleSearchPopover" class="search-popover hidden">
+              <div class="search-popover-header">
+                <span>搜索规则</span>
+                <button id="ruleSearchPopoverClose" type="button" class="icon-btn">×</button>
+              </div>
+              <div class="search-popover-body">
+                <input id="ruleKeywordInput" type="text" placeholder="输入规则名、关键词、分类、备注进行搜索" />
+                <button id="ruleSearchBtn" type="button" class="primary-btn">立即搜索</button>
+              </div>
+            </div>
+
+            <div class="rule-list-wrap">
+              <div id="ruleList" class="rule-list"></div>
+            </div>
+          </div>
+
+          <div class="rule-editor-panel card">
+            <div class="rule-editor-header">
+              <div>
+                <div class="card-title" id="ruleEditorTitle">规则编辑器</div>
+                <div class="sub-info" id="ruleEditorHint">点击左侧规则开始编辑，或新建一条规则。</div>
+              </div>
+              <div class="faq-editor-status-row">
+                <span class="mini-label">当前模式</span>
+                <span id="ruleEditorMode" class="status-badge gray">新建</span>
+              </div>
+            </div>
+
+            <div id="ruleActionNotice" class="action-notice hidden"></div>
+
+            <form id="ruleForm" class="rule-form">
+              <div class="rule-form-grid">
+                <div class="form-group hidden" id="ruleIdRow">
+                  <label for="ruleIdInput">规则 ID</label>
+                  <input id="ruleIdInput" type="text" placeholder="系统自动生成" readonly />
+                  <div class="field-tip">规则 ID 由系统自动生成，不允许手动修改。</div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="ruleNameInput">规则名</label>
+                  <input id="ruleNameInput" type="text" placeholder="例如：报价必须人工确认" />
+                </div>
+
+                <div class="form-group">
+                  <label for="ruleCategoryInput">分类</label>
+                  <div class="inline-select-row">
+                    <select id="ruleCategoryInput">
+                      <option value="">请选择分类</option>
+                    </select>
+                    <button type="button" id="ruleManageCategoryBtn" class="ghost-btn">管理分类</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="ruleStatusInput">状态</label>
+                  <select id="ruleStatusInput">
+                    <option value="active">已启用</option>
+                    <option value="inactive">未启动</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="rulePriorityInput">优先级（数字越小越高）</label>
+                  <input id="rulePriorityInput" type="number" min="1" value="1" />
+                  <div class="field-tip">建议：1 = 高优先级，2 = 中优先级，3 = 普通优先级</div>
+                </div>
+
+                <div class="form-group">
+                  <label for="ruleActionInput">动作类型</label>
+                  <select id="ruleActionInput">
+                    <option value="faq_first">优先 FAQ</option>
+                    <option value="manual_required">必须转人工</option>
+                    <option value="doc_first">优先文档</option>
+                    <option value="block_commitment">禁止承诺</option>
+                  </select>
+                </div>
+
+                <div class="form-group full-width">
+                  <div class="label-row">
+                    <label>关键词列表</label>
+                    <button type="button" id="addRuleKeywordBtn" class="text-btn">+ 新增一行</button>
+                  </div>
+                  <div id="ruleKeywordsList" class="line-list"></div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="ruleNoteInput">备注说明</label>
+                  <textarea id="ruleNoteInput" rows="4" placeholder="这条规则是干什么的、适用于什么场景、是否必须转人工"></textarea>
+                </div>
+              </div>
+
+              <div class="form-footer">
+                <div class="left-actions">
+                  <button type="button" id="ruleNewBtn" class="ghost-btn">清空新建</button>
+                  <button type="button" id="ruleDuplicateBtn" class="ghost-btn">另存为新规则</button>
+                </div>
+                <div class="right-actions">
+                  <button type="button" id="ruleDeleteBtn" class="danger-btn">删除</button>
+                  <button type="submit" id="ruleSaveBtn" class="primary-btn">保存规则</button>
+                </div>
+              </div>
+            </form>
+
+            <div class="rule-test-panel">
+              <div class="rule-test-header">
+                <div class="card-title">规则命中测试</div>
+                <div class="sub-info">输入一句客户问题，立即验证是否命中规则。</div>
+              </div>
+              <div class="rule-test-body">
+                <textarea id="ruleTestInput" rows="3" placeholder="例如：客户问价格能不能直接报"></textarea>
+                <button id="ruleTestBtn" type="button" class="primary-btn">测试规则命中</button>
+              </div>
+              <div id="ruleTestResult" class="rule-test-result empty-result">还没有测试结果</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-logs">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-title">系统日志</div>
+            <div class="toolbar-actions">
+              <button id="reloadLogBtn" type="button">刷新日志</button>
+            </div>
+          </div>
+          <pre id="logBox" class="log-box large">加载中...</pre>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-quote-policies">
+        <div class="card quote-policy-card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">报价规则</div>
+              <div class="sub-info">控制 AI 报价草案的折扣边界、审批条件和回复风格。</div>
+            </div>
+            <div class="toolbar-actions">
+              <button id="quotePolicySaveBtn" type="button" class="primary-btn">保存报价策略</button>
+            </div>
+          </div>
+          <div class="quote-policy-form">
+            <div class="form-group">
+              <label for="quoteModeInput">报价模式</label>
+              <select id="quoteModeInput">
+                <option value="draft_only">报价草案</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="quoteDefaultInput">未配置规则时</label>
+              <select id="quoteDefaultInput">
+                <option value="list_price_only">只报标价</option>
+                <option value="no_amount">不出金额</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="quoteMaxDiscountInput">最大折扣比例</label>
+              <input id="quoteMaxDiscountInput" type="number" min="0" max="100" step="0.1" placeholder="例如：10，留空则不允许自动折扣" />
+            </div>
+            <div class="form-group">
+              <label for="quoteReplyStyleInput">回复风格</label>
+              <select id="quoteReplyStyleInput">
+                <option value="sales_talk">销售话术</option>
+                <option value="scheme_first">方案优先</option>
+                <option value="table_like">清单式</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label for="quoteMinMarginInput">最低毛利/底价说明</label>
+              <input id="quoteMinMarginInput" type="text" placeholder="例如：低于标价 10% 需人工审批" />
+            </div>
+            <div class="form-group full-width">
+              <label>需人工确认项</label>
+              <div id="quoteApprovalChecks" class="check-grid"></div>
+            </div>
+            <div class="form-group full-width">
+              <label for="quoteTemplateInput">话术模板</label>
+              <textarea id="quoteTemplateInput" rows="4" placeholder="报价草案回复口径"></textarea>
+            </div>
+          </div>
+          <div id="quotePolicyNotice" class="action-notice hidden"></div>
+        </div>
+
+        <div class="card quote-catalog-card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">产品价目</div>
+              <div id="pricingCatalogCount" class="sub-info">加载中...</div>
+            </div>
+            <div class="toolbar-actions">
+              <button id="pricingRebuildPreviewBtn" type="button" class="ghost-btn">从知识库生成草稿</button>
+              <button id="pricingAddProductBtn" type="button" class="ghost-btn">新增产品</button>
+              <button id="pricingCatalogSaveBtn" type="button" class="primary-btn">保存价目</button>
+            </div>
+          </div>
+          <div class="table-wrap quote-table-wrap">
+            <table class="editable-table">
+              <thead>
+                <tr>
+                  <th>产品</th>
+                  <th>版本</th>
+                  <th>参考标价</th>
+                  <th>历史优惠</th>
+                  <th>来源文件</th>
+                  <th>核心配置</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="pricingProductsBody"></tbody>
+            </table>
+          </div>
+          <div class="toolbar compact-toolbar">
+            <div>
+              <div class="toolbar-title">配件价目</div>
+              <div class="sub-info">用于轨道、FreeD、跟焦、培训等可选项。</div>
+            </div>
+            <div class="toolbar-actions">
+              <button id="pricingAddAccessoryBtn" type="button" class="ghost-btn">新增配件</button>
+            </div>
+          </div>
+          <div class="table-wrap quote-table-wrap">
+            <table class="editable-table">
+              <thead>
+                <tr>
+                  <th>配件名</th>
+                  <th>单位</th>
+                  <th>参考价</th>
+                  <th>来源</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="pricingAccessoriesBody"></tbody>
+            </table>
+          </div>
+          <div id="pricingCatalogNotice" class="action-notice hidden"></div>
+        </div>
+
+        <div class="card quote-json-card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">高级 JSON</div>
+              <div class="sub-info">用于导入导出和排错，日常维护建议使用上方表单。</div>
+            </div>
+            <div class="toolbar-actions">
+              <button id="quoteJsonToggleBtn" type="button" class="ghost-btn">展开高级 JSON</button>
+              <button id="quoteJsonSyncBtn" type="button" class="ghost-btn hidden">从表单同步到 JSON</button>
+              <button id="quoteJsonSaveBtn" type="button" class="primary-btn hidden">保存 JSON 并刷新表单</button>
+            </div>
+          </div>
+          <div id="quoteJsonPanel" class="quote-json-panel hidden">
+            <div class="quote-json-grid">
+              <div class="form-group">
+                <label for="quotePolicyJson">报价策略 JSON</label>
+                <textarea id="quotePolicyJson" rows="12" placeholder="报价规则 JSON"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="pricingCatalogJson">价目表 JSON</label>
+                <textarea id="pricingCatalogJson" rows="12" placeholder="产品价目 JSON"></textarea>
+              </div>
+            </div>
+          </div>
+          <div id="quoteJsonNotice" class="action-notice hidden"></div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-quote-archives">
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">客户报价档案</div>
+              <div id="quoteArchivesCount" class="sub-info">加载中...</div>
+            </div>
+            <div class="toolbar-actions">
+              <input id="quoteArchiveSearchInput" type="text" placeholder="搜索客户、产品、方案、来源" />
+              <button id="quoteArchiveSearchBtn" type="button">搜索</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>客户</th>
+                  <th>需求与方案</th>
+                  <th>参考价格</th>
+                  <th>状态</th>
+                  <th>更新时间</th>
+                </tr>
+              </thead>
+              <tbody id="quoteArchivesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-memories">
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">客户关键画像</div>
+              <div id="memoriesCount" class="sub-info">加载中...</div>
+            </div>
+            <div class="toolbar-actions">
+              <input id="memorySearchInput" type="text" placeholder="搜索客户、产品、偏好、风险标记" />
+              <button id="memorySearchBtn" type="button">搜索</button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>客户</th>
+                  <th>画像</th>
+                  <th>风险</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="memoriesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="categoryModal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header">
+        <h3>管理分类</h3>
+        <button id="categoryModalClose" type="button" class="icon-btn">×</button>
+      </div>
+      <div class="modal-body category-modal-body">
+        <div class="category-manage-top">
+          <input id="categoryNameInput" type="text" placeholder="输入新的分类名称，例如：发货规则" />
+          <button id="categoryAddBtn" type="button" class="primary-btn">新增分类</button>
+        </div>
+
+        <div class="sub-info">
+          FAQ 和优先规则共用同一套分类。已被 FAQ 或规则使用的分类不能删除。
+        </div>
+
+        <div id="categoryList" class="category-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="categoryModalDone" type="button" class="primary-btn">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="resultModalTitle">操作完成</h3>
+        <button id="resultModalClose" type="button" class="icon-btn">×</button>
+      </div>
+      <div id="resultModalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <button id="resultModalConfirm" type="button" class="primary-btn">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/admin.js?v=faq-editor-26"></script>
+</body>
+</html>
