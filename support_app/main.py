@@ -18,7 +18,7 @@ from support_app.settings import settings
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Local AI Support - Refactored",
-        version="2.1.0",
+        version="2.2.0",
         description="Maintainable API-first local AI customer support service.",
     )
     app.include_router(health_router, prefix="/api/v1")

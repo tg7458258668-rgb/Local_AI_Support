@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>本地 AI 客服管理后台</title>
-  <link rel="stylesheet" href="/static/admin.css?v=faq-editor-24" />
+  <link rel="stylesheet" href="/static/admin.css?v=faq-editor-31" />
 </head>
 <body>
   <div class="admin-layout">
@@ -22,6 +22,9 @@
         <button class="nav-btn" data-tab="quote-policies">报价规则</button>
         <button class="nav-btn" data-tab="quote-archives">报价档案</button>
         <button class="nav-btn" data-tab="memories">客户记忆</button>
+        <button class="nav-btn" data-tab="learned-knowledge">学习库</button>
+        <button class="nav-btn" data-tab="tuning">训练工作台</button>
+        <button class="nav-btn" data-tab="models">模型设置</button>
         <button class="nav-btn" data-tab="logs">系统日志</button>
       </nav>
 
@@ -707,6 +710,229 @@
           </div>
         </div>
       </section>
+
+      <section class="tab-panel" id="tab-learned-knowledge">
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">纠错学习库</div>
+              <div id="learnedKnowledgeCount" class="sub-info">加载中...</div>
+            </div>
+            <div class="toolbar-actions">
+              <input id="learnedKnowledgeSearchInput" type="text" placeholder="搜索学到的事实、客户、分类" />
+              <button id="learnedKnowledgeSearchBtn" type="button">搜索</button>
+              <button id="learnedKnowledgeReindexBtn" type="button" class="ghost-btn">重建索引</button>
+            </div>
+          </div>
+          <div class="sub-info">
+            测试聊天页通过“你说错了 / 正确是 / 以后记住”等纠错学到的内容会显示在这里。删除后会同步重建文档向量库。
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>学习项</th>
+                  <th>学到的事实</th>
+                  <th>来源</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="learnedKnowledgeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="tab-tuning">
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">自然语言训练工作台</div>
+              <div class="sub-info">用一句话生成规则、话术和回归测试草稿，确认后才生效。</div>
+            </div>
+            <div class="toolbar-actions">
+              <button id="tuningRunTestsBtn" type="button" class="ghost-btn">运行测试集</button>
+              <button id="tuningApplyBtn" type="button" class="primary-btn">应用当前草稿</button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label class="form-field field-wide">
+              <span>优化指令</span>
+              <textarea id="tuningInstructionInput" rows="4" placeholder="例如：以后用户问上次聊的产品价格，要先看客户记忆里的产品"></textarea>
+            </label>
+          </div>
+          <div class="toolbar-actions tuning-actions">
+            <button id="tuningDraftBtn" type="button" class="primary-btn">生成草稿</button>
+            <button id="tuningReloadBtn" type="button" class="ghost-btn">刷新配置</button>
+          </div>
+          <div id="tuningNotice" class="action-notice hidden"></div>
+        </div>
+
+        <div class="card-grid tuning-grid">
+          <div class="card">
+            <div class="card-title">当前草稿</div>
+            <pre id="tuningDraftPreview" class="code-panel">暂无草稿。</pre>
+          </div>
+          <div class="card">
+            <div class="card-title">测试结果</div>
+            <div id="tuningTestSummary" class="sub-info">尚未运行。</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>用例</th>
+                    <th>结果</th>
+                    <th>回答摘要</th>
+                  </tr>
+                </thead>
+                <tbody id="tuningTestTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid tuning-grid">
+          <div class="card">
+            <div class="toolbar">
+              <div>
+                <div class="card-title">行为规则</div>
+                <div class="sub-info">控制什么时候优先使用客户记忆，以及资料不足时是否主动追问。</div>
+              </div>
+              <button id="behaviorRulesSaveBtn" type="button" class="ghost-btn">保存规则</button>
+            </div>
+            <div class="settings-list">
+              <label class="toggle-row">
+                <input id="previousProductAnchorInput" type="checkbox" />
+                <span>
+                  <strong>上次产品优先</strong>
+                  <small>客户问“上次/之前/那个产品”时，优先读取客户记忆里的产品。</small>
+                </span>
+              </label>
+              <label class="toggle-row">
+                <input id="activeGapPromptInput" type="checkbox" />
+                <span>
+                  <strong>资料不足主动追问</strong>
+                  <small>测试页命中不可靠时，主动说明缺少什么资料，而不是硬答。</small>
+                </span>
+              </label>
+              <label class="form-field">
+                <span>上下文触发词</span>
+                <input id="previousContextWordsInput" class="text-input" placeholder="上次、之前、刚才、那个" />
+              </label>
+              <label class="form-field">
+                <span>产品回忆问法</span>
+                <input id="productRecallWordsInput" class="text-input" placeholder="什么机械臂、哪个机械臂、什么产品" />
+              </label>
+              <div class="hint-box">多个词用中文逗号、英文逗号或换行分隔。</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="toolbar">
+              <div>
+                <div class="card-title">话术模板</div>
+                <div class="sub-info">维护资料不足、记忆回答、报价免责声明的客服口径。</div>
+              </div>
+              <button id="answerStylesSaveBtn" type="button" class="ghost-btn">保存话术</button>
+            </div>
+            <div class="settings-list">
+              <label class="form-field">
+                <span>资料不足时怎么说</span>
+                <textarea id="fallbackGapTemplateInput" rows="4" placeholder="我现在还不能确认这个问题，因为..."></textarea>
+              </label>
+              <label class="form-field">
+                <span>引用客户记忆时怎么说</span>
+                <textarea id="memoryRecallTemplateInput" rows="3" placeholder="你上次记录里关注的是 {product}..."></textarea>
+              </label>
+              <label class="form-field">
+                <span>报价免责声明</span>
+                <textarea id="quoteDisclaimerInput" rows="3" placeholder="优惠价、交付时间、合同条款..."></textarea>
+              </label>
+              <div class="hint-box">可用占位符：<strong>{product}</strong> 表示客户记忆里的产品，<strong>{needed_document}</strong> 表示缺少的资料。</div>
+            </div>
+          </div>
+        </div>
+
+        <details class="card advanced-config">
+          <summary>高级 JSON 配置</summary>
+          <div class="card-grid tuning-grid advanced-config-grid">
+            <div>
+              <div class="label-row">
+                <div>
+                  <div class="card-title">行为规则原始配置</div>
+                  <div class="sub-info">仅用于排错或批量复制。</div>
+                </div>
+                <button id="behaviorJsonSaveBtn" type="button" class="ghost-btn">保存 JSON</button>
+              </div>
+              <textarea id="behaviorRulesJson" class="json-editor" rows="14"></textarea>
+            </div>
+            <div>
+              <div class="label-row">
+                <div>
+                  <div class="card-title">话术模板原始配置</div>
+                  <div class="sub-info">仅用于排错或批量复制。</div>
+                </div>
+                <button id="answerJsonSaveBtn" type="button" class="ghost-btn">保存 JSON</button>
+              </div>
+              <textarea id="answerStylesJson" class="json-editor" rows="14"></textarea>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="tab-panel" id="tab-models">
+        <div class="card">
+          <div class="toolbar">
+            <div>
+              <div class="toolbar-title">模型设置</div>
+              <div class="sub-info">切换全局回答模型和向量模型；模型列表来自本机 Ollama。</div>
+            </div>
+            <button id="modelsReloadBtn" type="button" class="ghost-btn">刷新模型</button>
+          </div>
+          <div id="modelsNotice" class="action-notice hidden"></div>
+          <div class="model-status-grid">
+            <div class="model-status-item">
+              <span>Ollama</span>
+              <strong id="modelsOllamaStatus">未知</strong>
+            </div>
+            <div class="model-status-item">
+              <span>当前回答模型</span>
+              <strong id="currentChatModelText">-</strong>
+            </div>
+            <div class="model-status-item">
+              <span>当前向量模型</span>
+              <strong id="currentEmbedModelText">-</strong>
+            </div>
+            <div class="model-status-item">
+              <span>向量索引状态</span>
+              <strong id="embedIndexStatusText">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid tuning-grid">
+          <div class="card">
+            <div class="card-title">回答模型</div>
+            <div class="sub-info">影响客服回答生成。保存后立即全局生效，不需要重启。</div>
+            <label class="form-field">
+              <span>选择回答模型</span>
+              <select id="chatModelSelect" class="text-input"></select>
+            </label>
+            <button id="saveChatModelBtn" type="button" class="primary-btn full-width-btn">保存回答模型</button>
+          </div>
+          <div class="card">
+            <div class="card-title">向量模型</div>
+            <div class="sub-info">影响 FAQ 和文档检索。切换后必须重建向量库。</div>
+            <label class="form-field">
+              <span>选择向量模型</span>
+              <select id="embedModelSelect" class="text-input"></select>
+            </label>
+            <button id="rebuildEmbedModelBtn" type="button" class="danger-btn full-width-btn">保存并重建向量库</button>
+            <div class="hint-box">重建会重新写入 FAQ 和知识库向量索引；如果模型维度不同，这是必须步骤。</div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -747,6 +973,6 @@
     </div>
   </div>
 
-  <script src="/static/admin.js?v=faq-editor-26"></script>
+  <script src="/static/admin.js?v=faq-editor-31"></script>
 </body>
 </html>

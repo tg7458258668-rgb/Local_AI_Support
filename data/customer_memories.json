@@ -1,16 +1,15 @@
 {
-  "api:12121": {
+  "api:001": {
     "channel": "api",
-    "user_id": "12121",
-    "customer_name": "什么",
+    "user_id": "001",
+    "customer_name": "",
     "contact": "",
     "products": [
-      "MINI",
-      "电池"
+      "MINI"
     ],
     "preferences": [],
     "common_questions": [
-      "电池保修多久"
+      "mini 保修多久"
     ],
     "risk_flags": [],
     "scenario": "",
@@ -20,6 +19,6 @@
     "concerns": [],
     "quoted_schemes": [],
     "notes": "",
-    "updated_at": "2026-05-07 19:17:58"
+    "updated_at": "2026-05-07 22:57:12"
   }
 }

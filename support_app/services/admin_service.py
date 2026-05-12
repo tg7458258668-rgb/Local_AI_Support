@@ -3,9 +3,14 @@ from support_app.repositories.document_repository import DocumentRepository
 from support_app.repositories.faq_repository import FAQRepository
 from support_app.repositories.rule_repository import RuleRepository
 from support_app.schemas import CustomerMemoryItem, FAQItem, RuleItem
+from support_app.services.behavior_config_service import BehaviorConfigService
+from support_app.services.behavior_tuning_service import BehaviorTuningService
+from support_app.services.chat_service import ChatService
 from support_app.services.customer_memory_service import CustomerMemoryService
 from support_app.services.document_ingestion_service import DocumentIngestionService
 from support_app.services.faq_index_service import FAQIndexService
+from support_app.services.learning_service import LearningService
+from support_app.services.model_settings_service import ModelSettingsService
 from support_app.services.pricing_catalog_service import PricingCatalogService
 from support_app.services.quote_archive_service import QuoteArchiveService
 from support_app.services.quote_policy_service import QuotePolicyService
@@ -24,6 +29,11 @@ class AdminService:
         pricing_catalog_service: PricingCatalogService,
         quote_policy_service: QuotePolicyService,
         quote_archive_service: QuoteArchiveService,
+        learning_service: LearningService,
+        behavior_config_service: BehaviorConfigService,
+        behavior_tuning_service: BehaviorTuningService,
+        model_settings_service: ModelSettingsService,
+        chat_service: ChatService,
     ):
         self.document_repo = document_repo
         self.faq_repo = faq_repo
@@ -35,6 +45,11 @@ class AdminService:
         self.pricing_catalog_service = pricing_catalog_service
         self.quote_policy_service = quote_policy_service
         self.quote_archive_service = quote_archive_service
+        self.learning_service = learning_service
+        self.behavior_config_service = behavior_config_service
+        self.behavior_tuning_service = behavior_tuning_service
+        self.model_settings_service = model_settings_service
+        self.chat_service = chat_service
 
     def summary(self) -> dict:
         docs = self.document_repo.list()
@@ -186,3 +201,63 @@ class AdminService:
 
     def update_quote_archive(self, channel: str, user_id: str, quote_id: str, payload: dict) -> dict:
         return {"ok": True, "item": self.quote_archive_service.update(channel, user_id, quote_id, payload)}
+
+    def list_learned_knowledge(self, q: str = "") -> dict:
+        return self.learning_service.list(q)
+
+    def delete_learned_knowledge(self, learned_id: str) -> dict:
+        return self.learning_service.delete(learned_id)
+
+    def reindex_learned_knowledge(self) -> dict:
+        return self.learning_service.reindex()
+
+    def get_behavior_rules(self) -> dict:
+        return self.behavior_config_service.get_behavior_rules()
+
+    def update_behavior_rules(self, payload: dict) -> dict:
+        return {"ok": True, "item": self.behavior_config_service.save_behavior_rules(payload)}
+
+    def get_answer_styles(self) -> dict:
+        return self.behavior_config_service.get_answer_styles()
+
+    def update_answer_styles(self, payload: dict) -> dict:
+        return {"ok": True, "item": self.behavior_config_service.save_answer_styles(payload)}
+
+    def create_tuning_draft(self, instruction: str) -> dict:
+        return self.behavior_tuning_service.draft(instruction)
+
+    def apply_tuning_draft(self, payload: dict) -> dict:
+        return self.behavior_tuning_service.apply(payload)
+
+    def list_regression_cases(self) -> dict:
+        return self.behavior_tuning_service.list_regression_cases()
+
+    def update_regression_cases(self, payload: dict) -> dict:
+        return self.behavior_tuning_service.save_regression_cases(payload)
+
+    def run_regression_cases(self, payload: dict | None = None) -> dict:
+        return self.behavior_tuning_service.run_regression_cases(self.chat_service, payload or {})
+
+    def get_models(self) -> dict:
+        return self.model_settings_service.overview()
+
+    def update_chat_model(self, payload: dict) -> dict:
+        item = self.model_settings_service.save_chat_model(str(payload.get("chat_model", "") or ""))
+        return {"ok": True, "settings": item, "models": self.model_settings_service.installed_models()}
+
+    def rebuild_embed_model(self, payload: dict) -> dict:
+        model = str(payload.get("embed_model", "") or "")
+        self.model_settings_service.set_embed_rebuilding(model)
+        try:
+            faq_result = self.faq_index_service.rebuild()
+            doc_result = self.document_ingestion_service.reindex_current_docs()
+        except Exception as exc:
+            item = self.model_settings_service.mark_embed_result("failed", f"{type(exc).__name__}: {exc}")
+            raise ValueError(item["embed_index_message"]) from exc
+        item = self.model_settings_service.mark_embed_result("success", "FAQ 和文档向量库已使用新向量模型重建")
+        return {
+            "ok": True,
+            "settings": item,
+            "faq_reindex": faq_result,
+            "doc_reindex": doc_result,
+        }

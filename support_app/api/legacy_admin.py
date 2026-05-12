@@ -159,6 +159,82 @@ def delete_memory(channel: str, user_id: str, service: AdminService = Depends(ge
     return _handle_errors(lambda: service.delete_memory(channel, user_id))
 
 
+@router.get("/learned-knowledge")
+def learned_knowledge(q: str = Query(default=""), service: AdminService = Depends(get_admin_service)):
+    return service.list_learned_knowledge(q)
+
+
+@router.delete("/learned-knowledge/{learned_id}")
+def delete_learned_knowledge(learned_id: str, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.delete_learned_knowledge(learned_id))
+
+
+@router.post("/learned-knowledge/reindex")
+def reindex_learned_knowledge(service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(service.reindex_learned_knowledge)
+
+
+@router.get("/behavior-rules")
+def behavior_rules(service: AdminService = Depends(get_admin_service)):
+    return service.get_behavior_rules()
+
+
+@router.put("/behavior-rules")
+def update_behavior_rules(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_behavior_rules(payload))
+
+
+@router.get("/answer-styles")
+def answer_styles(service: AdminService = Depends(get_admin_service)):
+    return service.get_answer_styles()
+
+
+@router.put("/answer-styles")
+def update_answer_styles(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_answer_styles(payload))
+
+
+@router.post("/tuning/draft")
+def tuning_draft(payload: dict, service: AdminService = Depends(get_admin_service)):
+    instruction = str(payload.get("instruction", "") or "").strip()
+    return _handle_errors(lambda: service.create_tuning_draft(instruction))
+
+
+@router.post("/tuning/apply")
+def tuning_apply(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.apply_tuning_draft(payload))
+
+
+@router.get("/regression-cases")
+def regression_cases(service: AdminService = Depends(get_admin_service)):
+    return service.list_regression_cases()
+
+
+@router.put("/regression-cases")
+def update_regression_cases(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_regression_cases(payload))
+
+
+@router.post("/regression-cases/run")
+def run_regression_cases(payload: dict | None = None, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.run_regression_cases(payload or {}))
+
+
+@router.get("/models")
+def models(service: AdminService = Depends(get_admin_service)):
+    return service.get_models()
+
+
+@router.put("/models/chat")
+def update_chat_model(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_chat_model(payload))
+
+
+@router.put("/models/embed/rebuild")
+def rebuild_embed_model(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.rebuild_embed_model(payload))
+
+
 @router.get("/quote-policies")
 def quote_policies(service: AdminService = Depends(get_admin_service)):
     return service.get_quote_policies()

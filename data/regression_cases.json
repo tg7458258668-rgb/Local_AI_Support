@@ -1,0 +1,59 @@
+[
+  {
+    "id": "case_previous_product_anchor_mini",
+    "name": "上次聊的机械臂价格优先客户记忆",
+    "message": "上次聊的机械臂多少钱",
+    "test_memory": {
+      "products": [
+        "MINI"
+      ]
+    },
+    "expected_route": "quote_draft",
+    "expected_keywords": [
+      "MINI"
+    ],
+    "forbidden_keywords": [
+      "GRA 旗舰"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "case_mini_warranty_gap",
+    "name": "mini 保修资料不足时主动要文档",
+    "message": "mini 保修多久",
+    "metadata": {
+      "test_page": true
+    },
+    "expected_route": "fallback",
+    "expected_keywords": [
+      "MINI 保修",
+      "质保政策文档"
+    ],
+    "forbidden_keywords": [],
+    "enabled": true
+  },
+  {
+    "id": "case_e9d66403c8",
+    "name": "case_e9d66403c8",
+    "message": "",
+    "channel": "api",
+    "metadata": {},
+    "test_memory": {},
+    "expected_route": "",
+    "expected_keywords": [],
+    "forbidden_keywords": [],
+    "enabled": true
+  },
+  {
+    "id": "case_37dbea5f9d",
+    "name": "case_37dbea5f9d",
+    "message": "",
+    "channel": "api",
+    "metadata": {},
+    "test_memory": {},
+    "expected_route": "",
+    "expected_keywords": [],
+    "forbidden_keywords": [],
+    "enabled": true
+  }
+]

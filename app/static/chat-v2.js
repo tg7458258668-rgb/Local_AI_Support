@@ -9,6 +9,19 @@ const conversationIdInput = document.getElementById("conversation-id-input");
 const memoryStatus = document.getElementById("memory-status");
 const memorySummary = document.getElementById("memory-summary");
 const refreshMemoryBtn = document.getElementById("refresh-memory-btn");
+const learnedCount = document.getElementById("learned-count");
+const gapStatus = document.getElementById("gap-status");
+const testDebugDetails = document.getElementById("test-debug-details");
+const modelStatus = document.getElementById("model-status");
+const modelTestMode = document.getElementById("model-test-mode");
+const modelAInput = document.getElementById("model-a-input");
+const modelBInput = document.getElementById("model-b-input");
+const refreshModelsBtn = document.getElementById("refresh-models-btn");
+
+let modelState = {
+  settings: {},
+  models: []
+};
 
 function escapeHtml(text) {
   if (text === null || text === undefined) return "";
@@ -74,11 +87,23 @@ function setDebugMode(enabled) {
   localStorage.setItem("chat_debug_mode", enabled ? "1" : "0");
 }
 
+function syncDebugVisibility() {
+  const enabled = getDebugMode();
+  if (testDebugDetails) testDebugDetails.classList.toggle("hidden", !enabled);
+  document.querySelectorAll(".msg-meta").forEach(el => {
+    if (enabled) el.classList.remove("hidden");
+    else el.classList.add("hidden");
+  });
+}
+
 function getTesterConfig() {
   return {
     channel: channelInput?.value || "api",
     user_id: userIdInput?.value.trim() || "",
-    conversation_id: conversationIdInput?.value.trim() || ""
+    conversation_id: conversationIdInput?.value.trim() || "",
+    model_mode: modelTestMode?.value || "single",
+    model_a: modelAInput?.value || "",
+    model_b: modelBInput?.value || ""
   };
 }
 
@@ -87,6 +112,9 @@ function saveTesterConfig() {
   localStorage.setItem("chat_test_channel", config.channel);
   localStorage.setItem("chat_test_user_id", config.user_id);
   localStorage.setItem("chat_test_conversation_id", config.conversation_id);
+  localStorage.setItem("chat_model_test_mode", config.model_mode);
+  localStorage.setItem("chat_model_a", config.model_a);
+  localStorage.setItem("chat_model_b", config.model_b);
   updateMemoryStatus();
 }
 
@@ -94,7 +122,51 @@ function loadTesterConfig() {
   if (channelInput) channelInput.value = localStorage.getItem("chat_test_channel") || "api";
   if (userIdInput) userIdInput.value = localStorage.getItem("chat_test_user_id") || "";
   if (conversationIdInput) conversationIdInput.value = localStorage.getItem("chat_test_conversation_id") || "";
+  if (modelTestMode) modelTestMode.value = localStorage.getItem("chat_model_test_mode") || "single";
   updateMemoryStatus();
+  syncCompareMode();
+}
+
+function syncCompareMode() {
+  const compare = (modelTestMode?.value || "single") === "compare";
+  document.querySelectorAll(".compare-only").forEach((el) => el.classList.toggle("hidden", !compare));
+}
+
+function populateModelSelects() {
+  const options = modelState.models.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+  const current = modelState.settings.chat_model || "";
+  for (const select of [modelAInput, modelBInput]) {
+    if (!select) continue;
+    select.innerHTML = options || `<option value="">未读取到模型</option>`;
+  }
+  if (modelAInput) modelAInput.value = localStorage.getItem("chat_model_a") || current;
+  if (modelBInput) {
+    const savedB = localStorage.getItem("chat_model_b") || "";
+    const fallbackB = modelState.models.find((item) => item.name !== modelAInput?.value)?.name || current;
+    modelBInput.value = savedB || fallbackB;
+  }
+}
+
+async function loadModels() {
+  if (modelStatus) modelStatus.textContent = "正在读取当前模型...";
+  try {
+    const resp = await fetch("/api/admin/models");
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.detail || resp.status);
+    modelState.settings = data.settings || {};
+    modelState.models = Array.isArray(data.ollama?.models) ? data.ollama.models : [];
+    populateModelSelects();
+    if (modelStatus) {
+      const installed = modelState.models.length;
+      const chat = modelState.settings.chat_model || "-";
+      const embed = modelState.settings.embed_model || "-";
+      modelStatus.textContent = data.ollama?.online
+        ? `当前回答模型：${chat}｜向量模型：${embed}｜已安装 ${installed} 个模型`
+        : `Ollama 离线：${data.ollama?.error || "-"}`;
+    }
+  } catch (err) {
+    if (modelStatus) modelStatus.textContent = `模型读取失败：${err}`;
+  }
 }
 
 function updateMemoryStatus() {
@@ -170,6 +242,17 @@ async function refreshCurrentMemory() {
       memorySummary.className = "memory-summary empty error";
       memorySummary.textContent = `读取客户画像失败：${err}`;
     }
+  }
+}
+
+async function refreshLearnedKnowledgeCount() {
+  if (!learnedCount) return;
+  try {
+    const resp = await fetch("/api/admin/learned-knowledge");
+    const data = await resp.json();
+    learnedCount.textContent = `${Number(data.total || 0)} 条`;
+  } catch (err) {
+    learnedCount.textContent = "读取失败";
   }
 }
 
@@ -298,6 +381,64 @@ function buildQuoteDebug(metadata) {
   return rows + itemHtml;
 }
 
+function buildLearningDebug(metadata) {
+  const learning = metadata?.learning;
+  if (!learning || typeof learning !== "object") {
+    return `<div class="empty-debug">本轮没有触发纠错学习。测试页中说“你说错了，正确是...”会写入学习库。</div>`;
+  }
+  const item = learning.item || {};
+  return buildKeyValueRows([
+    ["学习开关", learning.enabled ? "启用" : "关闭"],
+    ["识别纠错", learning.detected ? "是" : "否"],
+    ["已写入", learning.saved ? "是" : "否"],
+    ["已入向量库", learning.indexed === false ? "否" : learning.saved ? "是" : ""],
+    ["学习项 ID", item.id],
+    ["学到的事实", item.corrected_fact],
+    ["问题线索", item.question_hint],
+    ["分类", item.category],
+    ["提示", learning.message],
+    ["入库错误", learning.index_error]
+  ]);
+}
+
+function buildGapDebug(metadata) {
+  const gaps = metadata?.knowledge_gaps;
+  if (!gaps || typeof gaps !== "object") {
+    return `<div class="empty-debug">本轮没有主动调试信息。</div>`;
+  }
+  const gapItems = Array.isArray(gaps.gaps) ? gaps.gaps : [];
+  const questions = Array.isArray(gaps.suggested_questions) ? gaps.suggested_questions : [];
+  const docs = Array.isArray(gaps.needed_documents) ? gaps.needed_documents : [];
+  const gapRows = gapItems.map(item => `<li>${escapeHtml(item.title || item.type || "-")}：${escapeHtml(item.detail || "")}</li>`).join("");
+  const questionRows = questions.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+  const docRows = docs.map(item => `<li>${escapeHtml(item)}</li>`).join("");
+  if (!gapRows && !questionRows && !docRows) {
+    return `<div class="empty-debug">当前没有明显知识缺口。</div>`;
+  }
+  return `
+    ${gapRows ? `<div class="source-title">知识缺口</div><ul class="debug-list">${gapRows}</ul>` : ""}
+    ${questionRows ? `<div class="source-title">建议追问客户</div><ul class="debug-list">${questionRows}</ul>` : ""}
+    ${docRows ? `<div class="source-title">建议补充资料</div><ul class="debug-list">${docRows}</ul>` : ""}
+  `;
+}
+
+function renderGapStatus(metadata) {
+  if (!gapStatus) return;
+  const gaps = metadata?.knowledge_gaps;
+  if (!gaps || typeof gaps !== "object") {
+    gapStatus.textContent = "暂无主动调试信息";
+    return;
+  }
+  const gapCount = Array.isArray(gaps.gaps) ? gaps.gaps.length : 0;
+  const questionCount = Array.isArray(gaps.suggested_questions) ? gaps.suggested_questions.length : 0;
+  const docCount = Array.isArray(gaps.needed_documents) ? gaps.needed_documents.length : 0;
+  if (!gapCount && !questionCount && !docCount) {
+    gapStatus.textContent = "当前没有明显缺口";
+    return;
+  }
+  gapStatus.textContent = `缺口 ${gapCount} 个｜建议追问 ${questionCount} 个｜建议补资料 ${docCount} 个`;
+}
+
 function buildRetrievalDebug(data, sources) {
   const retrieval = Array.isArray(data.retrieval_debug) ? data.retrieval_debug : [];
   const sourceRows = sources.map(item => `<li>${escapeHtml(buildSourceText(item))}${item.reason ? ` ｜ ${escapeHtml(item.reason)}` : ""}</li>`).join("");
@@ -313,6 +454,16 @@ function buildRetrievalDebug(data, sources) {
     ${sourceRows ? `<div class="source-title">回答来源</div><ul class="debug-list">${sourceRows}</ul>` : ""}
     ${retrievalRows ? `<div class="source-title">检索候选</div><ul class="debug-list">${retrievalRows}</ul>` : ""}
   `;
+}
+
+function buildModelDebug(metadata) {
+  const models = metadata?.models;
+  if (!models || typeof models !== "object") return "";
+  return buildKeyValueRows([
+    ["回答模型", models.chat_model],
+    ["向量模型", models.embed_model],
+    ["临时覆盖", models.override_used ? "是" : "否"]
+  ]);
 }
 
 function scrollToBottom() {
@@ -345,9 +496,23 @@ function appendLoadingMessage() {
   scrollToBottom();
 }
 
+function appendCompareLoadingMessage(modelName) {
+  const wrap = document.createElement("div");
+  wrap.className = "msg msg-ai compare-loading-message";
+  wrap.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-bubble">
+      <div class="msg-text msg-loading">${escapeHtml(modelName)} 正在回答...</div>
+    </div>
+  `;
+  chatBox.appendChild(wrap);
+  scrollToBottom();
+}
+
 function removeLoadingMessage() {
   const el = document.getElementById("loading-message");
   if (el) el.remove();
+  document.querySelectorAll(".compare-loading-message").forEach((item) => item.remove());
 }
 
 function appendAiMessage(data) {
@@ -377,8 +542,13 @@ function appendAiMessage(data) {
   ]);
   const quoteHtml = buildQuoteDebug(data.metadata || {});
   const retrievalHtml = buildRetrievalDebug(data, sources);
+  const learningHtml = buildLearningDebug(data.metadata || {});
+  const gapHtml = buildGapDebug(data.metadata || {});
+  const modelHtml = buildModelDebug(data.metadata || {});
 
   renderMemorySummary(data.memory || null);
+  renderGapStatus(data.metadata || {});
+  refreshLearnedKnowledgeCount();
 
   const wrap = document.createElement("div");
   wrap.className = "msg msg-ai";
@@ -389,7 +559,10 @@ function appendAiMessage(data) {
       <div class="elapsed-line"><strong>接口总耗时：</strong>${escapeHtml(elapsedText)}</div>
       <div class="msg-meta ${debugMode ? "" : "hidden"}">
         ${buildDebugSection("路由与决策", routeHtml)}
+        ${modelHtml ? buildDebugSection("模型", modelHtml) : ""}
         ${buildDebugSection("客户记忆", buildMemoryDebug(data.memory))}
+        ${buildDebugSection("纠错学习", learningHtml)}
+        ${buildDebugSection("主动建议", gapHtml)}
         ${quoteHtml ? buildDebugSection("报价草案", quoteHtml) : ""}
         ${buildDebugSection("检索命中", retrievalHtml)}
         ${buildDebugSection("耗时", timingRows)}
@@ -409,6 +582,16 @@ async function sendQuestion() {
   appendLoadingMessage();
   saveTesterConfig();
   const config = getTesterConfig();
+  const compareMode = config.model_mode === "compare";
+  const models = compareMode
+    ? [config.model_a, config.model_b].filter(Boolean)
+    : [config.model_a].filter(Boolean);
+
+  if (compareMode && models.length >= 2) {
+    removeLoadingMessage();
+    await sendCompareQuestions(question, config, models.slice(0, 2));
+    return;
+  }
 
   try {
     const resp = await fetch("/api/v1/chat", {
@@ -420,7 +603,8 @@ async function sendQuestion() {
         user_id: config.user_id || null,
         conversation_id: config.conversation_id || null,
         metadata: {
-          test_page: true
+          test_page: true,
+          model_override: config.model_a ? { chat_model: config.model_a } : undefined
         }
       })
     });
@@ -458,6 +642,59 @@ async function sendQuestion() {
   }
 }
 
+async function sendCompareQuestions(question, config, models) {
+  for (const model of models) {
+    appendCompareLoadingMessage(model);
+    try {
+      const resp = await fetch("/api/v1/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: question,
+          channel: config.channel,
+          user_id: null,
+          conversation_id: config.conversation_id || null,
+          metadata: {
+            test_page: true,
+            regression_test: true,
+            model_compare: true,
+            model_override: { chat_model: model }
+          }
+        })
+      });
+      const data = await resp.json();
+      removeLoadingMessage();
+      if (!resp.ok) {
+        appendAiMessage({
+          answer: `${model} 请求失败：${data.detail || resp.status}`,
+          route: "error",
+          matched_rule: "无",
+          faq_top_score: 0,
+          doc_top_score: 0,
+          timings: {},
+          hint: "请检查模型是否可用",
+          sources: [],
+          metadata: { models: { chat_model: model, embed_model: modelState.settings.embed_model, override_used: true } }
+        });
+      } else {
+        data.answer = `【${model}】\n${data.answer || ""}`;
+        appendAiMessage(data);
+      }
+    } catch (err) {
+      removeLoadingMessage();
+      appendAiMessage({
+        answer: `${model} 请求失败：${err}`,
+        route: "error",
+        matched_rule: "无",
+        timings: {},
+        hint: "请检查后端服务是否正常运行",
+        sources: [],
+        metadata: { models: { chat_model: model, embed_model: modelState.settings.embed_model, override_used: true } }
+      });
+    }
+  }
+}
+
 function resetChat() {
   chatBox.innerHTML = `
     <div class="msg msg-ai">
@@ -475,11 +712,13 @@ function resetChat() {
 sendBtn.addEventListener("click", sendQuestion);
 clearBtn.addEventListener("click", resetChat);
 if (refreshMemoryBtn) refreshMemoryBtn.addEventListener("click", refreshCurrentMemory);
+if (refreshModelsBtn) refreshModelsBtn.addEventListener("click", loadModels);
 
-[channelInput, userIdInput, conversationIdInput].forEach((input) => {
+[channelInput, userIdInput, conversationIdInput, modelTestMode, modelAInput, modelBInput].forEach((input) => {
   if (!input) return;
   input.addEventListener("change", () => {
     saveTesterConfig();
+    syncCompareMode();
     refreshCurrentMemory();
   });
   input.addEventListener("input", () => {
@@ -497,12 +736,12 @@ if (debugToggle) {
   debugToggle.checked = getDebugMode();
   debugToggle.addEventListener("change", () => {
     setDebugMode(debugToggle.checked);
-    document.querySelectorAll(".msg-meta").forEach(el => {
-      if (debugToggle.checked) el.classList.remove("hidden");
-      else el.classList.add("hidden");
-    });
+    syncDebugVisibility();
   });
 }
 
 loadTesterConfig();
+loadModels();
 refreshCurrentMemory();
+refreshLearnedKnowledgeCount();
+syncDebugVisibility();

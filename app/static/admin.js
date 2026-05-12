@@ -31,6 +31,18 @@ const pageMap = {
     title: "客户记忆",
     desc: "查看、编辑、删除客户关键画像"
   },
+  "learned-knowledge": {
+    title: "学习库",
+    desc: "查看和删除测试页纠错学习到的知识"
+  },
+  tuning: {
+    title: "训练工作台",
+    desc: "用自然语言生成客服行为规则、话术和回归测试"
+  },
+  models: {
+    title: "模型设置",
+    desc: "切换全局回答模型和向量模型"
+  },
   logs: {
     title: "系统日志",
     desc: "查看当前日志输出"
@@ -73,6 +85,18 @@ const quotePolicyState = {
   policy: {},
   catalog: { products: [], accessories: [], updated_at: "" },
   approvalOptions: ["优惠价", "低于标价", "交付时间", "合同条款", "特殊定制"]
+};
+
+const tuningState = {
+  draft: null,
+  behaviorRules: {},
+  answerStyles: {},
+  regressionCases: []
+};
+
+const modelState = {
+  settings: {},
+  models: []
 };
 
 const LAUNCHER_BASE = "http://127.0.0.1:7999";
@@ -1328,6 +1352,401 @@ async function deleteMemory(channel, userId) {
   }
 }
 
+async function loadLearnedKnowledge(q = "") {
+  const countEl = document.getElementById("learnedKnowledgeCount");
+  const tbody = document.getElementById("learnedKnowledgeTableBody");
+  if (!tbody) return;
+
+  try {
+    const data = await fetchJson(`/api/admin/learned-knowledge?q=${encodeURIComponent(q)}`);
+    const items = Array.isArray(data.items) ? data.items : [];
+    if (countEl) countEl.textContent = `共 ${data.total || 0} 条学习知识`;
+    tbody.innerHTML = "";
+    if (!items.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-cell">暂无纠错学习内容。测试聊天页中输入“你说错了，正确是...”后会写入这里。</td></tr>`;
+      return;
+    }
+    items.forEach((item) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <strong>${escapeHtml(item.category || "学习知识")}</strong>
+          <div class="small">${escapeHtml(item.id || "")}</div>
+          <div class="small">线索：${escapeHtml(item.question_hint || "-")}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(item.corrected_fact || "-")}</div>
+          <div class="small">${escapeHtml(item.source_message || "")}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(item.channel || "api")} / ${escapeHtml(item.user_id || "-")}</div>
+          <div class="small">${escapeHtml(item.conversation_id || "")}</div>
+        </td>
+        <td>${escapeHtml(item.updated_at || item.created_at || "-")}</td>
+        <td>
+          <div class="table-actions">
+            <button type="button" class="danger-btn learned-delete-btn">删除</button>
+          </div>
+        </td>
+      `;
+      tr.querySelector(".learned-delete-btn")?.addEventListener("click", () => deleteLearnedKnowledge(item.id));
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    console.error(e);
+    if (countEl) countEl.textContent = "学习库加载失败";
+  }
+}
+
+async function deleteLearnedKnowledge(id) {
+  if (!id) return;
+  if (!confirm(`确定删除学习知识 ${id} 吗？删除后会重建文档向量库。`)) return;
+  try {
+    await fetchJson(`/api/admin/learned-knowledge/${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+    await loadLearnedKnowledge(document.getElementById("learnedKnowledgeSearchInput")?.value || "");
+    showResultModal("删除成功", "学习知识已删除，索引已重建。");
+  } catch (e) {
+    showResultModal("删除失败", `学习知识删除失败：${e.message}`);
+  }
+}
+
+async function reindexLearnedKnowledge() {
+  try {
+    const data = await fetchJson("/api/admin/learned-knowledge/reindex", { method: "POST" });
+    await loadLearnedKnowledge(document.getElementById("learnedKnowledgeSearchInput")?.value || "");
+    showResultModal("重建完成", `学习库索引已重建，共 ${data.total || 0} 条。`);
+  } catch (e) {
+    showResultModal("重建失败", `学习库索引重建失败：${e.message}`);
+  }
+}
+
+function renderTuningDraft(draft) {
+  const el = document.getElementById("tuningDraftPreview");
+  if (!el) return;
+  if (!draft) {
+    el.textContent = "暂无草稿。";
+    return;
+  }
+  el.textContent = JSON.stringify(draft, null, 2);
+}
+
+function splitWords(value) {
+  return safeText(value)
+    .split(/[\n,，、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function joinWords(items) {
+  return (Array.isArray(items) ? items : []).join("、");
+}
+
+function setChecked(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.checked = Boolean(value);
+}
+
+function setInputValue(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = safeText(value);
+}
+
+function populateTuningForms() {
+  const rules = tuningState.behaviorRules || {};
+  const styles = tuningState.answerStyles || {};
+  const memoryPolicy = rules.memory_policy || {};
+  const fallbackPolicy = rules.fallback_policy || {};
+
+  setChecked("previousProductAnchorInput", memoryPolicy.previous_product_anchor !== false);
+  setChecked("activeGapPromptInput", fallbackPolicy.active_gap_prompt_on_test_page !== false);
+  setInputValue("previousContextWordsInput", joinWords(memoryPolicy.previous_context_words || []));
+  setInputValue("productRecallWordsInput", joinWords(memoryPolicy.product_recall_words || []));
+  setInputValue("fallbackGapTemplateInput", styles.fallback_gap_template || "");
+  setInputValue("memoryRecallTemplateInput", styles.memory_recall_template || "");
+  setInputValue("quoteDisclaimerInput", styles.quote_disclaimer || "");
+}
+
+function collectBehaviorRulesFromForm() {
+  const previousProductAnchorInput = document.getElementById("previousProductAnchorInput");
+  const activeGapPromptInput = document.getElementById("activeGapPromptInput");
+  return {
+    ...(tuningState.behaviorRules || {}),
+    memory_policy: {
+      ...((tuningState.behaviorRules || {}).memory_policy || {}),
+      previous_context_words: splitWords(document.getElementById("previousContextWordsInput")?.value || ""),
+      product_recall_words: splitWords(document.getElementById("productRecallWordsInput")?.value || ""),
+      previous_product_anchor: previousProductAnchorInput ? previousProductAnchorInput.checked : true
+    },
+    fallback_policy: {
+      ...((tuningState.behaviorRules || {}).fallback_policy || {}),
+      active_gap_prompt_on_test_page: activeGapPromptInput ? activeGapPromptInput.checked : true
+    }
+  };
+}
+
+function collectAnswerStylesFromForm() {
+  return {
+    ...(tuningState.answerStyles || {}),
+    fallback_gap_template: document.getElementById("fallbackGapTemplateInput")?.value || "",
+    memory_recall_template: document.getElementById("memoryRecallTemplateInput")?.value || "",
+    quote_disclaimer: document.getElementById("quoteDisclaimerInput")?.value || ""
+  };
+}
+
+async function loadTuningWorkbench() {
+  try {
+    const [rules, styles, cases] = await Promise.all([
+      fetchJson("/api/admin/behavior-rules"),
+      fetchJson("/api/admin/answer-styles"),
+      fetchJson("/api/admin/regression-cases")
+    ]);
+    tuningState.behaviorRules = rules || {};
+    tuningState.answerStyles = styles || {};
+    tuningState.regressionCases = Array.isArray(cases.items) ? cases.items : [];
+    const behaviorEl = document.getElementById("behaviorRulesJson");
+    const stylesEl = document.getElementById("answerStylesJson");
+    if (behaviorEl) behaviorEl.value = JSON.stringify(tuningState.behaviorRules, null, 2);
+    if (stylesEl) stylesEl.value = JSON.stringify(tuningState.answerStyles, null, 2);
+    populateTuningForms();
+    const summary = document.getElementById("tuningTestSummary");
+    if (summary) summary.textContent = `当前回归测试 ${tuningState.regressionCases.length} 条。`;
+  } catch (e) {
+    showActionNotice("tuningNotice", `训练工作台加载失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function createTuningDraft() {
+  const input = document.getElementById("tuningInstructionInput");
+  const instruction = input ? input.value.trim() : "";
+  if (!instruction) {
+    showActionNotice("tuningNotice", "请输入优化指令。", "error", { sticky: true });
+    return;
+  }
+  showActionNotice("tuningNotice", "正在生成草稿，本地 Ollama 不可用时会自动使用规则模板。", "info", { sticky: true });
+  try {
+    const data = await fetchJson("/api/admin/tuning/draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ instruction })
+    });
+    tuningState.draft = data.draft || null;
+    renderTuningDraft(tuningState.draft);
+    const cases = tuningState.draft?.regression_cases?.length || 0;
+    showActionNotice("tuningNotice", `草稿已生成：测试用例 ${cases} 条。确认后点击“应用当前草稿”。`, "success", { sticky: true });
+  } catch (e) {
+    showActionNotice("tuningNotice", `生成草稿失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function applyTuningDraft() {
+  if (!tuningState.draft) {
+    showActionNotice("tuningNotice", "当前没有可应用的草稿。", "error", { sticky: true });
+    return;
+  }
+  try {
+    const data = await fetchJson("/api/admin/tuning/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ draft: tuningState.draft })
+    });
+    tuningState.draft = null;
+    renderTuningDraft(null);
+    await loadTuningWorkbench();
+    showActionNotice("tuningNotice", `草稿已应用，当前回归测试 ${data.regression_cases?.length || 0} 条。`, "success", { sticky: true });
+  } catch (e) {
+    showActionNotice("tuningNotice", `应用草稿失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function saveBehaviorRules(payload) {
+  try {
+    const data = await fetchJson("/api/admin/behavior-rules", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    tuningState.behaviorRules = data.item || payload;
+    const el = document.getElementById("behaviorRulesJson");
+    if (el) el.value = JSON.stringify(tuningState.behaviorRules, null, 2);
+    populateTuningForms();
+    showActionNotice("tuningNotice", "行为规则已保存。", "success", { sticky: true });
+  } catch (e) {
+    showActionNotice("tuningNotice", `保存行为规则失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function saveBehaviorRulesForm() {
+  await saveBehaviorRules(collectBehaviorRulesFromForm());
+}
+
+async function saveBehaviorRulesJson() {
+  const el = document.getElementById("behaviorRulesJson");
+  try {
+    await saveBehaviorRules(JSON.parse(el?.value || "{}"));
+  } catch (e) {
+    showActionNotice("tuningNotice", `JSON 解析失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function saveAnswerStyles(payload) {
+  try {
+    const data = await fetchJson("/api/admin/answer-styles", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    tuningState.answerStyles = data.item || payload;
+    const el = document.getElementById("answerStylesJson");
+    if (el) el.value = JSON.stringify(tuningState.answerStyles, null, 2);
+    populateTuningForms();
+    showActionNotice("tuningNotice", "话术模板已保存。", "success", { sticky: true });
+  } catch (e) {
+    showActionNotice("tuningNotice", `保存话术失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function saveAnswerStylesForm() {
+  await saveAnswerStyles(collectAnswerStylesFromForm());
+}
+
+async function saveAnswerStylesJson() {
+  const el = document.getElementById("answerStylesJson");
+  try {
+    await saveAnswerStyles(JSON.parse(el?.value || "{}"));
+  } catch (e) {
+    showActionNotice("tuningNotice", `JSON 解析失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function runTuningRegressionCases() {
+  const summary = document.getElementById("tuningTestSummary");
+  const tbody = document.getElementById("tuningTestTableBody");
+  if (summary) summary.textContent = "正在运行测试集...";
+  if (tbody) tbody.innerHTML = "";
+  try {
+    const data = await fetchJson("/api/admin/regression-cases/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    if (summary) summary.textContent = `共 ${data.total || 0} 条，通过 ${data.passed || 0} 条，失败 ${data.failed || 0} 条。`;
+    if (!tbody) return;
+    const results = Array.isArray(data.results) ? data.results : [];
+    if (!results.length) {
+      tbody.innerHTML = `<tr><td colspan="3" class="empty-cell">暂无测试结果。</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = "";
+    results.forEach((item) => {
+      const tr = document.createElement("tr");
+      const status = item.passed ? "通过" : `失败：${(item.failures || []).join("；")}`;
+      tr.innerHTML = `
+        <td>
+          <strong>${escapeHtml(item.name || item.id || "-")}</strong>
+          <div class="small">${escapeHtml(item.id || "")}</div>
+        </td>
+        <td><span class="status-badge ${item.passed ? "green" : "red"}">${escapeHtml(status)}</span><div class="small">route: ${escapeHtml(item.route || "-")}</div></td>
+        <td>${escapeHtml((item.answer || "").slice(0, 160))}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    if (summary) summary.textContent = `测试运行失败：${e.message}`;
+  }
+}
+
+function renderModelOptions() {
+  const chatSelect = document.getElementById("chatModelSelect");
+  const embedSelect = document.getElementById("embedModelSelect");
+  const options = modelState.models.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+  if (chatSelect) {
+    chatSelect.innerHTML = options || `<option value="">未读取到模型</option>`;
+    chatSelect.value = modelState.settings.chat_model || "";
+  }
+  if (embedSelect) {
+    embedSelect.innerHTML = options || `<option value="">未读取到模型</option>`;
+    embedSelect.value = modelState.settings.embed_model || "";
+  }
+}
+
+function renderModelStatus(data) {
+  const settings = data.settings || {};
+  const ollama = data.ollama || {};
+  modelState.settings = settings;
+  modelState.models = Array.isArray(ollama.models) ? ollama.models : [];
+  const statusText = ollama.online ? `在线，已安装 ${modelState.models.length} 个模型` : `离线：${ollama.error || "-"}`;
+  const statusEl = document.getElementById("modelsOllamaStatus");
+  if (statusEl) statusEl.textContent = statusText;
+  const chatEl = document.getElementById("currentChatModelText");
+  const embedEl = document.getElementById("currentEmbedModelText");
+  const indexEl = document.getElementById("embedIndexStatusText");
+  if (chatEl) chatEl.textContent = settings.chat_model || "-";
+  if (embedEl) embedEl.textContent = settings.embed_model || "-";
+  if (indexEl) {
+    const statusMap = {
+      not_rebuilt: "未重建",
+      rebuilding: "重建中",
+      success: "成功",
+      failed: "失败"
+    };
+    indexEl.textContent = `${statusMap[settings.embed_index_status] || settings.embed_index_status || "-"}${settings.embed_index_message ? `：${settings.embed_index_message}` : ""}`;
+  }
+  renderModelOptions();
+}
+
+async function loadModels() {
+  try {
+    const data = await fetchJson("/api/admin/models");
+    renderModelStatus(data);
+  } catch (e) {
+    showActionNotice("modelsNotice", `模型信息加载失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function saveChatModel() {
+  const model = document.getElementById("chatModelSelect")?.value || "";
+  if (!model) {
+    showActionNotice("modelsNotice", "请选择回答模型。", "error", { sticky: true });
+    return;
+  }
+  showActionNotice("modelsNotice", "正在保存回答模型...", "loading", { sticky: true });
+  try {
+    const data = await fetchJson("/api/admin/models/chat", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_model: model })
+    });
+    await loadModels();
+    showActionNotice("modelsNotice", `回答模型已切换为：${data.settings?.chat_model || model}`, "success", { sticky: true });
+  } catch (e) {
+    showActionNotice("modelsNotice", `保存回答模型失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
+async function rebuildEmbedModel() {
+  const model = document.getElementById("embedModelSelect")?.value || "";
+  if (!model) {
+    showActionNotice("modelsNotice", "请选择向量模型。", "error", { sticky: true });
+    return;
+  }
+  if (!confirm(`确定切换向量模型为 ${model} 并重建 FAQ 和知识库向量库吗？`)) return;
+  showActionNotice("modelsNotice", "正在重建向量库，页面可能需要等待一段时间...", "loading", { sticky: true });
+  try {
+    const data = await fetchJson("/api/admin/models/embed/rebuild", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ embed_model: model })
+    });
+    await loadModels();
+    showActionNotice("modelsNotice", data.settings?.embed_index_message || "向量库已重建。", "success", { sticky: true });
+  } catch (e) {
+    await loadModels();
+    showActionNotice("modelsNotice", `重建失败：${e.message}`, "error", { sticky: true });
+  }
+}
+
 function renderFaqStats() {
   const totalEl = document.getElementById("faqTotalCount");
   const activeEl = document.getElementById("faqActiveCount");
@@ -2441,6 +2860,45 @@ function bindBaseEvents() {
     });
   }
 
+  const learnedKnowledgeSearchInput = document.getElementById("learnedKnowledgeSearchInput");
+  const learnedKnowledgeSearchBtn = document.getElementById("learnedKnowledgeSearchBtn");
+  const learnedKnowledgeReindexBtn = document.getElementById("learnedKnowledgeReindexBtn");
+  if (learnedKnowledgeSearchBtn) {
+    learnedKnowledgeSearchBtn.addEventListener("click", () => loadLearnedKnowledge(learnedKnowledgeSearchInput?.value || ""));
+  }
+  if (learnedKnowledgeReindexBtn) {
+    learnedKnowledgeReindexBtn.addEventListener("click", reindexLearnedKnowledge);
+  }
+  if (learnedKnowledgeSearchInput) {
+    learnedKnowledgeSearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loadLearnedKnowledge(learnedKnowledgeSearchInput.value || "");
+    });
+  }
+
+  const tuningDraftBtn = document.getElementById("tuningDraftBtn");
+  const tuningApplyBtn = document.getElementById("tuningApplyBtn");
+  const tuningReloadBtn = document.getElementById("tuningReloadBtn");
+  const tuningRunTestsBtn = document.getElementById("tuningRunTestsBtn");
+  const behaviorRulesSaveBtn = document.getElementById("behaviorRulesSaveBtn");
+  const answerStylesSaveBtn = document.getElementById("answerStylesSaveBtn");
+  const behaviorJsonSaveBtn = document.getElementById("behaviorJsonSaveBtn");
+  const answerJsonSaveBtn = document.getElementById("answerJsonSaveBtn");
+  if (tuningDraftBtn) tuningDraftBtn.addEventListener("click", createTuningDraft);
+  if (tuningApplyBtn) tuningApplyBtn.addEventListener("click", applyTuningDraft);
+  if (tuningReloadBtn) tuningReloadBtn.addEventListener("click", loadTuningWorkbench);
+  if (tuningRunTestsBtn) tuningRunTestsBtn.addEventListener("click", runTuningRegressionCases);
+  if (behaviorRulesSaveBtn) behaviorRulesSaveBtn.addEventListener("click", saveBehaviorRulesForm);
+  if (answerStylesSaveBtn) answerStylesSaveBtn.addEventListener("click", saveAnswerStylesForm);
+  if (behaviorJsonSaveBtn) behaviorJsonSaveBtn.addEventListener("click", saveBehaviorRulesJson);
+  if (answerJsonSaveBtn) answerJsonSaveBtn.addEventListener("click", saveAnswerStylesJson);
+
+  const modelsReloadBtn = document.getElementById("modelsReloadBtn");
+  const saveChatModelBtn = document.getElementById("saveChatModelBtn");
+  const rebuildEmbedModelBtn = document.getElementById("rebuildEmbedModelBtn");
+  if (modelsReloadBtn) modelsReloadBtn.addEventListener("click", loadModels);
+  if (saveChatModelBtn) saveChatModelBtn.addEventListener("click", saveChatModel);
+  if (rebuildEmbedModelBtn) rebuildEmbedModelBtn.addEventListener("click", rebuildEmbedModel);
+
   const quotePolicySaveBtn = document.getElementById("quotePolicySaveBtn");
   const pricingCatalogSaveBtn = document.getElementById("pricingCatalogSaveBtn");
   const pricingAddProductBtn = document.getElementById("pricingAddProductBtn");
@@ -2795,10 +3253,14 @@ async function initAdmin() {
   await loadQuotePolicies();
   await loadQuoteArchives();
   await loadMemories();
+  await loadLearnedKnowledge();
+  await loadTuningWorkbench();
+  await loadModels();
   await loadLogs();
 
   renderFaqStats();
-  switchTab("dashboard");
+  const initialTab = window.location.hash ? window.location.hash.replace("#", "") : "dashboard";
+  switchTab(pageMap[initialTab] ? initialTab : "dashboard");
 }
 
 bindBaseEvents();

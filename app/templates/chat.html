@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>本地 AI 客服</title>
-  <link rel="stylesheet" href="/static/chat-v2.css?v=20260507-1" />
+  <link rel="stylesheet" href="/static/chat-v2.css?v=20260508-models-1" />
 </head>
 <body>
   <div class="chat-page">
@@ -30,7 +30,10 @@
             <div class="panel-title">测试客户</div>
             <div id="memory-status" class="panel-subtitle">未填写客户 ID，不会写入长期记忆。</div>
           </div>
-          <button id="refresh-memory-btn" type="button" class="mini-btn">刷新记忆</button>
+          <div class="test-panel-actions">
+            <span class="compact-badge">纠错学习：测试页启用</span>
+            <button id="refresh-memory-btn" type="button" class="mini-btn">刷新记忆</button>
+          </div>
         </div>
 
         <div class="test-fields">
@@ -52,7 +55,51 @@
           </label>
         </div>
 
-        <div id="memory-summary" class="memory-summary empty">当前没有加载客户画像。</div>
+        <div class="model-test-panel">
+          <div class="model-test-head">
+            <div>
+              <div class="detail-title">模型测试</div>
+              <div id="model-status" class="panel-subtitle">正在读取当前模型...</div>
+            </div>
+            <button id="refresh-models-btn" type="button" class="mini-btn">刷新模型</button>
+          </div>
+          <div class="model-test-grid">
+            <label class="test-field">
+              <span>测试模式</span>
+              <select id="model-test-mode">
+                <option value="single">单模型</option>
+                <option value="compare">双模型对比</option>
+              </select>
+            </label>
+            <label class="test-field">
+              <span>模型 A</span>
+              <select id="model-a-input"></select>
+            </label>
+            <label class="test-field compare-only hidden">
+              <span>模型 B</span>
+              <select id="model-b-input"></select>
+            </label>
+          </div>
+        </div>
+
+        <div id="test-debug-details" class="test-debug-details hidden">
+          <div class="detail-block">
+            <div class="detail-title">客户画像</div>
+            <div id="memory-summary" class="memory-summary empty">当前没有加载客户画像。</div>
+          </div>
+
+          <div class="learning-panel">
+            <div class="learning-item">
+              <span>学习库</span>
+              <strong id="learned-count">加载中</strong>
+            </div>
+            <div class="learning-item learning-wide">
+              <span>主动调试</span>
+              <strong id="gap-status">发送问题后显示系统需要什么资料和追问</strong>
+            </div>
+            <a class="mini-btn learning-link" href="/admin#learned-knowledge">查看学习库</a>
+          </div>
+        </div>
       </section>
 
       <main id="chat-box" class="chat-body">
@@ -85,6 +132,6 @@
     </div>
   </div>
 
-  <script src="/static/chat-v2.js?v=20260507-1"></script>
+  <script src="/static/chat-v2.js?v=20260508-models-1"></script>
 </body>
 </html>

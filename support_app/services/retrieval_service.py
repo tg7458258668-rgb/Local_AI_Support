@@ -49,7 +49,8 @@ class RetrievalService:
         self._cache: dict[tuple[str, str, str], tuple[float, RetrievalResult]] = {}
 
     def retrieve(self, query: str, channel: str = "api", user_id: str | None = None) -> RetrievalResult:
-        cache_key = (query.strip().lower(), channel, user_id or "")
+        embed_model = self.ollama.current_embed_model()
+        cache_key = (query.strip().lower(), channel, user_id or "", embed_model)
         cached = self._cache.get(cache_key)
         if cached and time.time() - cached[0] <= self.settings.retrieval_cache_ttl_seconds:
             result = cached[1]
@@ -97,8 +98,9 @@ class RetrievalService:
             category_bonus = 0.04 if category_hint and category_hint in str(payload.get("category", "")) else 0.0
             keyword_bonus = min(overlap * 0.015, 0.09)
             name_bonus = self._name_bonus(query, payload) if source_type == "doc" else 0.0
+            learned_bonus = 0.14 if source_type == "doc" and payload.get("doc_type") == "学习知识" else 0.0
             priority_bonus = max(0, 8 - min(priority, 8)) * 0.004
-            adjusted_score = score + category_bonus + keyword_bonus + name_bonus + priority_bonus
+            adjusted_score = score + category_bonus + keyword_bonus + name_bonus + learned_bonus + priority_bonus
             reason = "向量召回"
             if category_bonus:
                 reason += f"+分类:{category_hint}"
@@ -106,6 +108,8 @@ class RetrievalService:
                 reason += "+关键词重合"
             if name_bonus:
                 reason += "+文件名匹配"
+            if learned_bonus:
+                reason += "+纠错学习"
             candidates.append(RetrievalCandidate(
                 source_type=source_type,
                 score=score,

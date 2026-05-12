@@ -7,13 +7,19 @@ from support_app.repositories.faq_repository import FAQRepository
 from support_app.repositories.category_repository import CategoryRepository
 from support_app.repositories.customer_memory_repository import CustomerMemoryRepository
 from support_app.repositories.json_file_repository import JsonFileRepository
+from support_app.repositories.learned_knowledge_repository import LearnedKnowledgeRepository
 from support_app.repositories.quote_archive_repository import QuoteArchiveRepository
 from support_app.services.admin_service import AdminService
 from support_app.services.audit_service import AuditService
+from support_app.services.behavior_config_service import BehaviorConfigService
+from support_app.services.behavior_tuning_service import BehaviorTuningService
 from support_app.services.chat_service import ChatService
 from support_app.services.customer_memory_service import CustomerMemoryService
 from support_app.services.document_ingestion_service import DocumentIngestionService
 from support_app.services.faq_index_service import FAQIndexService
+from support_app.services.knowledge_gap_service import KnowledgeGapService
+from support_app.services.learning_service import LearningService
+from support_app.services.model_settings_service import ModelSettingsService
 from support_app.services.ollama_client import OllamaClient
 from support_app.services.pricing_catalog_service import PricingCatalogService
 from support_app.services.quote_archive_service import QuoteArchiveService
@@ -41,6 +47,11 @@ def get_faq_repository() -> FAQRepository:
 @lru_cache
 def get_document_repository() -> DocumentRepository:
     return DocumentRepository(settings.data_dir / "docs_chunks" / "docs_chunks.json")
+
+
+@lru_cache
+def get_learned_knowledge_repository() -> LearnedKnowledgeRepository:
+    return LearnedKnowledgeRepository(settings.data_dir / "learned_knowledge.json")
 
 
 @lru_cache
@@ -101,11 +112,53 @@ def get_quote_archive_service() -> QuoteArchiveService:
 
 
 @lru_cache
+def get_behavior_config_service() -> BehaviorConfigService:
+    return BehaviorConfigService(
+        JsonFileRepository(settings.data_dir / "agent_behavior_rules.json"),
+        JsonFileRepository(settings.data_dir / "answer_style_prompts.json"),
+    )
+
+
+@lru_cache
+def get_behavior_tuning_service() -> BehaviorTuningService:
+    return BehaviorTuningService(
+        get_ollama_client(),
+        get_behavior_config_service(),
+        JsonFileRepository(settings.data_dir / "regression_cases.json"),
+        JsonFileRepository(settings.data_dir / "tuning_drafts.json"),
+    )
+
+
+@lru_cache
+def get_model_settings_service() -> ModelSettingsService:
+    return ModelSettingsService(
+        settings,
+        JsonFileRepository(settings.data_dir / "model_settings.json"),
+        get_ollama_client(),
+    )
+
+
+@lru_cache
 def get_quote_service() -> QuoteService:
     return QuoteService(
         get_pricing_catalog_service(),
         get_quote_policy_service(),
         get_quote_archive_service(),
+        get_behavior_config_service(),
+    )
+
+
+@lru_cache
+def get_knowledge_gap_service() -> KnowledgeGapService:
+    return KnowledgeGapService(get_quote_policy_service())
+
+
+@lru_cache
+def get_learning_service() -> LearningService:
+    return LearningService(
+        get_learned_knowledge_repository(),
+        get_document_repository(),
+        get_document_ingestion_service(),
     )
 
 
@@ -119,6 +172,9 @@ def get_chat_service() -> ChatService:
         memory_service=get_customer_memory_service(),
         audit_service=get_audit_service(),
         quote_service=get_quote_service(),
+        learning_service=get_learning_service(),
+        knowledge_gap_service=get_knowledge_gap_service(),
+        behavior_config_service=get_behavior_config_service(),
     )
 
 
@@ -150,4 +206,9 @@ def get_admin_service() -> AdminService:
         pricing_catalog_service=get_pricing_catalog_service(),
         quote_policy_service=get_quote_policy_service(),
         quote_archive_service=get_quote_archive_service(),
+        learning_service=get_learning_service(),
+        behavior_config_service=get_behavior_config_service(),
+        behavior_tuning_service=get_behavior_tuning_service(),
+        model_settings_service=get_model_settings_service(),
+        chat_service=get_chat_service(),
     )

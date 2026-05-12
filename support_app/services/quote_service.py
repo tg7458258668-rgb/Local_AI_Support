@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from support_app.schemas import ChatRequest
+from support_app.services.behavior_config_service import BehaviorConfigService
 from support_app.services.pricing_catalog_service import PricingCatalogService
 from support_app.services.quote_archive_service import QuoteArchiveService
 from support_app.services.quote_policy_service import QuotePolicyService
@@ -17,19 +18,34 @@ class QuoteService:
         catalog_service: PricingCatalogService,
         policy_service: QuotePolicyService,
         archive_service: QuoteArchiveService,
+        behavior_config_service: BehaviorConfigService | None = None,
     ):
         self.catalog_service = catalog_service
         self.policy_service = policy_service
         self.archive_service = archive_service
+        self.behavior_config_service = behavior_config_service
 
     def is_quote_request(self, message: str) -> bool:
         return any(word in message for word in self.INTENT_WORDS)
 
     def draft(self, request: ChatRequest, memory: dict | None, doc_candidates: list[Any]) -> dict[str, Any]:
         needs = self.extract_needs(request.message, memory)
+        memory_anchors = self._memory_product_anchors(request.message, memory)
         matched_products = self.catalog_service.match_products(request.message)
+        if (
+            memory_anchors
+            and not self._explicit_products(request.message)
+            and self._previous_product_anchor_enabled()
+        ):
+            matched_products = self.catalog_service.match_products(" ".join(memory_anchors))
         if not matched_products:
             matched_products = self._products_from_docs(doc_candidates)
+        if (
+            memory_anchors
+            and not self._explicit_products(request.message)
+            and self._previous_product_anchor_enabled()
+        ):
+            matched_products = self._prefer_anchor_products(matched_products, memory_anchors)
         matched_products = self._rank_by_budget(matched_products, needs.get("budget", ""))
         policy = self.policy_service.get()
         recent_quotes = self.archive_service.recent_for_customer(request.channel, request.user_id)
@@ -46,18 +62,21 @@ class QuoteService:
             "sources": [item.get("source", "") for item in matched_products[:5] if item.get("source")],
             "requires_confirmation": confirmation,
             "status": "draft",
+            "memory_product_anchor": memory_anchors[:3],
         }
         answer = self._render_answer(draft)
-        archive_item = self.archive_service.add_for_customer(request.channel, request.user_id, {
-            "need_summary": draft["need_summary"],
-            "recommended_products": [item.get("product", "") for item in matched_products[:3]],
-            "quote_items": quote_items,
-            "reference_total": total,
-            "sources": draft["sources"],
-            "requires_confirmation": confirmation,
-            "answer": answer,
-            "status": "draft",
-        })
+        archive_item = None
+        if not (request.metadata or {}).get("regression_test"):
+            archive_item = self.archive_service.add_for_customer(request.channel, request.user_id, {
+                "need_summary": draft["need_summary"],
+                "recommended_products": [item.get("product", "") for item in matched_products[:3]],
+                "quote_items": quote_items,
+                "reference_total": total,
+                "sources": draft["sources"],
+                "requires_confirmation": confirmation,
+                "answer": answer,
+                "status": "draft",
+            })
         if archive_item:
             draft["archive"] = archive_item
         return {"answer": answer, "draft": draft}
@@ -94,6 +113,45 @@ class QuoteService:
                 "configuration": [line.strip(" -") for line in str(payload.get("text", "")).splitlines() if line.strip()][:12],
             })
         return rows
+
+    @staticmethod
+    def _explicit_products(message: str) -> list[str]:
+        text = str(message or "")
+        return [token for token in ("AIR", "MINI", "GRA", "PRO", "EXT", "mini", "gra", "pro", "ext") if token in text]
+
+    @classmethod
+    def _memory_product_anchors(cls, message: str, memory: dict | None) -> list[str]:
+        if not memory:
+            return []
+        text = str(message or "")
+        if not any(word in text for word in ("上次", "之前", "刚才", "前面", "上一轮", "那个", "这款")):
+            return []
+        products = [str(item).strip().upper() for item in memory.get("products", []) if str(item).strip()]
+        anchors = []
+        for item in products:
+            for token in ("MINI", "GRA", "PRO", "EXT", "AIR"):
+                if token in item and token not in anchors:
+                    anchors.append(token)
+        return anchors
+
+    def _previous_product_anchor_enabled(self) -> bool:
+        if not self.behavior_config_service:
+            return True
+        return bool(self.behavior_config_service.memory_policy().get("previous_product_anchor", True))
+
+    @staticmethod
+    def _prefer_anchor_products(products: list[dict[str, Any]], anchors: list[str]) -> list[dict[str, Any]]:
+        if not anchors:
+            return products
+        anchor_set = {item.upper() for item in anchors}
+
+        def score(item: dict[str, Any]) -> tuple[int, int]:
+            haystack = f"{item.get('product', '')} {item.get('version', '')} {item.get('source', '')} {item.get('doc_name', '')}".upper()
+            matched = sum(1 for token in anchor_set if token in haystack)
+            extra_core_tokens = sum(1 for token in ("GRA", "PRO", "EXT", "AIR") if token in haystack and token not in anchor_set)
+            return (-matched, extra_core_tokens)
+
+        return sorted(products, key=score)
 
     @staticmethod
     def _quote_items(products: list[dict[str, Any]]) -> list[dict[str, Any]]:

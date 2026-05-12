@@ -206,6 +206,16 @@ class DocumentIngestionService:
             "index": index_result,
         }
 
+    def reindex_current_docs(self) -> dict:
+        rows = self.document_repo.list()
+        if not rows:
+            self._delete_docs_collection()
+            self.retrieval_service.clear_cache()
+            return {"collection": self.settings.doc_collection, "chunk_count": 0, "point_count": 0}
+        result = self._rebuild_docs_index(rows)
+        self.retrieval_service.clear_cache()
+        return result
+
     def _extract_text(self, path: Path, ext: str) -> str:
         if ext in {".txt", ".md"}:
             return self._read_text(path)
@@ -525,6 +535,7 @@ class DocumentIngestionService:
                     "price_fields": row.get("price_fields", {}),
                     "quote_items": row.get("quote_items", []),
                     "text": row.get("text", ""),
+                    "learned_id": row.get("learned_id", ""),
                     "updated_at": row.get("updated_at", ""),
                     "priority": row.get("priority", 999),
                 },

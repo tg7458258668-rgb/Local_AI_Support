@@ -5,7 +5,10 @@ from typing import Literal
 from support_app.repositories.rule_repository import RuleRepository
 from support_app.schemas import ChatRequest, ChatResponse, SourceItem, TimingInfo
 from support_app.services.audit_service import AuditService
+from support_app.services.behavior_config_service import BehaviorConfigService
 from support_app.services.customer_memory_service import CustomerMemoryService
+from support_app.services.knowledge_gap_service import KnowledgeGapService
+from support_app.services.learning_service import LearningService
 from support_app.services.ollama_client import OllamaClient
 from support_app.services.prompt_builder import build_docs_prompt, build_faq_prompt, build_handoff_answer
 from support_app.services.quote_service import QuoteService
@@ -23,6 +26,9 @@ class ChatService:
         memory_service: CustomerMemoryService,
         audit_service: AuditService,
         quote_service: QuoteService,
+        learning_service: LearningService,
+        knowledge_gap_service: KnowledgeGapService,
+        behavior_config_service: BehaviorConfigService,
     ):
         self.settings = settings
         self.ollama = ollama
@@ -31,12 +37,16 @@ class ChatService:
         self.memory_service = memory_service
         self.audit_service = audit_service
         self.quote_service = quote_service
+        self.learning_service = learning_service
+        self.knowledge_gap_service = knowledge_gap_service
+        self.behavior_config_service = behavior_config_service
 
     def answer(self, request: ChatRequest) -> ChatResponse:
         start = time.perf_counter()
         timings = TimingInfo()
         user_query = request.message.strip()
         request_id = str(uuid.uuid4())
+        chat_model_override = self._chat_model_override(request)
 
         faq_hits = []
         doc_hits = []
@@ -52,6 +62,112 @@ class ChatService:
             memory = self.memory_service.load_for_request(request)
             memory_context = self.memory_service.render_prompt_block(memory)
             timings.memory_ms = self._elapsed(t)
+            base_metadata = self._base_metadata(request)
+
+            identity_answer = self._identity_answer(user_query)
+            if identity_answer:
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["identity_intent"] = True
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "identity",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=identity_answer,
+                    route="identity",
+                    need_human=False,
+                    hint="身份和寒暄问题已直接回答",
+                    matched_rule=None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
+            memory_recall_answer = self._memory_recall_answer(user_query, memory)
+            if memory_recall_answer:
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "memory_recall",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=memory_recall_answer,
+                    route="memory_recall",
+                    need_human=False,
+                    hint="已根据客户记忆回答",
+                    matched_rule=None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
+            learning = self.learning_service.maybe_learn_from_request(request)
+            if learning.get("detected"):
+                if learning.get("saved"):
+                    t = time.perf_counter()
+                    memory = self.memory_service.update_from_turn(request, learning["message"], "learned_correction")
+                    timings.memory_ms += self._elapsed(t)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["learning"] = learning
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    request.message,
+                    "learned_correction",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=learning.get("message") or "我还需要你补充正确说法或适用范围，才能把这条修正写入学习库。",
+                    route="learned_correction",
+                    need_human=False,
+                    hint="测试页纠错学习已处理" if learning.get("saved") else "纠错内容不足，暂未写入学习库",
+                    matched_rule=None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
 
             t = time.perf_counter()
             matched_rule = self.rule_repo.match(user_query)
@@ -62,6 +178,16 @@ class ChatService:
                 memory = self.memory_service.update_from_turn(request, answer, "handoff")
                 timings.memory_ms += self._elapsed(t)
                 timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "handoff",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    True,
+                )
                 response = ChatResponse(
                     answer=answer,
                     route="handoff",
@@ -77,7 +203,7 @@ class ChatService:
                     channel=request.channel,
                     conversation_id=request.conversation_id,
                     user_id=request.user_id,
-                    metadata=request.metadata,
+                    metadata=metadata,
                 )
                 self._audit(request_id, request, response)
                 return response
@@ -91,6 +217,16 @@ class ChatService:
                 memory = self.memory_service.update_from_turn(request, answer, "handoff")
                 timings.memory_ms += self._elapsed(t)
                 timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "handoff",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    True,
+                )
                 response = ChatResponse(
                     answer=answer,
                     route="handoff",
@@ -106,7 +242,7 @@ class ChatService:
                     channel=request.channel,
                     conversation_id=request.conversation_id,
                     user_id=request.user_id,
-                    metadata=request.metadata,
+                    metadata=metadata,
                 )
                 self._audit(request_id, request, response)
                 return response
@@ -124,6 +260,47 @@ class ChatService:
             timings.doc_retrieval_ms = 0.0
             timings.retrieval_cache_hit = retrieval.cache_hit
 
+            learned_candidate = self._top_learned_candidate(doc_candidates)
+            if (
+                learned_candidate
+                and learned_candidate.adjusted_score >= self.settings.doc_score_threshold
+                and not (faq_hits and faq_top_score >= self.settings.faq_direct_answer_threshold)
+            ):
+                answer = self._direct_learned_answer(learned_candidate)
+                t = time.perf_counter()
+                memory = self.memory_service.update_from_turn(request, answer, "learned_correction")
+                timings.memory_ms += self._elapsed(t)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "learned_correction",
+                    faq_top_score,
+                    doc_top_score,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=answer,
+                    route="learned_correction",
+                    need_human=False,
+                    hint="已优先使用纠错学习库中的口径",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=faq_top_score,
+                    doc_top_score=doc_top_score,
+                    sources=self._format_sources([learned_candidate], "doc"),
+                    retrieval_debug=self._debug_candidates(faq_candidates, doc_candidates),
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
             if self.quote_service.is_quote_request(user_query):
                 t = time.perf_counter()
                 quote_result = self.quote_service.draft(request, memory, doc_candidates)
@@ -133,8 +310,17 @@ class ChatService:
                 memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
                 timings.memory_ms += self._elapsed(t)
                 timings.total_ms = self._elapsed(start)
-                metadata = dict(request.metadata or {})
+                metadata = dict(base_metadata)
                 metadata["quote_draft"] = quote_result["draft"]
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "quote_draft",
+                    faq_top_score,
+                    doc_top_score,
+                    memory,
+                    metadata,
+                    True,
+                )
                 response = ChatResponse(
                     answer=quote_result["answer"],
                     route="quote_draft",
@@ -167,10 +353,15 @@ class ChatService:
             )
             timings.route_decision_ms = self._elapsed(t)
 
+            if route == "doc" and doc_candidates and self._is_learned_candidate(doc_candidates[0]):
+                route = "learned_correction"
+                answer = self._direct_learned_answer(doc_candidates[0])
+                prompt = None
+
             sources: list[SourceItem] = []
             if route in ("faq", "doc") and prompt:
                 t = time.perf_counter()
-                answer = self.ollama.generate(prompt)
+                answer = self.ollama.generate(prompt, model=chat_model_override)
                 timings.answer_generation_ms = self._elapsed(t)
 
                 t = time.perf_counter()
@@ -181,12 +372,25 @@ class ChatService:
                 sources = self._format_sources(faq_candidates, "faq")
             elif route == "doc":
                 sources = self._format_sources(doc_candidates, "doc")
+            elif route == "learned_correction":
+                sources = self._format_sources(doc_candidates, "doc")
 
             t = time.perf_counter()
             memory = self.memory_service.update_from_turn(request, answer, route)
             timings.memory_ms += self._elapsed(t)
 
             timings.total_ms = self._elapsed(start)
+            metadata = dict(base_metadata)
+            metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                user_query,
+                route,
+                faq_top_score,
+                doc_top_score,
+                memory,
+                metadata,
+                need_human,
+            )
+            answer = self._answer_with_active_gap_prompt(answer, route, metadata)
             response = ChatResponse(
                 answer=answer,
                 route=route,
@@ -202,7 +406,7 @@ class ChatService:
                 channel=request.channel,
                 conversation_id=request.conversation_id,
                 user_id=request.user_id,
-                metadata=request.metadata,
+                metadata=metadata,
             )
             self._audit(request_id, request, response)
             return response
@@ -222,7 +426,7 @@ class ChatService:
                 channel=request.channel,
                 conversation_id=request.conversation_id,
                 user_id=request.user_id,
-                metadata=request.metadata,
+                metadata=self._base_metadata(request),
             )
             self._audit(request_id, request, response)
             return response
@@ -294,6 +498,52 @@ class ChatService:
         return route, selected_hits, source_type, prompt, answer, need_human, hint
 
     @staticmethod
+    def _identity_answer(user_query: str) -> str | None:
+        text = user_query.strip()
+        compact = "".join(text.lower().split())
+        normalized = compact.rstrip("？?！!。.")
+        identity_exact = {
+            "你是谁",
+            "你是誰",
+            "你叫什么",
+            "你叫啥",
+            "你是什么",
+            "你是干嘛的",
+            "你能做什么",
+            "你有什么用",
+            "你是谁呀",
+            "你是谁啊",
+            "你是客服吗",
+            "你是机器人吗",
+            "你是ai吗",
+            "你是umoco客服吗",
+            "你是u-moco客服吗",
+            "你是umoco专业客服吗",
+            "你是u-moco专业客服吗",
+        }
+        greeting_exact = {
+            "你好",
+            "您好",
+            "hi",
+            "hello",
+            "在吗",
+            "在不在",
+            "哈喽",
+        }
+        confirmation_prefixes = (
+            "你是u-moco",
+            "你是umoco",
+            "你就是u-moco",
+            "你就是umoco",
+        )
+        if normalized in identity_exact or normalized in greeting_exact or normalized.startswith(confirmation_prefixes):
+            return (
+                "你好，我是 U-MOCO 本地 AI 客服，可以帮你解答产品、报价、方案配置、售后政策和知识库资料问题。"
+                "如果涉及优惠价、合同、交付时间或特殊定制，我会先给参考建议，并提示人工同事复核。"
+            )
+        return None
+
+    @staticmethod
     def _format_sources(candidates: list[RetrievalCandidate], source_type: Literal["faq", "doc"] | None) -> list[SourceItem]:
         sources = []
         for item in candidates:
@@ -359,6 +609,85 @@ class ChatService:
         doc_name = str(payload.get("doc_name") or payload.get("source") or "该报价单")
         clean_name = doc_name.rsplit("_20", 1)[0].replace("_", " ")
         return f"{clean_name} 的{label}是 {amount}。"
+
+    @staticmethod
+    def _is_learned_candidate(candidate: RetrievalCandidate) -> bool:
+        return candidate.payload.get("doc_type") == "学习知识" or candidate.payload.get("source") == "learned_correction"
+
+    @classmethod
+    def _top_learned_candidate(cls, candidates: list[RetrievalCandidate]) -> RetrievalCandidate | None:
+        learned = [item for item in candidates if cls._is_learned_candidate(item)]
+        return learned[0] if learned else None
+
+    @staticmethod
+    def _direct_learned_answer(candidate: RetrievalCandidate) -> str:
+        payload = candidate.payload or {}
+        text = str(payload.get("text", "") or "")
+        fact = ""
+        for line in text.splitlines():
+            if line.startswith("纠错学习："):
+                fact = line.removeprefix("纠错学习：").strip()
+                break
+        fact = fact or text.strip()
+        return fact or "我暂时无法根据现有文档确认，建议人工进一步确认。"
+
+    def _answer_with_active_gap_prompt(self, answer: str, route: str, metadata: dict) -> str:
+        if route != "fallback" or not (metadata or {}).get("test_page"):
+            return answer
+        if not self.behavior_config_service.fallback_policy().get("active_gap_prompt_on_test_page", True):
+            return answer
+        gaps = metadata.get("knowledge_gaps") or {}
+        docs = [str(item).strip() for item in gaps.get("needed_documents", []) if str(item).strip()]
+        questions = [str(item).strip() for item in gaps.get("suggested_questions", []) if str(item).strip()]
+        template = self.behavior_config_service.fallback_gap_template()
+        if docs and template:
+            answer = template.format(needed_document=docs[0])
+        else:
+            answer = "我现在还不能确认这个问题，因为知识库里没有命中足够可靠的资料。"
+        if questions:
+            answer += f"\n如果你要我继续追问客户，我建议先问：{questions[0]}"
+        return answer
+
+    def _memory_recall_answer(self, user_query: str, memory: dict | None) -> str:
+        if not memory:
+            return ""
+        text = str(user_query or "")
+        policy = self.behavior_config_service.memory_policy()
+        previous_words = policy.get("previous_context_words") or ["上次", "之前", "刚才", "前面", "上一轮"]
+        recall_words = policy.get("product_recall_words") or ["什么机械臂", "哪个机械臂", "聊的什么", "是什么产品", "什么产品"]
+        if not any(word in text for word in previous_words):
+            return ""
+        if not any(word in text for word in recall_words):
+            return ""
+        products = [str(item).strip() for item in memory.get("products", []) if str(item).strip()]
+        if not products:
+            return "我这里还没有记录到你上次关注的具体机械臂型号。你可以补一句型号，我会记到客户画像里。"
+        recent = products[-1]
+        template = self.behavior_config_service.memory_recall_template()
+        return template.format(product=recent) if template else f"你上次记录里关注的是 {recent}。"
+
+    def _base_metadata(self, request: ChatRequest) -> dict:
+        metadata = dict(request.metadata or {})
+        metadata["behavior_rules_hit"] = []
+        metadata["memory_policy"] = self.behavior_config_service.memory_policy()
+        override = self._chat_model_override(request)
+        metadata["models"] = {
+            "chat_model": override or self.ollama.current_chat_model(),
+            "embed_model": self.ollama.current_embed_model(),
+            "override_used": bool(override),
+        }
+        return metadata
+
+    @staticmethod
+    def _chat_model_override(request: ChatRequest) -> str | None:
+        metadata = request.metadata or {}
+        if not metadata.get("test_page"):
+            return None
+        override = metadata.get("model_override")
+        if not isinstance(override, dict):
+            return None
+        model = str(override.get("chat_model", "") or "").strip()
+        return model or None
 
     @staticmethod
     def _is_reference_quote_lookup(user_query: str, matched_rule: dict | None) -> bool:

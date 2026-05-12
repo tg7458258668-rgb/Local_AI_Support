@@ -28,6 +28,10 @@ runtime/
 # OS/editor files
 .DS_Store
 
+# Local agent tooling
+.agents/
+skills-lock.json
+
 # Local backups
 *.bak
 

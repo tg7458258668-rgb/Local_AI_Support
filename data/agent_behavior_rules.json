@@ -1,0 +1,34 @@
+{
+  "memory_policy": {
+    "previous_context_words": [
+      "上次",
+      "之前",
+      "刚才",
+      "前面",
+      "上一轮",
+      "那个",
+      "这款"
+    ],
+    "product_recall_words": [
+      "什么机械臂",
+      "哪个机械臂",
+      "聊的什么",
+      "是什么产品",
+      "什么产品"
+    ],
+    "previous_product_anchor": true
+  },
+  "fallback_policy": {
+    "active_gap_prompt_on_test_page": true
+  },
+  "intent_rules": [
+    {
+      "name": "客户问你你能干什么的时候你可以介绍 U-MOCO",
+      "description": "客户问你你能干什么的时候你可以介绍 U-MOCO 业务并询问客户想要咨询什么",
+      "enabled": true
+    }
+  ],
+  "updated_at": "2026-05-12 22:10:04",
+  "trigger": "客户问你你能干什么",
+  "response": "介绍U-MOCO业务并询问客户想要咨询什么"
+}

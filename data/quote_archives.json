@@ -4,6 +4,42 @@
     "user_id": "12121",
     "quotes": [
       {
+        "quote_id": "quote_20260507222119040235",
+        "channel": "api",
+        "user_id": "12121",
+        "status": "draft",
+        "follow_up_note": "",
+        "created_at": "2026-05-07 22:21:19",
+        "updated_at": "2026-05-07 22:21:19",
+        "need_summary": "关注 MINI",
+        "recommended_products": [
+          "U-MOCO AIR + MINI",
+          "U-MOCO MINI"
+        ],
+        "quote_items": [
+          {
+            "name": "U-MOCO AIR + MINI",
+            "quantity": 1,
+            "reference_price": "¥416,000",
+            "historical_offer": "",
+            "source": "mini专业版_freed跟踪_副本.pages"
+          }
+        ],
+        "reference_total": "¥416,000",
+        "sources": [
+          "mini专业版_freed跟踪_副本.pages",
+          "mini标准版报价.pages"
+        ],
+        "requires_confirmation": [
+          "优惠价",
+          "低于标价",
+          "交付时间",
+          "合同条款",
+          "特殊定制"
+        ],
+        "answer": "按你现在的需求，我会先把它当成“关注 MINI”来做报价草案。\n我更建议先看 U-MOCO AIR + MINI，这类方案比较贴近你的拍摄/交付场景，核心配置可以按 U-MOCO、U-MOCO AIR 报价、U-MOCO AIR、机械臂示教器、U-MOCO AIR、摇杆控制器 来展开。\n参考标价先按 ¥416,000 作为预算口径；如果后面要加轨道米数、FreeD 跟踪、跟焦、软件授权或现场培训，我会把这些作为可选项单独拆出来。\n优惠价、交付时间、合同条款和特殊定制需要人工同事复核后才能作为正式报价。当前需要确认：优惠价、低于标价、交付时间、合同条款、特殊定制。"
+      },
+      {
         "quote_id": "quote_20260507191758333777",
         "channel": "api",
         "user_id": "12121",
@@ -146,6 +182,52 @@
           "特殊定制"
         ],
         "answer": "按你现在的需求，我会先把它当成“关注 MINI”来做报价草案。\n我更建议先看 U-MOCO AIR + MINI，这类方案比较贴近你的拍摄/交付场景，核心配置可以按 U-MOCO、U-MOCO AIR 报价、U-MOCO AIR、机械臂示教器、U-MOCO AIR、摇杆控制器 来展开。\n参考标价先按 ¥416,000 作为预算口径；如果后面要加轨道米数、FreeD 跟踪、跟焦、软件授权或现场培训，我会把这些作为可选项单独拆出来。\n优惠价、交付时间、合同条款和特殊定制需要人工同事复核后才能作为正式报价。当前需要确认：优惠价、低于标价、交付时间、合同条款、特殊定制。"
+      }
+    ]
+  },
+  "api:001": {
+    "channel": "api",
+    "user_id": "001",
+    "quotes": [
+      {
+        "quote_id": "quote_20260507230247841008",
+        "channel": "api",
+        "user_id": "001",
+        "status": "draft",
+        "follow_up_note": "",
+        "created_at": "2026-05-07 23:02:47",
+        "updated_at": "2026-05-07 23:02:47",
+        "need_summary": "关注 MINI",
+        "recommended_products": [
+          "U-MOCO GRA",
+          "U-MOCO GRA + PRO",
+          "U-MOCO GRA + PRO + EXT"
+        ],
+        "quote_items": [
+          {
+            "name": "U-MOCO GRA 旗舰版",
+            "quantity": 1,
+            "reference_price": "¥601,000",
+            "historical_offer": "",
+            "source": "GRA旗舰版.pages"
+          }
+        ],
+        "reference_total": "¥601,000",
+        "sources": [
+          "GRA旗舰版.pages",
+          "U-MOCO_PRO_GRA_10轨道.pages",
+          "U-MOCO_PRO_GRA_10轨道.pdf",
+          "U-MOCO_PRO旗舰版.pages",
+          "mini专业版_freed跟踪_副本.pages"
+        ],
+        "requires_confirmation": [
+          "优惠价",
+          "低于标价",
+          "交付时间",
+          "合同条款",
+          "特殊定制"
+        ],
+        "answer": "按你现在的需求，我会先把它当成“关注 MINI”来做报价草案。\n我更建议先看 U-MOCO GRA 旗舰版，这类方案比较贴近你的拍摄/交付场景，核心配置可以按 I U-MOCO、U-MOCO GRA +6米轨道 报价清单、U-MOCO GRA 臂展2米、机械臂示教器、U-MOCO GRA 旗舰、FZ自动跟焦模块&双电机 来展开。\n参考标价先按 ¥601,000 作为预算口径；如果后面要加轨道米数、FreeD 跟踪、跟焦、软件授权或现场培训，我会把这些作为可选项单独拆出来。\n优惠价、交付时间、合同条款和特殊定制需要人工同事复核后才能作为正式报价。当前需要确认：优惠价、低于标价、交付时间、合同条款、特殊定制。"
       }
     ]
   }

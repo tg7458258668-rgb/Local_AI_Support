@@ -1,0 +1,81 @@
+[
+  {
+    "id": "draft_5c889bfe0fe8",
+    "status": "applied",
+    "instruction": "客户问你你能干什么的时候你可以介绍 U-MOCO 业务并询问客户想要咨询什么",
+    "behavior_rules_patch": {
+      "intent_rules": [
+        {
+          "name": "客户问你你能干什么的时候你可以介绍 U-MOCO",
+          "description": "客户问你你能干什么的时候你可以介绍 U-MOCO 业务并询问客户想要咨询什么",
+          "enabled": true
+        }
+      ],
+      "trigger": "客户问你你能干什么",
+      "response": "介绍U-MOCO业务并询问客户想要咨询什么"
+    },
+    "answer_style_patch": {},
+    "regression_cases": [
+      {
+        "id": "case_e9d66403c8",
+        "name": "case_e9d66403c8",
+        "message": "",
+        "channel": "api",
+        "metadata": {},
+        "test_memory": {},
+        "expected_route": "",
+        "expected_keywords": [],
+        "forbidden_keywords": [],
+        "enabled": true
+      },
+      {
+        "id": "case_37dbea5f9d",
+        "name": "case_37dbea5f9d",
+        "message": "",
+        "channel": "api",
+        "metadata": {},
+        "test_memory": {},
+        "expected_route": "",
+        "expected_keywords": [],
+        "forbidden_keywords": [],
+        "enabled": true
+      }
+    ],
+    "notes": [
+      "未识别到专用模板，已保存为通用意图规则草稿。",
+      "Ollama 已参与生成；第一版仍用安全模板补齐结构。"
+    ],
+    "generator": "ollama",
+    "created_at": "2026-05-12 22:08:49",
+    "updated_at": "2026-05-12 22:10:04"
+  },
+  {
+    "id": "draft_fdbcefbd2806",
+    "status": "applied",
+    "instruction": "如果客户说产品前面有限定词比如说“小的”、“大的”优先考虑限定词",
+    "behavior_rules_patch": {
+      "intent_rules": [
+        {
+          "name": "如果客户说产品前面有限定词比如说“小的”、“大的",
+          "description": "如果客户说产品前面有限定词比如说“小的”、“大的”优先考虑限定词",
+          "enabled": true
+        }
+      ]
+    },
+    "answer_style_patch": {
+      "priority_keywords": [
+        "小的",
+        "大的"
+      ],
+      "response_structure": "先明确限定词含义，再关联产品特性"
+    },
+    "regression_cases": [],
+    "notes": [
+      "未识别到专用模板，已保存为通用意图规则草稿。",
+      "Ollama 已参与生成；第一版仍用安全模板补齐结构。"
+    ],
+    "generator": "ollama",
+    "created_at": "2026-05-09 00:36:21",
+    "updated_at": "2026-05-09 00:37:11"
+  }
+]

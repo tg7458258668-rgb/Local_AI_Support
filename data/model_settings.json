@@ -1,0 +1,7 @@
+{
+  "chat_model": "qwen3:8b",
+  "embed_model": "bge-m3:latest",
+  "embed_index_status": "success",
+  "embed_index_message": "FAQ 和文档向量库已使用新向量模型重建",
+  "updated_at": "2026-05-08 23:13:27"
+}

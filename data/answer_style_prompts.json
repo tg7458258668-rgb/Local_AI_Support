@@ -1,0 +1,11 @@
+{
+  "fallback_gap_template": "我现在还不能确认这个问题，因为知识库里没有命中足够可靠的资料。\\n我需要你补充：{needed_document}\\n补充后我会把它入库，后续再问同类问题就能直接按资料回答。",
+  "memory_recall_template": "你上次记录里关注的是 {product}。如果你现在要继续问价格或配置，我会优先按这个型号来查。",
+  "quote_disclaimer": "优惠价、交付时间、合同条款和特殊定制需要人工同事复核后才能作为正式报价。",
+  "updated_at": "2026-05-12 22:10:04",
+  "priority_keywords": [
+    "小的",
+    "大的"
+  ],
+  "response_structure": "先明确限定词含义，再关联产品特性"
+}

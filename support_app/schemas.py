@@ -44,7 +44,7 @@ class TimingInfo(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    route: Literal["faq", "doc", "quote_draft", "handoff", "fallback", "error"]
+    route: Literal["identity", "faq", "doc", "learned_correction", "memory_recall", "quote_draft", "handoff", "fallback", "error"]
     need_human: bool = False
     hint: str = ""
     matched_rule: str | None = None
