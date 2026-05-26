@@ -18,6 +18,21 @@ from rule_loader import match_priority_rule
 client = QdrantClient(url=QDRANT_URL)
 
 
+def _answer_with_refactored_service(user_query: str):
+    try:
+        from support_app.dependencies import get_chat_service
+        from support_app.schemas import ChatRequest
+
+        response = get_chat_service().answer(ChatRequest(message=user_query, channel="api"))
+        data = response.model_dump()
+        timings = data.get("timings") or {}
+        timings["rag_total_ms"] = timings.get("total_ms", 0)
+        data["timings"] = timings
+        return data
+    except Exception:
+        return None
+
+
 def get_embedding(text: str):
     resp = requests.post(
         f"{OLLAMA_URL}/api/embeddings",
@@ -162,6 +177,10 @@ def build_handoff_answer(user_query: str, matched_rule: dict | None):
 
 
 def answer_question(user_query: str):
+    delegated = _answer_with_refactored_service(user_query)
+    if delegated:
+        return delegated
+
     rag_start = time.perf_counter()
 
     timings = {

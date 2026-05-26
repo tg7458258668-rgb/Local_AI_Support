@@ -25,7 +25,7 @@ async def parse_upload_files_request(request: Request) -> tuple[list[tuple[str, 
         name = part.get_param("name", header="content-disposition") or ""
         part_filename = part.get_filename()
         payload = part.get_payload(decode=True) or b""
-        if part_filename and name == "file":
+        if part_filename and name in {"file", "files"}:
             files.append((part_filename, payload))
         elif name:
             charset = part.get_content_charset() or "utf-8"

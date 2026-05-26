@@ -1,0 +1,791 @@
+[
+  {
+    "id": "config_feedback_20260513181005447408",
+    "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+    "verdict": "needs_change",
+    "notes": "销售标记草稿需要调整",
+    "draft": {
+      "ok": true,
+      "status": "draft",
+      "scenario": "live_commerce",
+      "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+      "needs": {
+        "scenario": "live_commerce",
+        "budget": "50万",
+        "budget_value": 500000,
+        "track_length": "6",
+        "camera_payload": "",
+        "camera_count": "4",
+        "tracking_required": true,
+        "freed_required": true,
+        "focus_required": false,
+        "dmx_required": false,
+        "keyboard_required": false,
+        "training_required": true,
+        "delivery_urgency": "下个月",
+        "explicit_products": [],
+        "raw_message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。"
+      },
+      "modules": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "module_type": "core_arm",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reference_price": "¥508,000",
+          "catalog_item": {
+            "product": "U-MOCO GRA + EXT",
+            "version": "旗舰版",
+            "base_price": "¥508,000",
+            "historical_offer": "¥442,000",
+            "source": "台湾GRA_4米地轨报价.pdf",
+            "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+            "configuration": [
+              "U-MOCO GRA",
+              "U-MOCO GRA",
+              "机械臂示教器",
+              "多功能挂载兔笼",
+              "摇杆控制器基础版",
+              "自动跟焦模块及双跟焦电机",
+              "轨道电机驱动",
+              "视频采集卡(SDI/HDMI)",
+              "U-MOCO 机械臂软件",
+              "U-MOCO 机械臂专业版功能授权",
+              "影视地面轨道"
+            ]
+          },
+          "review_required": false
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "module_type": "control",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "module_type": "software",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "module_type": "live_control",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "module_type": "track",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "source": "历史报价单",
+          "reference_price": "¥15,000",
+          "catalog_item": {
+            "name": "影视地面轨道",
+            "unit": "米",
+            "reference_price": "¥15,000",
+            "source": "历史报价单"
+          },
+          "review_required": false
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "module_type": "accessory",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "module_type": "service",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        }
+      ],
+      "quote_items": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "¥508,000",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "review_required": true
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "quantity": 6,
+          "unit": "米",
+          "reference_price": "¥15,000",
+          "source": "历史报价单",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "review_required": true
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "review_required": true
+        }
+      ],
+      "source_refs": [
+        {
+          "doc_name": "U-MOCO团播系统_2025.03_20260507021912",
+          "section": "全文",
+          "source": "U-MOCO团播系统_2025.03.pdf",
+          "category": "产品资料",
+          "score": 7,
+          "snippet": "文档类型：产品资料；解析方式：pdf_text_ocr；价格字段：全部金额=￥16,000、¥100,000、￥18,000、￥20,000、￥10,000\n[第1页]\n精确每一帧，让专业触手可及\n精准｜高效｜智能\n[第1页 OCR]\n[OCR page_001.png]\n- U-MOCO\n精准| 高效|智能\nHU-MOCO\nI.\nU-MOCO\nU-MOCO\n精确每一帧，让专业触手可及\n[第2页]\n1st Art Company in CA\nU-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供\n专业机械臂"
+        },
+        {
+          "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+          "section": "全文",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥442,000；总价（含税13%）=¥508,000；总价=¥508,000；全部金额=¥458,000、¥12,500、¥50,000、¥508,000、¥442,000\n[第1页]\n设备报价\n日期：\n2023/10/16\n报价细节\n名称\n内容\n单价\n数量单位\n合计\nU-MOCO GRA\n旗舰版\n-U-MOCO GRA\n-集成一体化底座\n-机械臂示教器\n-多功能挂载兔笼\n-相机多功能支架\n-相机L支架\n-影视多功能接口模块  （SDI/HDMI/\n"
+        },
+        {
+          "doc_name": "GRA旗舰版_20260507021701",
+          "section": "全文",
+          "source": "GRA旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥601,000；合计=¥508,000；全部金额=¥508,000、¥15,500、¥1、¥601,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO GRA +6米轨道 报价清单\n名称\n内容\n-U-MOCO GRA 臂展2米\n负载22公斤\n集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-L挂 套件\n-骑士轮套件\nU-MOCO GRA 旗舰\n-影视多功能接口模块\n版\n（SDIHDMI/V挂口等"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021833",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[OCR preview.jpg]\nU-MOCO\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块\n（SDVHDMIV挂口等）\n"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021843",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[第1页]\n设备报价\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n单价\n数量\n单位\n合计\nU-MOCO PRO 旗\n舰版\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块  （SDI/HDM"
+        },
+        {
+          "doc_name": "U-MOCO_PRO旗舰版_20260507021900",
+          "section": "全文",
+          "source": "U-MOCO_PRO旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥778,000；全部金额=¥778,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO PRO 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-倒挂挂载板套件\n影视多功能接口模块（SDVHDMIN挂口等）\n-U-MOCO摇杆控制器\nU-MOCO\nPRO 旗舰版\n-影视专用线束（臂体内走线）\n-多功能骑士轮套件\n-影视轨道电机\n-图像"
+        }
+      ],
+      "missing_questions": [
+        "客户使用的相机、镜头和附件总重量大约多少？"
+      ],
+      "review_flags": [
+        "当前结果是内部配置与报价项草稿，不是正式报价。",
+        "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+        "客户需求信息未完整，缺失问题未确认前不应发送正式报价。",
+        "客户提到优惠、合同、交付或承诺类事项，必须人工确认。"
+      ],
+      "summary": "已按直播间/团播场景生成配置草稿。核心模块：U-MOCO GRA + EXT、机械臂示教器 / 摇杆控制器、U-MOCO OS / 运镜设计软件。可选/需拆项：U-MOCO LIVE / 直播可编程键盘、影视地面轨道、FreeD / XR 跟踪协议、上门部署培训。客户预算线索：50万。还需补问 1 个关键信息。",
+      "metadata": {
+        "source": "admin_sales_workbench"
+      },
+      "generated_at": "2026-05-13 18:08:33"
+    },
+    "created_at": "2026-05-13 18:10:05"
+  },
+  {
+    "id": "config_feedback_20260513181003935354",
+    "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+    "verdict": "usable",
+    "notes": "销售标记草稿可用",
+    "draft": {
+      "ok": true,
+      "status": "draft",
+      "scenario": "live_commerce",
+      "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+      "needs": {
+        "scenario": "live_commerce",
+        "budget": "50万",
+        "budget_value": 500000,
+        "track_length": "6",
+        "camera_payload": "",
+        "camera_count": "4",
+        "tracking_required": true,
+        "freed_required": true,
+        "focus_required": false,
+        "dmx_required": false,
+        "keyboard_required": false,
+        "training_required": true,
+        "delivery_urgency": "下个月",
+        "explicit_products": [],
+        "raw_message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。"
+      },
+      "modules": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "module_type": "core_arm",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reference_price": "¥508,000",
+          "catalog_item": {
+            "product": "U-MOCO GRA + EXT",
+            "version": "旗舰版",
+            "base_price": "¥508,000",
+            "historical_offer": "¥442,000",
+            "source": "台湾GRA_4米地轨报价.pdf",
+            "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+            "configuration": [
+              "U-MOCO GRA",
+              "U-MOCO GRA",
+              "机械臂示教器",
+              "多功能挂载兔笼",
+              "摇杆控制器基础版",
+              "自动跟焦模块及双跟焦电机",
+              "轨道电机驱动",
+              "视频采集卡(SDI/HDMI)",
+              "U-MOCO 机械臂软件",
+              "U-MOCO 机械臂专业版功能授权",
+              "影视地面轨道"
+            ]
+          },
+          "review_required": false
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "module_type": "control",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "module_type": "software",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "module_type": "live_control",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "module_type": "track",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "source": "历史报价单",
+          "reference_price": "¥15,000",
+          "catalog_item": {
+            "name": "影视地面轨道",
+            "unit": "米",
+            "reference_price": "¥15,000",
+            "source": "历史报价单"
+          },
+          "review_required": false
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "module_type": "accessory",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "module_type": "service",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        }
+      ],
+      "quote_items": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "¥508,000",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "review_required": true
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "quantity": 6,
+          "unit": "米",
+          "reference_price": "¥15,000",
+          "source": "历史报价单",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "review_required": true
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "review_required": true
+        }
+      ],
+      "source_refs": [
+        {
+          "doc_name": "U-MOCO团播系统_2025.03_20260507021912",
+          "section": "全文",
+          "source": "U-MOCO团播系统_2025.03.pdf",
+          "category": "产品资料",
+          "score": 7,
+          "snippet": "文档类型：产品资料；解析方式：pdf_text_ocr；价格字段：全部金额=￥16,000、¥100,000、￥18,000、￥20,000、￥10,000\n[第1页]\n精确每一帧，让专业触手可及\n精准｜高效｜智能\n[第1页 OCR]\n[OCR page_001.png]\n- U-MOCO\n精准| 高效|智能\nHU-MOCO\nI.\nU-MOCO\nU-MOCO\n精确每一帧，让专业触手可及\n[第2页]\n1st Art Company in CA\nU-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供\n专业机械臂"
+        },
+        {
+          "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+          "section": "全文",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥442,000；总价（含税13%）=¥508,000；总价=¥508,000；全部金额=¥458,000、¥12,500、¥50,000、¥508,000、¥442,000\n[第1页]\n设备报价\n日期：\n2023/10/16\n报价细节\n名称\n内容\n单价\n数量单位\n合计\nU-MOCO GRA\n旗舰版\n-U-MOCO GRA\n-集成一体化底座\n-机械臂示教器\n-多功能挂载兔笼\n-相机多功能支架\n-相机L支架\n-影视多功能接口模块  （SDI/HDMI/\n"
+        },
+        {
+          "doc_name": "GRA旗舰版_20260507021701",
+          "section": "全文",
+          "source": "GRA旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥601,000；合计=¥508,000；全部金额=¥508,000、¥15,500、¥1、¥601,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO GRA +6米轨道 报价清单\n名称\n内容\n-U-MOCO GRA 臂展2米\n负载22公斤\n集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-L挂 套件\n-骑士轮套件\nU-MOCO GRA 旗舰\n-影视多功能接口模块\n版\n（SDIHDMI/V挂口等"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021833",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[OCR preview.jpg]\nU-MOCO\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块\n（SDVHDMIV挂口等）\n"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021843",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[第1页]\n设备报价\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n单价\n数量\n单位\n合计\nU-MOCO PRO 旗\n舰版\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块  （SDI/HDM"
+        },
+        {
+          "doc_name": "U-MOCO_PRO旗舰版_20260507021900",
+          "section": "全文",
+          "source": "U-MOCO_PRO旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥778,000；全部金额=¥778,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO PRO 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-倒挂挂载板套件\n影视多功能接口模块（SDVHDMIN挂口等）\n-U-MOCO摇杆控制器\nU-MOCO\nPRO 旗舰版\n-影视专用线束（臂体内走线）\n-多功能骑士轮套件\n-影视轨道电机\n-图像"
+        }
+      ],
+      "missing_questions": [
+        "客户使用的相机、镜头和附件总重量大约多少？"
+      ],
+      "review_flags": [
+        "当前结果是内部配置与报价项草稿，不是正式报价。",
+        "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+        "客户需求信息未完整，缺失问题未确认前不应发送正式报价。",
+        "客户提到优惠、合同、交付或承诺类事项，必须人工确认。"
+      ],
+      "summary": "已按直播间/团播场景生成配置草稿。核心模块：U-MOCO GRA + EXT、机械臂示教器 / 摇杆控制器、U-MOCO OS / 运镜设计软件。可选/需拆项：U-MOCO LIVE / 直播可编程键盘、影视地面轨道、FreeD / XR 跟踪协议、上门部署培训。客户预算线索：50万。还需补问 1 个关键信息。",
+      "metadata": {
+        "source": "admin_sales_workbench"
+      },
+      "generated_at": "2026-05-13 18:08:33"
+    },
+    "created_at": "2026-05-13 18:10:03"
+  },
+  {
+    "id": "config_feedback_20260513181003170773",
+    "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+    "verdict": "usable",
+    "notes": "销售标记草稿可用",
+    "draft": {
+      "ok": true,
+      "status": "draft",
+      "scenario": "live_commerce",
+      "message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。",
+      "needs": {
+        "scenario": "live_commerce",
+        "budget": "50万",
+        "budget_value": 500000,
+        "track_length": "6",
+        "camera_payload": "",
+        "camera_count": "4",
+        "tracking_required": true,
+        "freed_required": true,
+        "focus_required": false,
+        "dmx_required": false,
+        "keyboard_required": false,
+        "training_required": true,
+        "delivery_urgency": "下个月",
+        "explicit_products": [],
+        "raw_message": "客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。"
+      },
+      "modules": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "module_type": "core_arm",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reference_price": "¥508,000",
+          "catalog_item": {
+            "product": "U-MOCO GRA + EXT",
+            "version": "旗舰版",
+            "base_price": "¥508,000",
+            "historical_offer": "¥442,000",
+            "source": "台湾GRA_4米地轨报价.pdf",
+            "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+            "configuration": [
+              "U-MOCO GRA",
+              "U-MOCO GRA",
+              "机械臂示教器",
+              "多功能挂载兔笼",
+              "摇杆控制器基础版",
+              "自动跟焦模块及双跟焦电机",
+              "轨道电机驱动",
+              "视频采集卡(SDI/HDMI)",
+              "U-MOCO 机械臂软件",
+              "U-MOCO 机械臂专业版功能授权",
+              "影视地面轨道"
+            ]
+          },
+          "review_required": false
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "module_type": "control",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "module_type": "software",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "module_type": "live_control",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "module_type": "track",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "source": "历史报价单",
+          "reference_price": "¥15,000",
+          "catalog_item": {
+            "name": "影视地面轨道",
+            "unit": "米",
+            "reference_price": "¥15,000",
+            "source": "历史报价单"
+          },
+          "review_required": false
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "module_type": "accessory",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "module_type": "service",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "source": "",
+          "reference_price": "",
+          "catalog_item": {},
+          "review_required": true
+        }
+      ],
+      "quote_items": [
+        {
+          "name": "U-MOCO GRA + EXT",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "¥508,000",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "reason": "U-MOCO GRA + EXT 命中直播/团播场景，且客户提到轨道需求，适合先作为核心机械臂方案拆解。",
+          "review_required": true
+        },
+        {
+          "name": "机械臂示教器 / 摇杆控制器",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "直播/团播现场需要销售确认基础操控方式，通常随核心方案出现。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO OS / 运镜设计软件",
+          "role": "required",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播自动化运镜需要软件承载场景、时间线或按键映射。",
+          "review_required": false
+        },
+        {
+          "name": "U-MOCO LIVE / 直播可编程键盘",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播流程常需要一键切歌、景别切换、启动/停止自动运镜。",
+          "review_required": false
+        },
+        {
+          "name": "影视地面轨道",
+          "role": "optional",
+          "quantity": 6,
+          "unit": "米",
+          "reference_price": "¥15,000",
+          "source": "历史报价单",
+          "reason": "客户提到轨道、走位、全景或空间调度，建议拆成独立报价项。",
+          "review_required": true
+        },
+        {
+          "name": "FreeD / XR 跟踪协议",
+          "role": "optional",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "客户提到虚拟、XR 或跟踪，需要作为独立可选项并人工确认适配。",
+          "review_required": true
+        },
+        {
+          "name": "上门部署培训",
+          "role": "recommended",
+          "quantity": 1,
+          "unit": "项",
+          "reference_price": "",
+          "source": "",
+          "reason": "团播交付通常需要现场安装、按键映射和操作培训；差旅与排期需人工确认。",
+          "review_required": true
+        }
+      ],
+      "source_refs": [
+        {
+          "doc_name": "U-MOCO团播系统_2025.03_20260507021912",
+          "section": "全文",
+          "source": "U-MOCO团播系统_2025.03.pdf",
+          "category": "产品资料",
+          "score": 7,
+          "snippet": "文档类型：产品资料；解析方式：pdf_text_ocr；价格字段：全部金额=￥16,000、¥100,000、￥18,000、￥20,000、￥10,000\n[第1页]\n精确每一帧，让专业触手可及\n精准｜高效｜智能\n[第1页 OCR]\n[OCR page_001.png]\n- U-MOCO\n精准| 高效|智能\nHU-MOCO\nI.\nU-MOCO\nU-MOCO\n精确每一帧，让专业触手可及\n[第2页]\n1st Art Company in CA\nU-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供\n专业机械臂"
+        },
+        {
+          "doc_name": "台湾GRA_4米地轨报价_20260507021652",
+          "section": "全文",
+          "source": "台湾GRA_4米地轨报价.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥442,000；总价（含税13%）=¥508,000；总价=¥508,000；全部金额=¥458,000、¥12,500、¥50,000、¥508,000、¥442,000\n[第1页]\n设备报价\n日期：\n2023/10/16\n报价细节\n名称\n内容\n单价\n数量单位\n合计\nU-MOCO GRA\n旗舰版\n-U-MOCO GRA\n-集成一体化底座\n-机械臂示教器\n-多功能挂载兔笼\n-相机多功能支架\n-相机L支架\n-影视多功能接口模块  （SDI/HDMI/\n"
+        },
+        {
+          "doc_name": "GRA旗舰版_20260507021701",
+          "section": "全文",
+          "source": "GRA旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥601,000；合计=¥508,000；全部金额=¥508,000、¥15,500、¥1、¥601,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO GRA +6米轨道 报价清单\n名称\n内容\n-U-MOCO GRA 臂展2米\n负载22公斤\n集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-L挂 套件\n-骑士轮套件\nU-MOCO GRA 旗舰\n-影视多功能接口模块\n版\n（SDIHDMI/V挂口等"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021833",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[OCR preview.jpg]\nU-MOCO\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块\n（SDVHDMIV挂口等）\n"
+        },
+        {
+          "doc_name": "U-MOCO_PRO_GRA_10轨道_20260507021843",
+          "section": "全文",
+          "source": "U-MOCO_PRO_GRA_10轨道.pdf",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pdf_text；价格字段：优惠价=¥850,000；总价（含税13%）=¥1,030,000；全部金额=¥880,000、¥15,000、¥150,000、¥1,030,000、¥850,000\n[第1页]\n设备报价\nU-MOCO PRO 臂展2.7米负载50公斤 报价清单\n名称\n内容\n单价\n数量\n单位\n合计\nU-MOCO PRO 旗\n舰版\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能倒挂板\n-相机多功能支架\n-影视多功能接口模块  （SDI/HDM"
+        },
+        {
+          "doc_name": "U-MOCO_PRO旗舰版_20260507021900",
+          "section": "全文",
+          "source": "U-MOCO_PRO旗舰版.pages",
+          "category": "报价单",
+          "score": 6,
+          "snippet": "文档类型：报价单；解析方式：pages_preview_ocr；价格字段：总价（含税13%）=¥778,000；全部金额=¥778,000\n[OCR preview.jpg]\nI U-MOCO\nU-MOCO PRO 报价清单\n名称\n内容\n-U-MOCO PRO 臂展2.7米\n-集成一体化底座\n-机械臂示教器\n-多功能挂在套件\n-倒挂挂载板套件\n影视多功能接口模块（SDVHDMIN挂口等）\n-U-MOCO摇杆控制器\nU-MOCO\nPRO 旗舰版\n-影视专用线束（臂体内走线）\n-多功能骑士轮套件\n-影视轨道电机\n-图像"
+        }
+      ],
+      "missing_questions": [
+        "客户使用的相机、镜头和附件总重量大约多少？"
+      ],
+      "review_flags": [
+        "当前结果是内部配置与报价项草稿，不是正式报价。",
+        "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+        "客户需求信息未完整，缺失问题未确认前不应发送正式报价。",
+        "客户提到优惠、合同、交付或承诺类事项，必须人工确认。"
+      ],
+      "summary": "已按直播间/团播场景生成配置草稿。核心模块：U-MOCO GRA + EXT、机械臂示教器 / 摇杆控制器、U-MOCO OS / 运镜设计软件。可选/需拆项：U-MOCO LIVE / 直播可编程键盘、影视地面轨道、FreeD / XR 跟踪协议、上门部署培训。客户预算线索：50万。还需补问 1 个关键信息。",
+      "metadata": {
+        "source": "admin_sales_workbench"
+      },
+      "generated_at": "2026-05-13 18:08:33"
+    },
+    "created_at": "2026-05-13 18:10:03"
+  }
+]

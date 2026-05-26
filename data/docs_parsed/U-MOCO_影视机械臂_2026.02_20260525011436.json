@@ -1,0 +1,1400 @@
+{
+  "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+  "display_name": "U-MOCO+影视机械臂_2026.02",
+  "source_file": "U-MOCO_影视机械臂_2026.02.pdf",
+  "file_type": "pdf",
+  "doc_type": "产品资料",
+  "extraction_method": "pdf_text_ocr",
+  "text_char_count": 8923,
+  "price_fields": {
+    "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+  },
+  "quote_items": [
+    "￥198,000",
+    "￥208,000",
+    "￥318,000",
+    "￥328,000",
+    "¥ 368,000",
+    "¥ 548,000",
+    "￥438,000",
+    "￥448,000",
+    "￥508,000",
+    "￥978,000",
+    "￥708,000",
+    "￥718,000",
+    "￥778,000",
+    "￥1,248,000",
+    "￥748,000",
+    "￥758,000",
+    "￥818,000",
+    "￥1,318,000",
+    "￥78,000",
+    "￥15,500",
+    "￥35,800",
+    "¥15,800",
+    "¥19,800",
+    "¥8,800",
+    "¥12,800",
+    "¥12,000",
+    "¥12,500",
+    "¥1,200",
+    "¥2,300",
+    "¥1,200"
+  ],
+  "summary": "产品资料；涉及 U-MOCO、UMoco A4、U-MOCO AIR、U-MOCO MI U-MOco、U-MOCO OS STD；场景包括 团播、直播、影视、广告。",
+  "key_points": [
+    "U-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供",
+    "MOCO状态参数",
+    "• 提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+    "•提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+    "支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。",
+    "通过模拟摇杆控制运动方向和速度。",
+    "以相机本身为基准，控制其在空间中的位置。",
+    "• 属性面板可配置所有运动参数，如速度、加速度",
+    "控制柜规划(On-Board)",
+    "电脑仅作为指令发送端，具体路径解算依赖机械臂自带控制柜决定，"
+  ],
+  "missing_fields": [],
+  "text": "[第1页]\n精确每一帧，让专业触手可及\n精准｜高效｜智能\n\n[第1页 OCR]\n- U-MOCO\n精准| 高效|智能\n精确每一帧，让专业触手可及\n\n[第2页]\nU-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供\n专业机械臂软件解决方案。我们的团队汇集了经验丰富的拍摄专家、\n软件工程师及机械工程师，他们精通机械臂及软件技术，为不同行\n业客户量身打造个性化解决方案，以适应多样的拍摄任务和环境。\n我们承诺提供完善的售后服务，确保每位客户都能享受到卓越的使\n用体验。\n\n[第3页]\nU-MOCO的机械臂设计旨在简化操作流程，使用户能够迅速掌\n握使用方法，显著提高工作效率和成果质量。我们的产品已在\n央视春晚和江卫视跨年晚会等重大场合得到广泛展示与高度认\n可。我们的客户群涵盖全球知名品牌，包括迪奥、爱马仕、香\n奈儿、卡地亚、奥米茄、耐克、阿里巴巴、百度、抖音等。\n\n[第4页]\n产品线\nAIR\nMINI\nGRA\nPRO\nEXT\n\n[第4页 OCR]\n产品线\nAIR\nMINI\nGRA\nPRO\nEXT\n\n[第5页]\nv2.0 即将上线\n\n[第5页 OCR]\n1 AIR\nv2.0 即将上线\nW\n运动速度\n1.5m/s\n最大负载\n12kg\n臂展长度\n1307mm\n力控拖拽\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n2135mm\n-385mm\n1307mm\n750mm\n550mm\n4.39m3\n性能\n力控量程\n最大直线速度\n稳定速度\n最大负载\n重量\n重复定位精度\n400N\n1.5m/s\n1m/s\n12kg\n~108kg\n‡0.03mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n‡360°\n电力\n电源\n电流\n220V\n10A\n防护性\n臂体防水等级\n运行温度\nIP67\n0~50°C\n\n[第6页]\n标尺\n角度\n收纳尺寸\n\n[第6页 OCR]\nLJ AIR\n1.5m/s\n12KG\nMAX\n1307mm\n220V10A\n标尺\n680mm\n630mm\n12135mm\n1505mm\n750mm\nA3 ‡360°\nA4 士360°\n角度\nA5 士360°\nA6 ‡360°\nA2士360°\nA1 士360°\nW\n560mm\n收纳尺寸\n1490mm\nUNOcs\n760mm\n\n[第7页]\n\n[第7页 OCR]\nLJI MINI\n运动速度\n3m/s\n最大负载\n14kg\n臂展长度\n1540mm\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n性能\n最大旋转线速度\n最大直线速度\n稳定速度\n额定载荷\n重量\n重复定位精度\n2408mm\n-390mm\n1540mm\n780mm\n750mm\n6.74m3\n4.3m/s\n3m/s\n2m/s\n10kg\n~412kg\n‡0.04mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n土170°\n-1850~+65°\n-137°~+165°\n‡185°\n‡120°\n‡355°\n电力\n电源\n最大电流\n220V\n10A\n防护性\n臂体防水等级\n运行温度\nIP54\n0~55°C\n\n[第8页]\n标尺\n角度\n收纳尺寸\n\n[第8页 OCR]\nL,I MINI\n930mm\n14KG\nMAX\n1540mm\n612mm\n220V 10A\n2408mm\n1748mm\nIl\nU-MOCC\n780mm\nA3 -1370~+163°\nA4 士185°\nA5 士120°\n-A6 ‡350°\nA2 -185°~+65°\n--A1 士1700\n1350mm\nUMOCD\n790mm\n970mm\n\n[第9页]\n\n[第9页 OCR]\nLI GRA\nMI U-MOCD\nW\n运动速度\n4m/s\n23kg\n臂展长度\n2000mm\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n性能\n最大旋转线速度\n最大直线速度\n稳定速度\n额定载荷\n重量\n重复定位精度\n2923mm\n-630mm\n2000mm\n950mm\n919mm\n15.75m3\n6m/s\n4m/s\n2m/s\n20kg\n~664kg\n‡0.04mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n‡185°\n-185°~+65°\n-138°~+175°\n‡350°\n土130°\n‡350°\n电力\n电源\n最大电流\n380V\n15A\n防护性\n臂体防水等级\n运行温度\nIP65\n0~55°C\n\n[第10页]\n\n[第10页 OCR]\nII GRA\n1173mm\n23KG\n：MAX\n2000mm\n610mm\n380V 15A\n2923mm\n2132mm\n950mm\nA3 -138°~+1758\nM1 UMoco\nA4 士350°\n---A5 士130°\n-.A6 ‡350°\n_A2 -185°~+65°\nA1 ‡185°\nJNOCO\n956mm\n1590mm\n1390mm\n\n[第11页]\n\n[第11页 OCR]\nLI PRO\n4m/s\n62kg\n2685mm\n最大旋转线速度\n额定载荷\n3695mm\n-1200mm\n2685mm\n950mm\n919mm\n42.76m3\n7.4m/s\n2m/s\n50kg\n~968kg\n‡0.05mm\nAZ\nAb\n‡185°\n-175°~+60°\n-120°~+170°\n‡180°\n‡125°\n‡350°\n最大电流\n380V\n20A\nIP65\n0~55°C\n\n[第12页]\n\n[第12页 OCR]\nI,I PRO\n1395mm\n20KG\nMAX\n2685mm\n610mm\n380V20A\n3695mm\n2637mm\nII\nA3 -120°~+170°\nMOcc\n-A4 土180°\nA5 土125°\n..A6 ‡350°\n.A2 -175°~+60°\nA1 士185°\nGHMOCO\n956mm\n1690mm\n1850mm\n\n[第13页]\n\n[第13页 OCR]\nL,I EXT\n24kg\n3253mm\n4281mm\n-1700mm\n3253mm\n919mm\n79.86m3\n9.5m/s\n20kg\n~958kg\n‡0.05mm\nAZ\nAb\n-175°~+60°\n-120°~+170°\n士130°\n380V\n20A\nIP65\n\n[第14页]\n\n[第14页 OCR]\nI,I EXT\n4281mm\n2637mm：\n1963mm\n23KG\n3253mm\nolees\n610mm\n380V 20A\nA3 -120°~+1700\nA4 士350°\nA5 士130°\nA6 ‡350°\nA2 -175°~+60°\nA1 ‡185°\n956mm\n1690mm\n2020mm\n\n[第15页]\n产品定位\n灵动入门\n商拍主力\n高速全能\n重载旗舰\n影视旗舰\n产品特点\n臂身仅37kg\n可拆卸分体\n无需液压车搬运\n单人部署\n静音运行\n紧凑机身\n小巧强悍\n小空间大运镜\n重复精度极高\n商拍标配\n高速动态捕捉\n越级性能表现\n速度载重双优\n极高投产比\n人货场全覆盖\n微距摄影专家\n防抖标杆\n63kg极限重载\n高速动态捕捉\n支持重型设备器材\n行业顶配\n6米极限臂展\n无死角覆盖\n大型场面调度\n主动抑震算法\n拍摄场景\n居家\n户外\n直播间\n小型影棚\n产品拍摄\n电商拍摄\n团播直播\n电商拍摄\n高速摄影\n定格动画\nTVC广告\n微距拍摄\n格莱美慢镜\n影视剧拍摄\nTVC广告\nMV制作\n影视剧拍摄\n高端汽车广告\n大场景调度\n虚拟影棚\n大型直播活动\n适合人群\n自媒体博主\n单兵创作者\n自媒体团队\n小型工作室\n租赁公司\n广告摄影\n电商团队\n团播团队\n专业剧组\n广告摄影\n特效工作室\n专业剧组\n广告摄影\n广播电视台\n大型活动策划\n\n[第16页]\n操作系统\n标准版OS PRO\n\n[第16页 OCR]\n操作系统\n标准版 OS PRO\n1 95\n\n[第17页]\n功能菜单\nMOCO状态参数\n相机参数\n连接与重置\n节点属性\nFIZ属性\n场景切换\n时间线控制\n关键帧预览\n居中按钮\n运动控制\n运行/回放\n实时3D控制\n程序速度\n连接状态\n监控屏幕\n\n[第18页]\n• 操作逻辑直观，仿照专业剪辑软件设计\n• 提供曲线变速控制，能够精确调整速度，减少后期加工的需要\n\n[第18页 OCR]\n时间线界面\n动作\n00:00:04:12\n概览\n机器人\n凸\n口\nLO\n②\n目标\nB\n跟焦\n凸\n输入输出\n音乐\n凸\n口\n•操作逻辑直观，仿照专业剪辑软件设计\n②\n•提供曲线变速控制，能够精确调整速度，减少后期加工的需要\n\n[第19页]\n直观拖拽\n在三维模型中操作，通过拖拽即可实现机械臂的快速精确定位。\n多角度预览\n在拍摄前，可在三维空间内从多个角度预览机械臂的运动\n轨迹和目标物的位置，确保拍摄的安全性和准确性。\n\n[第20页]\n轻松实现运动轨迹\n•\n触屏定位虚拟机械臂\n•\n软硬件联动进行沟通打点\n•\n一键上传至电脑，软件轻松复现轨迹\n\n[第20页 OCR]\nAR控制\nJ-OcS\n轻松实现运动轨迹\n• 触屏定位虛拟机械臂\n• 软硬件联动进行沟通打点\n• 一键上传至电脑，软件轻松复现轨迹\n\n[第21页]\n自动对焦\n自动实现精确对焦，并且可以同时锁定多个对焦目标。\n自动跟随\n确保目标始终保持在画面中心，防止其移出视野。\n\n[第21页 OCR]\n特殊功能\nTO\n1./240\n104000\nND C.ear\nE0D0K\nNANLITE\nA01601525\n1 STBY\n05147m 1920:1030\nVFR 240\nH.255\n自动对焦\n自动实现精确对焦，并且可以同时锁定多个对焦目标。\n自动跟随\n确保目标始终保持在画面中心，防止其移出视野。\n50C\n13.9\nRc:799\n\n[第22页]\n算法路线优化\n仅需起落幅定位，即可优化轨迹路线，\nABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程。\n\n[第22页 OCR]\nAlFollow\n算法路线优化\n仅需起落幅定位，即可优化轨迹路线，\nABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程。\n\n[第23页]\n独立控制\n支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。\n\n[第23页 OCR]\n目标点跟随\n目标距离（cm）\n对焦（cm）\n1707\n520.4\n轨迹类型\nLINE\n轨迹逼近值\n目标距离（cm）\n镜头到焦平面偏移（cn\n最终距离（cm）\n-。\n39.7\n0.0\n39.7\n+\nX\n独立控制\n支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。\n时间线\n图表\n00:06:03\n概览\n①-\n机器人凸\n目标\n跟焦\n\n[第24页]\n矢量虚拟摇杆\n通过模拟摇杆控制运动方向和速度。\n相机坐标\n以相机本身为基准，控制其在空间中的位置。\n基座坐标\n以世界坐标系统为基准，调整相机位置。\n跟随模式\n根据预设的目标物位置，自动调整相机以保持目标居中。\n\n[第25页]\n操作系统\n标准版OS STD\n\n[第25页 OCR]\n标准版 OS STD\nI19s\nahMaDmu®\n日？\nLEGION\noce@lP\n\n[第26页]\n功能菜单\nMOCO状态参数\n相机参数\n连接与重置\n节点属性\nFIZ属性\n场景切换\n节点蓝图\n关键帧预览\n轨迹规划工具\n居中按钮\n运动控制\n运行/回放\n实时3D显示\n程序速度\n连接状态\n监控屏幕\n\n[第27页]\n• 支持节点式轨迹规划，包括直线、弧线、点到点\n路径、挂起、等待时间以及信号输入/输出。\n• 属性面板可配置所有运动参数，如速度、加速度\n和平滑过渡。\n\n[第28页]\n• 连接采集卡后，新建或更新节点时\n自动截取图片并提供预览，便于快\n速定位各节点对应的镜头。\n\n[第28页 OCR]\n节点关键帧预览\nFPS 23.976\n4 5%\n*子③国\nK\n• 连接采集卡后，新建或更新节点时\n自动截取图片并提供预览，便于快\n速定位各节点对应的镜头。\n人C了\n①\n曰\n？\n宅\nX:O, Y:0,Z:120\nA: 180, B: 0,C:180\n链路节点\n心 挂起\nC&\nC⑧\ncee\n≥-\nIRIS T2.8\ns 180.0\nNe 5600K\nTC 0220255:09\n\n[第29页]\n精简版OS LITE\n适配U-MOCO AIR\n\n[第29页 OCR]\n精简版 OS LITE\n适配U-MOCO AIR\n头色.\nC⑧>\nKACHEM\nOKADKAG\n6 等待\nC®\n\n[第30页]\n规划主脑\n控制柜规划(On-Board)\n电脑仅作为指令发送端，具体路径解算依赖机械臂自带控制柜决定，\n无法进行深层优化。\n上位机规划(Host-Based)\nPC端全权接管，采用影视级运动控制算法，上位机对轨迹规划拥有绝\n对控制权。\n交互逻辑\n节点式(Node-based)\n点对点连接，数据封装在节点内。操作相对简易，但对特定运镜难以\n精细把控。\n时间线式(Timeline-based)\n连续时间流，所见即所得。符合非线性编辑逻辑，创作自由度高。\n奇异点处理\n易锁死/报错\n遇到复杂运镜角度，机械臂容易直接急停或锁住。\n智能规避\n具备前瞻计算能力，自动优化关节角度（如翻转手腕）以避免死锁，\n平滑通过。\n轨迹拟合\n堆叠节点强行纠偏\n需人为增加多个节点逼近目标。密集布点易破坏连续性，导致画面出\n现微小晃动或漂移。\n关键帧拟合\n仅需起止2个关键帧配合贝塞尔曲线。算法自动生成最优路径，消除人\n工干预造成的顿挫，运镜平滑。\n目标锁定\n暂无此功能\n智能锁定(AI Follow/Target Follow)\n采用特殊算法实时计算补偿，无论机械臂如何运动，构图始终锁定目\n标中心。\n跟焦逻辑\n无法实时计算\n需通过预演轨迹拟合。复杂运镜下容易跑焦，且无法配合快速移动物\n体。LITE版本暂不支持程序跟焦功能。\n支持非线性焦点曲线\n焦点数据与轨迹数据同源同步，无时滞。通过补偿实现0延迟，高速摄\n影下依然精准。\nN/A (\n\n[第31页]\n可选配件\n摇杆控制器\nFIZ控制盒\nDMX控制盒\n快门触发器\n大师摇轮协议控制模块\nGenlock帧同步模块\n广电级全场景操控终端\n设备挂载系统\n多功能接口集线器\n影视轨道系统\n\n[第32页]\n摇杆控制\n- 直观的矢量多轴控制\n- 操作体验与无人机操控同等便捷\n快速上手\n- 仅需10分钟即可掌握基本操作\n- 轻松实现个性化运镜\n\n[第33页]\nFIZ控制\n- 与机械臂联动，软件实现Focus跟焦/Iris光圈/Zoom焦距\n- 一键复现，保障重复运动一致性\n- 一键切换手轮模式，实时跟焦\n- 购买单独软件方案需配此设备\n\n[第34页]\n集成中心\n- 触发移动或时码功能必不可少\n- 实现与现场所有设备的同步\n- 完美适配电视广播和舞台场景\n\n[第34页 OCR]\nDMX\n控制盒\n集成中心\n- 触发移动或时码功能必不可少\n- 实现与现场所有设备的同步\n- 完美适配电视广播和舞台场景\n\n[第35页]\n精确定时\n- 延时摄影必备\n- 设定相机间隔和时长\n- 自动计算暂停位置\n\n[第35页 OCR]\n快门触发器\nExposure\nWait\nStop Point\n21p FOmCWalt\nQ.000\n0.000\nOpen［Close\nkunning ime\n00:00:00:000\n0,000\n0000\n精确定时\n- 延时摄影必备\n- 设定相机间隔和时长\n- 自动计算暂停位置\n\n[第36页]\n专业用户专属\n- 接收大师摇轮的无线信号\n- 使用大师摇轮控制机械臂的镜头朝向\n- 让专业用户更快上手控制\n\n[第36页 OCR]\n大师摇轮\n协议控制模块\n专业用户专属\n- 接收大师摇轮的无线信号\n- 使用大师摇轮控制机械臂的镜头朝向\n- 让专业用户更快上手控制\n\n[第37页]\n全流程帧同步· XR虚拟制作全链路解决方案\n- XR全链路帧同步\n- 适配深度渲染引擎\n- 消除画面撕裂与延迟\n- 跨设备同步延迟≤1毫秒\n\n[第38页]\n广播版硬件及全新播控软件\n- 轨道臂及单臂系统支持主副位并行实时操作\n- 集成摇杆及拨轮接管机械臂轨迹与镜头伺服\n- 面板快捷键瞬时切换复杂轨迹并支持硬件限位\n- 专为讯道模块设计以确保长距离传输零延迟\n\n[第39页]\n倒挂挂载系统\n兔笼\n\n[第39页 OCR]\n设备挂载系统\nW U-MOCO\nMI U-MOco\n倒挂挂载系统\n兔笼\n\n[第40页]\n正拍\n俯拍\n\n[第40页 OCR]\n快速切换拍摄方式\n正拍\n俯拍\n\n[第41页]\n倒挂板套件\n多功能L版套件\n法兰转接+快拆套装\n264mm×183mm×176mm\n71mm×65mm×25mm\n264mm×122m×167mm\n\n[第42页]\n三向快装快拆套件\n探针镜头支架\n可调升降挂载兔笼\n120mm×296mm×330mm\n264mm×183mm×176mm\n364mm×103mm×42mm\n\n[第43页]\nSDI\nHDMI\nRJ45\nFIZ\nD-TAP\nCAM Control\nREF (Genlock)\n5V IN USB-C\n220V Power Socket\nLiDAR\n广泛接口满足专业拍摄需求\n\n[第44页]\n115kg轻量轨道\n比传统减重42%\n轨道即推即走\n轨道速度: 2.8 m/s\n轨道加速度: 2.2 m/s\n轨道电流: 12A\n4吨高压承重\n抗变形设计铝型材\n可增加配重板/支撑脚\n电影级画面稳定\n上银高精度线轨\n福马轮/脚杯双模式支撑\n\n[第45页]\nUnreal Engine\nMaya\nBlender\n工作流\n无缝集成\n\n[第45页 OCR]\n工作流\n无缝集成\nUnreal Engine\nMaya\nBlender\n\n[第46页]\n实时同步· 内置追踪\n- 帧级同步：支持Genlock锁相与nDisplay多屏同步，实现亚帧级精度（≤0.5帧延迟）\n- 无缝集成：原生适配Unreal Engine、Aximmetry及Disguise工作流，支持Live Link元数据流\n传输\n- 影机数据实时回传：镜头位置/焦距/焦点元数据低延迟反馈（SMPTE ST 2110标准）\n- 机械臂原生追踪：集成高精度编码器（±0.01mm重复定位精度），无需外置追踪系统\n\n[第47页]\n预演输入·渲染输出\n- Maya: 用于摄像机预可视化以及轨迹导出，以控制机械臂运动。\n- Blender: 支持导入摄像机/ 机械臂数据，用于动画制作、灯光设置和渲染。\n- 与主要视觉效果（VFX）工作流兼容，可实现无缝集成。\n- 能够在预可视化、拍摄和后期制作之间实现精确同步。\n\n[第48页]\n系列价格表\n全系列机械臂价格表\n版本配套概览\n轨道系统\n附加配件/软件\n售后服务\n\n[第48页 OCR]\n系列价格表\n全系列机械臂价格表\n版本配套概览\n轨道系统\n附加配件/软件\n售后服务\n\n[第49页]\n机械臂型号\n标准版\n专业版\n旗舰版\n广播版\n￥198,000\n￥208,000\n-\n￥318,000\n￥328,000\n¥ 368,000\n¥ 548,000\n￥438,000\n￥448,000\n￥508,000\n￥978,000\n￥708,000\n￥718,000\n￥778,000\n￥1,248,000\n￥748,000\n￥758,000\n￥818,000\n￥1,318,000\n其他选项\n数量\n单位\n价格\n轨道电机\n套\n￥78,000\n影视轨道(2米/节)\n米\n￥15,500\n延保服务\n年\n￥35,800\nU-MOCO 价格表\n\n[第50页]\n类别\n物品名称\n标准版\n专业版\n旗舰版\n广播版\n运动控制系统\n影视机械臂本体+一体化底座+配重\n√\n机械臂示教器\n√\n可升降挂载兔笼\n√\n三向快装快拆套件\n倒挂挂载板+快拆套件\n骑士轮套件\n影视多功能接口模块\n摇杆控制器\n自动跟焦套件\n轨道电机\nXR虚拟拍摄跟踪FreeD协议\n智控软件系统\nU-MOCO OS STD（标准版）*终身许可证+ 免费更新\nU-MOCO OS PRO (专业版）*1年许可证\n广播系统\n讯道系统集成中枢\n广电级全场景操控终端\n伺服镜头全维控制系统\n1.5米+5米复合光缆\nU-MOCO 版本配套概览\n\n[第51页]\nDMX控制盒\n¥15,800\nFIZ控制盒子\n¥19,800\n大师摇轮协议控制模块\n¥8,800\n快门触发器\n¥12,800\n电动跟焦器套件 (可适配变焦和光圈)\n¥12,000\n摇杆控制器\n¥12,500\n视频信号采集卡（SDI+HDMI）\n¥1,200\n附加配件/软件\n\n[第52页]\n法兰转接+快拆套装\n¥2,300\n倒挂挂载板套件\n¥1,200\n多功能L板套件\n¥5,800\n三向快装快拆套件\n¥9,900\n可升降挂载兔笼\n¥15,800\n探针镜头支架\n¥5,800\n多功能接口集线器\n¥25,800\n\n[第53页]\nU-MOCO操作系统许可证（专业版）\n*购买任何机械臂套餐即可免费获得一年。\n¥28,000\nOS Pro 首次安装费用\n*购买独立软件需要支付安装费。\n¥28,000\nXR 虚拟制作FreeD 协议\n¥25,800\nXR Genlock 帧同步模块\n¥26,500\n\n[第54页]\n售后服务\n1. 质保期限\n广播版：专享3年质保\n其他版本：全系1年质保\n2. 维保方案\n核心臂体：专业工程师上门维修\n配件外设：故障件极速换新/快修\n3. 增值支持\n软件：OS 系统固件持续免费升级\n服务：7×12h 远程诊断+ 交付实操培训\n\n[第55页]\n上海悠动智能科技有限公司\n地址：中国上海市杨浦区平凉路2241号智慧坊28-102室\n网址：www.u-moco.com\n邮箱：info@u-moco.com\n电话：13816118321\n微信：panweida1986\n联系我们\nU-MOCO (ID: panweida)\nU-MOCO (ID: 537632649)",
+  "updated_at": "2026-05-25 14:33:34",
+  "products": [
+    "U-MOCO",
+    "UMoco A4",
+    "U-MOCO AIR",
+    "U-MOCO MI U-MOco",
+    "U-MOCO OS STD",
+    "U-MOCO OS PRO",
+    "u-moco",
+    "AIR",
+    "MINI",
+    "GRA",
+    "EXT",
+    "U-MOCO OS"
+  ],
+  "scenarios": [
+    "团播",
+    "直播",
+    "影视",
+    "广告",
+    "电商",
+    "虚拟拍摄",
+    "电视台",
+    "音乐",
+    "体育"
+  ],
+  "topics": [
+    "报价",
+    "售后",
+    "配置",
+    "参数",
+    "场景",
+    "产品"
+  ],
+  "key_parameters": [
+    "U-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供",
+    "MOCO状态参数",
+    "• 提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+    "•提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+    "支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。",
+    "通过模拟摇杆控制运动方向和速度。",
+    "以相机本身为基准，控制其在空间中的位置。",
+    "• 属性面板可配置所有运动参数，如速度、加速度",
+    "控制柜规划(On-Board)",
+    "电脑仅作为指令发送端，具体路径解算依赖机械臂自带控制柜决定，",
+    "PC端全权接管，采用影视级运动控制算法，上位机对轨迹规划拥有绝",
+    "体。LITE版本暂不支持程序跟焦功能。",
+    "大师摇轮协议控制模块",
+    "- 直观的矢量多轴控制",
+    "- 与机械臂联动，软件实现Focus跟焦/Iris光圈/Zoom焦距",
+    "- 一键切换手轮模式，实时跟焦",
+    "- 使用大师摇轮控制机械臂的镜头朝向",
+    "- 让专业用户更快上手控制",
+    "- 轨道臂及单臂系统支持主副位并行实时操作",
+    "115kg轻量轨道"
+  ],
+  "price_items": [
+    {
+      "item": "￥198,000",
+      "amount": "￥198,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥208,000",
+      "amount": "￥208,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥318,000",
+      "amount": "￥318,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥328,000",
+      "amount": "￥328,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥ 368,000",
+      "amount": "¥368,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥ 548,000",
+      "amount": "¥548,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥438,000",
+      "amount": "￥438,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥448,000",
+      "amount": "￥448,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥508,000",
+      "amount": "￥508,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥978,000",
+      "amount": "￥978,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥708,000",
+      "amount": "￥708,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥718,000",
+      "amount": "￥718,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥778,000",
+      "amount": "￥778,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥1,248,000",
+      "amount": "￥1,248,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥748,000",
+      "amount": "￥748,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥758,000",
+      "amount": "￥758,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥818,000",
+      "amount": "￥818,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥1,318,000",
+      "amount": "￥1,318,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥78,000",
+      "amount": "￥78,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥15,500",
+      "amount": "￥15,500",
+      "source": "quote_line"
+    },
+    {
+      "item": "￥35,800",
+      "amount": "￥35,800",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥15,800",
+      "amount": "¥15,800",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥19,800",
+      "amount": "¥19,800",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥8,800",
+      "amount": "¥8,800",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥12,800",
+      "amount": "¥12,800",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥12,000",
+      "amount": "¥12,000",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥12,500",
+      "amount": "¥12,500",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥1,200",
+      "amount": "¥1,200",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥2,300",
+      "amount": "¥2,300",
+      "source": "quote_line"
+    },
+    {
+      "item": "¥5,800",
+      "amount": "¥5,800",
+      "source": "text"
+    },
+    {
+      "item": "¥9,900",
+      "amount": "¥9,900",
+      "source": "text"
+    },
+    {
+      "item": "¥25,800",
+      "amount": "¥25,800",
+      "source": "text"
+    },
+    {
+      "item": "¥28,000",
+      "amount": "¥28,000",
+      "source": "text"
+    },
+    {
+      "item": "¥26,500",
+      "amount": "¥26,500",
+      "source": "text"
+    }
+  ],
+  "warranty_terms": [
+    "我们承诺提供完善的售后服务，确保每位客户都能享受到卓越的使",
+    "广播版：专享3年质保",
+    "其他版本：全系1年质保",
+    "核心臂体：专业工程师上门维修"
+  ],
+  "restrictions": [
+    "体。LITE版本暂不支持程序跟焦功能。"
+  ],
+  "semantic_sections": [
+    {
+      "section_title": "第1页｜产品",
+      "page_range": "第1页",
+      "text": "精确每一帧，让专业触手可及\n精准｜高效｜智能",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第1页｜产品：精确每一帧，让专业触手可及 精准｜高效｜智能",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO｜产品",
+      "page_range": "第1页",
+      "text": "- U-MOCO\n精准| 高效|智能\n精确每一帧，让专业触手可及",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO"
+      ],
+      "semantic_summary": "U-MOCO｜产品：- U-MOCO 精准| 高效|智能 精确每一帧，让专业触手可及",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO｜售后",
+      "page_range": "第2页",
+      "text": "U-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供\n专业机械臂软件解决方案。我们的团队汇集了经验丰富的拍摄专家、\n软件工程师及机械工程师，他们精通机械臂及软件技术，为不同行\n业客户量身打造个性化解决方案，以适应多样的拍摄任务和环境。\n我们承诺提供完善的售后服务，确保每位客户都能享受到卓越的使\n用体验。",
+      "topics": [
+        "售后",
+        "场景",
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO"
+      ],
+      "semantic_summary": "U-MOCO｜售后：U-MOCO专注于为影视、广告、直播、体育和音乐等多个行业提供 专业机械臂软件解决方案",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO｜产品",
+      "page_range": "第3页",
+      "text": "U-MOCO的机械臂设计旨在简化操作流程，使用户能够迅速掌\n握使用方法，显著提高工作效率和成果质量。我们的产品已在\n央视春晚和江卫视跨年晚会等重大场合得到广泛展示与高度认\n可。我们的客户群涵盖全球知名品牌，包括迪奥、爱马仕、香\n奈儿、卡地亚、奥米茄、耐克、阿里巴巴、百度、抖音等。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO"
+      ],
+      "semantic_summary": "U-MOCO｜产品：U-MOCO的机械臂设计旨在简化操作流程，使用户能够迅速掌 握使用方法，显著提高工作效率和成果质量",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "AIR｜产品",
+      "page_range": "第4页",
+      "text": "产品线\nAIR\nMINI\nGRA\nPRO\nEXT",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "AIR",
+        "MINI",
+        "GRA",
+        "EXT"
+      ],
+      "semantic_summary": "AIR｜产品：产品线 AIR MINI GRA PRO EXT",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "AIR｜产品",
+      "page_range": "第4页",
+      "text": "产品线\nAIR\nMINI\nGRA\nPRO\nEXT",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "AIR",
+        "MINI",
+        "GRA",
+        "EXT"
+      ],
+      "semantic_summary": "AIR｜产品：产品线 AIR MINI GRA PRO EXT",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "1 AIR",
+      "page_range": "第5页",
+      "text": "v2.0 即将上线\nW\n运动速度\n1.5m/s\n最大负载\n12kg\n臂展长度\n1307mm\n力控拖拽\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n2135mm\n-385mm\n1307mm\n750mm\n550mm\n4.39m3\n性能\n力控量程\n最大直线速度\n稳定速度\n最大负载\n重量\n重复定位精度\n400N\n1.5m/s\n1m/s\n12kg\n~108kg\n‡0.03mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n‡360°\n电力\n电源\n电流\n220V\n10A\n防护性\n臂体防水等级\n运行温度\nIP67\n0~50°C",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "1 AIR：v2",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "AIR｜参数",
+      "page_range": "第6页",
+      "text": "LJ AIR\n1.5m/s\n12KG\nMAX\n1307mm\n220V10A\n标尺\n680mm\n630mm\n12135mm\n1505mm\n750mm\nA3 ‡360°\nA4 士360°\n角度\nA5 士360°\nA6 ‡360°\nA2士360°\nA1 士360°\nW\n560mm\n收纳尺寸\n1490mm\nUNOcs\n760mm",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [
+        "AIR"
+      ],
+      "semantic_summary": "AIR｜参数：LJ AIR 1",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "MINI｜参数",
+      "page_range": "第7页",
+      "text": "LJI MINI\n运动速度\n3m/s\n最大负载\n14kg\n臂展长度\n1540mm\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n性能\n最大旋转线速度\n最大直线速度\n稳定速度\n额定载荷\n重量\n重复定位精度\n2408mm\n-390mm\n1540mm\n780mm\n750mm\n6.74m3\n4.3m/s\n3m/s\n2m/s\n10kg\n~412kg\n‡0.04mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n土170°\n-1850~+65°\n-137°~+165°\n‡185°\n‡120°\n‡355°\n电力\n电源\n最大电流\n220V\n10A\n防护性\n臂体防水等级\n运行温度\nIP54\n0~55°C",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [
+        "MINI"
+      ],
+      "semantic_summary": "MINI｜参数：LJI MINI 运动速度 3m/s 最大负载 14kg 臂展长度 1540mm 尺寸 最大高度 最低位置 最大臂展 底座长度 底座宽度 有效运动范围 性能 最大旋转线速度 最大直",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "MINI｜产品",
+      "page_range": "第8页",
+      "text": "L,I MINI\n930mm\n14KG\nMAX\n1540mm\n612mm\n220V 10A\n2408mm\n1748mm\nIl\nU-MOCC\n780mm\nA3 -1370~+163°\nA4 士185°\nA5 士120°\n-A6 ‡350°\nA2 -185°~+65°\n--A1 士1700\n1350mm\nUMOCD\n790mm\n970mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "MINI"
+      ],
+      "semantic_summary": "MINI｜产品：L,I MINI 930mm 14KG MAX 1540mm 612mm 220V 10A 2408mm 1748mm Il U-MOCC 780mm A3 -1370~+163°",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "GRA｜参数",
+      "page_range": "第9页",
+      "text": "LI GRA\nMI U-MOCD\nW\n运动速度\n4m/s\n23kg\n臂展长度\n2000mm\n尺寸\n最大高度\n最低位置\n最大臂展\n底座长度\n底座宽度\n有效运动范围\n性能\n最大旋转线速度\n最大直线速度\n稳定速度\n额定载荷\n重量\n重复定位精度\n2923mm\n-630mm\n2000mm\n950mm\n919mm\n15.75m3\n6m/s\n4m/s\n2m/s\n20kg\n~664kg\n‡0.04mm\n轴限位\nA1\nA2\nA3\nA4\nA5\nA6\n‡185°\n-185°~+65°\n-138°~+175°\n‡350°\n土130°\n‡350°\n电力\n电源\n最大电流\n380V\n15A\n防护性\n臂体防水等级\n运行温度\nIP65\n0~55°C",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [
+        "GRA"
+      ],
+      "semantic_summary": "GRA｜参数：LI GRA MI U-MOCD W 运动速度 4m/s 23kg 臂展长度 2000mm 尺寸 最大高度 最低位置 最大臂展 底座长度 底座宽度 有效运动范围 性能 最大旋转线速",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "UMoco A4｜产品",
+      "page_range": "第10页",
+      "text": "II GRA\n1173mm\n23KG\n：MAX\n2000mm\n610mm\n380V 15A\n2923mm\n2132mm\n950mm\nA3 -138°~+1758\nM1 UMoco\nA4 士350°\n---A5 士130°\n-.A6 ‡350°\n_A2 -185°~+65°\nA1 ‡185°\nJNOCO\n956mm\n1590mm\n1390mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "UMoco A4",
+        "GRA"
+      ],
+      "semantic_summary": "UMoco A4｜产品：II GRA 1173mm 23KG ：MAX 2000mm 610mm 380V 15A 2923mm 2132mm 950mm A3 -138°~+1758 M1 UMoco ",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第11页｜参数",
+      "page_range": "第11页",
+      "text": "LI PRO\n4m/s\n62kg\n2685mm\n最大旋转线速度\n额定载荷\n3695mm\n-1200mm\n2685mm\n950mm\n919mm\n42.76m3\n7.4m/s\n2m/s\n50kg\n~968kg\n‡0.05mm\nAZ\nAb\n‡185°\n-175°~+60°\n-120°~+170°\n‡180°\n‡125°\n‡350°\n最大电流\n380V\n20A\nIP65\n0~55°C",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第11页｜参数：LI PRO 4m/s 62kg 2685mm 最大旋转线速度 额定载荷 3695mm -1200mm 2685mm 950mm 919mm 42",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第12页｜产品",
+      "page_range": "第12页",
+      "text": "I,I PRO\n1395mm\n20KG\nMAX\n2685mm\n610mm\n380V20A\n3695mm\n2637mm\nII\nA3 -120°~+170°\nMOcc\n-A4 土180°\nA5 土125°\n..A6 ‡350°\n.A2 -175°~+60°\nA1 士185°\nGHMOCO\n956mm\n1690mm\n1850mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第12页｜产品：I,I PRO 1395mm 20KG MAX 2685mm 610mm 380V20A 3695mm 2637mm II A3 -120°~+170° MOcc -A4 土180",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "EXT｜产品",
+      "page_range": "第13页",
+      "text": "L,I EXT\n24kg\n3253mm\n4281mm\n-1700mm\n3253mm\n919mm\n79.86m3\n9.5m/s\n20kg\n~958kg\n‡0.05mm\nAZ\nAb\n-175°~+60°\n-120°~+170°\n士130°\n380V\n20A\nIP65",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "EXT"
+      ],
+      "semantic_summary": "EXT｜产品：L,I EXT 24kg 3253mm 4281mm -1700mm 3253mm 919mm 79",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "EXT｜产品",
+      "page_range": "第14页",
+      "text": "I,I EXT\n4281mm\n2637mm：\n1963mm\n23KG\n3253mm\nolees\n610mm\n380V 20A\nA3 -120°~+1700\nA4 士350°\nA5 士130°\nA6 ‡350°\nA2 -175°~+60°\nA1 ‡185°\n956mm\n1690mm\n2020mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "EXT"
+      ],
+      "semantic_summary": "EXT｜产品：I,I EXT 4281mm 2637mm： 1963mm 23KG 3253mm olees 610mm 380V 20A A3 -120°~+1700 A4 士350° A5 ",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第15页｜配置",
+      "page_range": "第15页",
+      "text": "产品定位\n灵动入门\n商拍主力\n高速全能\n重载旗舰\n影视旗舰\n产品特点\n臂身仅37kg\n可拆卸分体\n无需液压车搬运\n单人部署\n静音运行\n紧凑机身\n小巧强悍\n小空间大运镜\n重复精度极高\n商拍标配\n高速动态捕捉\n越级性能表现\n速度载重双优\n极高投产比\n人货场全覆盖\n微距摄影专家\n防抖标杆\n63kg极限重载\n高速动态捕捉\n支持重型设备器材\n行业顶配\n6米极限臂展\n无死角覆盖\n大型场面调度\n主动抑震算法",
+      "topics": [
+        "配置",
+        "参数",
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第15页｜配置：产品定位 灵动入门 商拍主力 高速全能 重载旗舰 影视旗舰 产品特点 臂身仅37kg 可拆卸分体 无需液压车搬运 单人部署 静音运行 紧凑机身 小巧强悍 小空间大运镜 重复精度极高",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "拍摄场景",
+      "page_range": "第15页",
+      "text": "居家\n户外\n直播间\n小型影棚\n产品拍摄\n电商拍摄\n团播直播\n电商拍摄\n高速摄影\n定格动画\nTVC广告\n微距拍摄\n格莱美慢镜\n影视剧拍摄\nTVC广告\nMV制作\n影视剧拍摄\n高端汽车广告\n大场景调度\n虚拟影棚\n大型直播活动\n适合人群\n自媒体博主\n单兵创作者\n自媒体团队\n小型工作室\n租赁公司\n广告摄影\n电商团队\n团播团队\n专业剧组\n广告摄影\n特效工作室\n专业剧组\n广告摄影\n广播电视台\n大型活动策划",
+      "topics": [
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "拍摄场景：居家 户外 直播间 小型影棚 产品拍摄 电商拍摄 团播直播 电商拍摄 高速摄影 定格动画 TVC广告 微距拍摄 格莱美慢镜 影视剧拍摄 TVC广告 MV制作 影视剧拍摄 高端汽车广",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第16页｜产品",
+      "page_range": "第16页",
+      "text": "操作系统\n标准版OS PRO",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第16页｜产品：操作系统 标准版OS PRO",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第16页｜产品",
+      "page_range": "第16页",
+      "text": "操作系统\n标准版 OS PRO",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第16页｜产品：操作系统 标准版 OS PRO",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "相机参数",
+      "page_range": "第17页",
+      "text": "连接与重置\n节点属性\nFIZ属性\n场景切换\n时间线控制\n关键帧预览\n居中按钮\n运动控制\n运行/回放\n实时3D控制\n程序速度\n连接状态\n监控屏幕",
+      "topics": [
+        "参数",
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "相机参数：连接与重置 节点属性 FIZ属性 场景切换 时间线控制 关键帧预览 居中按钮 运动控制 运行/回放 实时3D控制 程序速度 连接状态 监控屏幕",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第18页｜参数",
+      "page_range": "第18页",
+      "text": "• 操作逻辑直观，仿照专业剪辑软件设计\n• 提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第18页｜参数：• 操作逻辑直观，仿照专业剪辑软件设计 • 提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第18页｜参数",
+      "page_range": "第18页",
+      "text": "时间线界面\n动作\n00:00:04:12\n概览\n机器人\n凸\n口\nLO\n②\n目标\nB\n跟焦\n凸\n输入输出\n音乐\n凸\n口\n•操作逻辑直观，仿照专业剪辑软件设计\n②\n•提供曲线变速控制，能够精确调整速度，减少后期加工的需要",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第18页｜参数：时间线界面 动作 00:00:04:12 概览 机器人 凸 口 LO ② 目标 B 跟焦 凸 输入输出 音乐 凸 口 •操作逻辑直观，仿照专业剪辑软件设计 ② •提供曲线变速控制，",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第19页｜产品",
+      "page_range": "第19页",
+      "text": "直观拖拽\n在三维模型中操作，通过拖拽即可实现机械臂的快速精确定位。\n多角度预览\n在拍摄前，可在三维空间内从多个角度预览机械臂的运动\n轨迹和目标物的位置，确保拍摄的安全性和准确性。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第19页｜产品：直观拖拽 在三维模型中操作，通过拖拽即可实现机械臂的快速精确定位",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第20页｜场景",
+      "page_range": "第20页",
+      "text": "轻松实现运动轨迹\n•\n触屏定位虚拟机械臂\n•\n软硬件联动进行沟通打点\n•\n一键上传至电脑，软件轻松复现轨迹",
+      "topics": [
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第20页｜场景：轻松实现运动轨迹 • 触屏定位虚拟机械臂 • 软硬件联动进行沟通打点 • 一键上传至电脑，软件轻松复现轨迹",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第20页｜产品",
+      "page_range": "第20页",
+      "text": "AR控制\nJ-OcS\n轻松实现运动轨迹\n• 触屏定位虛拟机械臂\n• 软硬件联动进行沟通打点\n• 一键上传至电脑，软件轻松复现轨迹",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第20页｜产品：AR控制 J-OcS 轻松实现运动轨迹 • 触屏定位虛拟机械臂 • 软硬件联动进行沟通打点 • 一键上传至电脑，软件轻松复现轨迹",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第21页｜产品",
+      "page_range": "第21页",
+      "text": "自动对焦\n自动实现精确对焦，并且可以同时锁定多个对焦目标。\n自动跟随\n确保目标始终保持在画面中心，防止其移出视野。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第21页｜产品：自动对焦 自动实现精确对焦，并且可以同时锁定多个对焦目标",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第21页｜产品",
+      "page_range": "第21页",
+      "text": "特殊功能\nTO\n1./240\n104000\nND C.ear\nE0D0K\nNANLITE\nA01601525",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第21页｜产品：特殊功能 TO 1",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "1 STBY",
+      "page_range": "第21页",
+      "text": "05147m 1920:1030\nVFR 240\nH.255\n自动对焦\n自动实现精确对焦，并且可以同时锁定多个对焦目标。\n自动跟随\n确保目标始终保持在画面中心，防止其移出视野。\n50C\n13.9\nRc:799",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "1 STBY：05147m 1920:1030 VFR 240 H",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第22页｜产品",
+      "page_range": "第22页",
+      "text": "算法路线优化\n仅需起落幅定位，即可优化轨迹路线，\nABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第22页｜产品：算法路线优化 仅需起落幅定位，即可优化轨迹路线， ABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第22页｜产品",
+      "page_range": "第22页",
+      "text": "AlFollow\n算法路线优化\n仅需起落幅定位，即可优化轨迹路线，\nABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第22页｜产品：AlFollow 算法路线优化 仅需起落幅定位，即可优化轨迹路线， ABC+YZ校准后能实现毫米级目标锁定，大幅简化操作流程",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第23页｜产品",
+      "page_range": "第23页",
+      "text": "独立控制\n支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第23页｜产品：独立控制 支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第23页｜产品",
+      "page_range": "第23页",
+      "text": "目标点跟随\n目标距离（cm）\n对焦（cm）\n1707\n520.4\n轨迹类型\nLINE\n轨迹逼近值\n目标距离（cm）\n镜头到焦平面偏移（cn\n最终距离（cm）\n-。\n39.7\n0.0\n39.7\n+\nX\n独立控制\n支持目标点拖动对焦，分离轨迹与云台控制，精准锁定画面中心，轻松切换多目标。\n时间线\n图表\n00:06:03\n概览\n①-\n机器人凸\n目标\n跟焦",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第23页｜产品：目标点跟随 目标距离（cm） 对焦（cm） 1707 520",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第24页｜参数",
+      "page_range": "第24页",
+      "text": "矢量虚拟摇杆\n通过模拟摇杆控制运动方向和速度。\n相机坐标\n以相机本身为基准，控制其在空间中的位置。\n基座坐标\n以世界坐标系统为基准，调整相机位置。\n跟随模式\n根据预设的目标物位置，自动调整相机以保持目标居中。",
+      "topics": [
+        "参数",
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第24页｜参数：矢量虚拟摇杆 通过模拟摇杆控制运动方向和速度",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第25页｜产品",
+      "page_range": "第25页",
+      "text": "操作系统\n标准版OS STD",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第25页｜产品：操作系统 标准版OS STD",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第25页｜产品",
+      "page_range": "第25页",
+      "text": "标准版 OS STD\nI19s\nahMaDmu®\n日？\nLEGION\noce@lP",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第25页｜产品：标准版 OS STD I19s ahMaDmu® 日",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "相机参数",
+      "page_range": "第26页",
+      "text": "连接与重置\n节点属性\nFIZ属性\n场景切换\n节点蓝图\n关键帧预览\n轨迹规划工具\n居中按钮\n运动控制\n运行/回放\n实时3D显示\n程序速度\n连接状态\n监控屏幕",
+      "topics": [
+        "参数",
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "相机参数：连接与重置 节点属性 FIZ属性 场景切换 节点蓝图 关键帧预览 轨迹规划工具 居中按钮 运动控制 运行/回放 实时3D显示 程序速度 连接状态 监控屏幕",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第27页｜配置",
+      "page_range": "第27页",
+      "text": "• 支持节点式轨迹规划，包括直线、弧线、点到点\n路径、挂起、等待时间以及信号输入/输出。\n• 属性面板可配置所有运动参数，如速度、加速度\n和平滑过渡。",
+      "topics": [
+        "配置",
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第27页｜配置：• 支持节点式轨迹规划，包括直线、弧线、点到点 路径、挂起、等待时间以及信号输入/输出",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第28页｜产品",
+      "page_range": "第28页",
+      "text": "• 连接采集卡后，新建或更新节点时\n自动截取图片并提供预览，便于快\n速定位各节点对应的镜头。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第28页｜产品：• 连接采集卡后，新建或更新节点时 自动截取图片并提供预览，便于快 速定位各节点对应的镜头",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第28页｜产品",
+      "page_range": "第28页",
+      "text": "节点关键帧预览\nFPS 23.976",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第28页｜产品：节点关键帧预览 FPS 23",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "4 5%",
+      "page_range": "第28页",
+      "text": "*子③国\nK\n• 连接采集卡后，新建或更新节点时\n自动截取图片并提供预览，便于快\n速定位各节点对应的镜头。\n人C了\n①\n曰\n？\n宅\nX:O, Y:0,Z:120\nA: 180, B: 0,C:180\n链路节点\n心 挂起\nC&\nC⑧\ncee\n≥-\nIRIS T2.8\ns 180.0\nNe 5600K\nTC 0220255:09",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "4 5%：*子③国 K • 连接采集卡后，新建或更新节点时 自动截取图片并提供预览，便于快 速定位各节点对应的镜头",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO AIR｜产品",
+      "page_range": "第29页",
+      "text": "精简版OS LITE\n适配U-MOCO AIR",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO AIR",
+        "AIR"
+      ],
+      "semantic_summary": "U-MOCO AIR｜产品：精简版OS LITE 适配U-MOCO AIR",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO AIR｜产品",
+      "page_range": "第29页",
+      "text": "精简版 OS LITE\n适配U-MOCO AIR\n头色.\nC⑧>\nKACHEM\nOKADKAG",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO AIR",
+        "AIR"
+      ],
+      "semantic_summary": "U-MOCO AIR｜产品：精简版 OS LITE 适配U-MOCO AIR 头色",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第30页｜场景",
+      "page_range": "第30页",
+      "text": "规划主脑\n控制柜规划(On-Board)\n电脑仅作为指令发送端，具体路径解算依赖机械臂自带控制柜决定，\n无法进行深层优化。\n上位机规划(Host-Based)\nPC端全权接管，采用影视级运动控制算法，上位机对轨迹规划拥有绝\n对控制权。\n交互逻辑\n节点式(Node-based)\n点对点连接，数据封装在节点内。操作相对简易，但对特定运镜难以\n精细把控。\n时间线式(Timeline-based)\n连续时间流，所见即所得。符合非线性编辑逻辑，创作自由度高。\n奇异点处理\n易锁死/报错\n遇到复杂运镜角度，机械臂容易直接急停或锁住。\n智能规避\n具备前瞻计算能力，自动优化关节角度（如翻转手腕）以避免死锁，\n平滑通过。\n轨迹拟合\n堆叠节点强行纠偏\n需人为增加多个节点逼近目标。密集布点易破坏连续性，导致画面出\n现微小晃动或漂移。\n关键帧拟合\n仅需起止2个关键帧配合贝塞尔曲线。算法自动生成最优路径，消除人\n工干预造成的顿挫，运镜平滑。\n目标锁定\n暂无此功能\n智能锁定(AI Follow/Target Follow)\n采用特殊算法实时计算补偿，无论机械臂如何运动，构图始终锁定目\n标中心。\n跟焦逻辑\n无法实时计算\n需通过预演轨迹拟合。复杂运镜下容易跑焦，且无法配合快速移动物\n体。LITE版本暂不支持程序跟焦功能。\n支持非线性焦点曲线\n焦点数据与轨迹数据同源同步，无时滞。通过补偿实现0延迟，高速摄\n影下依然精准。\nN/A (",
+      "topics": [
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第30页｜场景：规划主脑 控制柜规划(On-Board) 电脑仅作为指令发送端，具体路径解算依赖机械臂自带控制柜决定， 无法进行深层优化",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第31页｜配置",
+      "page_range": "第31页",
+      "text": "可选配件\n摇杆控制器\nFIZ控制盒\nDMX控制盒\n快门触发器\n大师摇轮协议控制模块\nGenlock帧同步模块\n广电级全场景操控终端\n设备挂载系统\n多功能接口集线器\n影视轨道系统",
+      "topics": [
+        "配置",
+        "场景",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第31页｜配置：可选配件 摇杆控制器 FIZ控制盒 DMX控制盒 快门触发器 大师摇轮协议控制模块 Genlock帧同步模块 广电级全场景操控终端 设备挂载系统 多功能接口集线器 影视轨道系统",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第32页｜产品",
+      "page_range": "第32页",
+      "text": "摇杆控制\n- 直观的矢量多轴控制\n- 操作体验与无人机操控同等便捷\n快速上手\n- 仅需10分钟即可掌握基本操作\n- 轻松实现个性化运镜",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第32页｜产品：摇杆控制 - 直观的矢量多轴控制 - 操作体验与无人机操控同等便捷 快速上手 - 仅需10分钟即可掌握基本操作 - 轻松实现个性化运镜",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第33页｜产品",
+      "page_range": "第33页",
+      "text": "FIZ控制\n- 与机械臂联动，软件实现Focus跟焦/Iris光圈/Zoom焦距\n- 一键复现，保障重复运动一致性\n- 一键切换手轮模式，实时跟焦\n- 购买单独软件方案需配此设备",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第33页｜产品：FIZ控制 - 与机械臂联动，软件实现Focus跟焦/Iris光圈/Zoom焦距 - 一键复现，保障重复运动一致性 - 一键切换手轮模式，实时跟焦 - 购买单独软件方案需配此设备",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第34页｜产品",
+      "page_range": "第34页",
+      "text": "集成中心\n- 触发移动或时码功能必不可少\n- 实现与现场所有设备的同步",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第34页｜产品：集成中心 - 触发移动或时码功能必不可少 - 实现与现场所有设备的同步",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第34页｜产品",
+      "page_range": "第34页",
+      "text": "DMX\n控制盒\n集成中心\n- 触发移动或时码功能必不可少\n- 实现与现场所有设备的同步",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第34页｜产品：DMX 控制盒 集成中心 - 触发移动或时码功能必不可少 - 实现与现场所有设备的同步",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第35页｜产品",
+      "page_range": "第35页",
+      "text": "精确定时\n- 延时摄影必备\n- 设定相机间隔和时长\n- 自动计算暂停位置",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第35页｜产品：精确定时 - 延时摄影必备 - 设定相机间隔和时长 - 自动计算暂停位置",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第35页｜产品",
+      "page_range": "第35页",
+      "text": "快门触发器\nExposure\nWait\nStop Point\n21p FOmCWalt\nQ.000\n0.000\nOpen［Close\nkunning ime\n00:00:00:000\n0,000\n0000\n精确定时\n- 延时摄影必备\n- 设定相机间隔和时长\n- 自动计算暂停位置",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第35页｜产品：快门触发器 Exposure Wait Stop Point 21p FOmCWalt Q",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第36页｜产品",
+      "page_range": "第36页",
+      "text": "专业用户专属\n- 接收大师摇轮的无线信号\n- 使用大师摇轮控制机械臂的镜头朝向\n- 让专业用户更快上手控制",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第36页｜产品：专业用户专属 - 接收大师摇轮的无线信号 - 使用大师摇轮控制机械臂的镜头朝向 - 让专业用户更快上手控制",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第36页｜产品",
+      "page_range": "第36页",
+      "text": "大师摇轮\n协议控制模块\n专业用户专属\n- 接收大师摇轮的无线信号\n- 使用大师摇轮控制机械臂的镜头朝向\n- 让专业用户更快上手控制",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第36页｜产品：大师摇轮 协议控制模块 专业用户专属 - 接收大师摇轮的无线信号 - 使用大师摇轮控制机械臂的镜头朝向 - 让专业用户更快上手控制",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "全流程帧同步· XR虚拟制作全链路解决方案",
+      "page_range": "第37页",
+      "text": "- XR全链路帧同步\n- 适配深度渲染引擎\n- 消除画面撕裂与延迟\n- 跨设备同步延迟≤1毫秒",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "全流程帧同步· XR虚拟制作全链路解决方案：- XR全链路帧同步 - 适配深度渲染引擎 - 消除画面撕裂与延迟 - 跨设备同步延迟≤1毫秒",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第38页｜配置",
+      "page_range": "第38页",
+      "text": "广播版硬件及全新播控软件\n- 轨道臂及单臂系统支持主副位并行实时操作\n- 集成摇杆及拨轮接管机械臂轨迹与镜头伺服\n- 面板快捷键瞬时切换复杂轨迹并支持硬件限位\n- 专为讯道模块设计以确保长距离传输零延迟",
+      "topics": [
+        "配置",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第38页｜配置：广播版硬件及全新播控软件 - 轨道臂及单臂系统支持主副位并行实时操作 - 集成摇杆及拨轮接管机械臂轨迹与镜头伺服 - 面板快捷键瞬时切换复杂轨迹并支持硬件限位 - 专为讯道模块设计",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "U-MOCO MI U-MOco｜产品",
+      "page_range": "第39页",
+      "text": "设备挂载系统\nW U-MOCO\nMI U-MOco\n倒挂挂载系统\n兔笼",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO MI U-MOco"
+      ],
+      "semantic_summary": "U-MOCO MI U-MOco｜产品：设备挂载系统 W U-MOCO MI U-MOco 倒挂挂载系统 兔笼",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第40页｜产品",
+      "page_range": "第40页",
+      "text": "快速切换拍摄方式\n正拍\n俯拍",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第40页｜产品：快速切换拍摄方式 正拍 俯拍",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第41页｜产品",
+      "page_range": "第41页",
+      "text": "倒挂板套件\n多功能L版套件\n法兰转接+快拆套装\n264mm×183mm×176mm\n71mm×65mm×25mm\n264mm×122m×167mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第41页｜产品：倒挂板套件 多功能L版套件 法兰转接+快拆套装 264mm×183mm×176mm 71mm×65mm×25mm 264mm×122m×167mm",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第42页｜产品",
+      "page_range": "第42页",
+      "text": "三向快装快拆套件\n探针镜头支架\n可调升降挂载兔笼\n120mm×296mm×330mm\n264mm×183mm×176mm\n364mm×103mm×42mm",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第42页｜产品：三向快装快拆套件 探针镜头支架 可调升降挂载兔笼 120mm×296mm×330mm 264mm×183mm×176mm 364mm×103mm×42mm",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第43页｜产品",
+      "page_range": "第43页",
+      "text": "SDI\nHDMI\nRJ45\nFIZ\nD-TAP\nCAM Control\nREF (Genlock)\n5V IN USB-C\n220V Power Socket\nLiDAR\n广泛接口满足专业拍摄需求",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第43页｜产品：SDI HDMI RJ45 FIZ D-TAP CAM Control REF (Genlock) 5V IN USB-C 220V Power Socket LiDAR 广泛接口",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第44页｜配置",
+      "page_range": "第44页",
+      "text": "115kg轻量轨道\n比传统减重42%\n轨道即推即走\n轨道速度: 2.8 m/s\n轨道加速度: 2.2 m/s\n轨道电流: 12A\n4吨高压承重\n抗变形设计铝型材\n可增加配重板/支撑脚\n电影级画面稳定\n上银高精度线轨\n福马轮/脚杯双模式支撑",
+      "topics": [
+        "配置",
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第44页｜配置：115kg轻量轨道 比传统减重42% 轨道即推即走 轨道速度: 2",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第45页｜产品",
+      "page_range": "第45页",
+      "text": "Unreal Engine\nMaya\nBlender\n工作流\n无缝集成",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第45页｜产品：Unreal Engine Maya Blender 工作流 无缝集成",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第45页｜产品",
+      "page_range": "第45页",
+      "text": "工作流\n无缝集成\nUnreal Engine\nMaya\nBlender",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第45页｜产品：工作流 无缝集成 Unreal Engine Maya Blender",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第46页｜参数",
+      "page_range": "第46页",
+      "text": "实时同步· 内置追踪\n- 帧级同步：支持Genlock锁相与nDisplay多屏同步，实现亚帧级精度（≤0.5帧延迟）\n- 无缝集成：原生适配Unreal Engine、Aximmetry及Disguise工作流，支持Live Link元数据流\n传输\n- 影机数据实时回传：镜头位置/焦距/焦点元数据低延迟反馈（SMPTE ST 2110标准）\n- 机械臂原生追踪：集成高精度编码器（±0.01mm重复定位精度），无需外置追踪系统",
+      "topics": [
+        "参数",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第46页｜参数：实时同步· 内置追踪 - 帧级同步：支持Genlock锁相与nDisplay多屏同步，实现亚帧级精度（≤0",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第47页｜产品",
+      "page_range": "第47页",
+      "text": "预演输入·渲染输出\n- Maya: 用于摄像机预可视化以及轨迹导出，以控制机械臂运动。\n- Blender: 支持导入摄像机/ 机械臂数据，用于动画制作、灯光设置和渲染。\n- 与主要视觉效果（VFX）工作流兼容，可实现无缝集成。\n- 能够在预可视化、拍摄和后期制作之间实现精确同步。",
+      "topics": [
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第47页｜产品：预演输入·渲染输出 - Maya: 用于摄像机预可视化以及轨迹导出，以控制机械臂运动",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第48页｜报价",
+      "page_range": "第48页",
+      "text": "系列价格表\n全系列机械臂价格表\n版本配套概览\n轨道系统\n附加配件/软件\n售后服务",
+      "topics": [
+        "报价",
+        "售后",
+        "配置",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第48页｜报价：系列价格表 全系列机械臂价格表 版本配套概览 轨道系统 附加配件/软件 售后服务",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "￥198,000",
+        "￥208,000",
+        "￥318,000",
+        "￥328,000",
+        "¥ 368,000",
+        "¥ 548,000",
+        "￥438,000",
+        "￥448,000",
+        "￥508,000",
+        "￥978,000"
+      ]
+    },
+    {
+      "section_title": "第48页｜报价",
+      "page_range": "第48页",
+      "text": "系列价格表\n全系列机械臂价格表\n版本配套概览\n轨道系统\n附加配件/软件\n售后服务",
+      "topics": [
+        "报价",
+        "售后",
+        "配置",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第48页｜报价：系列价格表 全系列机械臂价格表 版本配套概览 轨道系统 附加配件/软件 售后服务",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "￥198,000",
+        "￥208,000",
+        "￥318,000",
+        "￥328,000",
+        "¥ 368,000",
+        "¥ 548,000",
+        "￥438,000",
+        "￥448,000",
+        "￥508,000",
+        "￥978,000"
+      ]
+    },
+    {
+      "section_title": "第49页｜报价",
+      "page_range": "第49页",
+      "text": "机械臂型号\n标准版\n专业版\n旗舰版\n广播版\n￥198,000\n￥208,000\n-\n￥318,000\n￥328,000\n¥ 368,000\n¥ 548,000\n￥438,000\n￥448,000\n￥508,000\n￥978,000\n￥708,000\n￥718,000\n￥778,000\n￥1,248,000\n￥748,000\n￥758,000\n￥818,000\n￥1,318,000\n其他选项\n数量\n单位",
+      "topics": [
+        "报价",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第49页｜报价：机械臂型号 标准版 专业版 旗舰版 广播版 ￥198,000 ￥208,000 - ￥318,000 ￥328,000 ¥ 368,000 ¥ 548,000 ￥438,000 ￥",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "￥198,000",
+        "￥208,000",
+        "￥318,000",
+        "￥328,000",
+        "¥ 368,000",
+        "¥ 548,000",
+        "￥438,000",
+        "￥448,000",
+        "￥508,000",
+        "￥978,000",
+        "￥708,000",
+        "￥718,000",
+        "￥778,000",
+        "￥1,248,000",
+        "￥748,000",
+        "￥758,000",
+        "￥818,000",
+        "￥1,318,000"
+      ]
+    },
+    {
+      "section_title": "价格",
+      "page_range": "第49页",
+      "text": "轨道电机\n套\n￥78,000\n影视轨道(2米/节)\n米\n￥15,500\n延保服务\n年\n￥35,800\nU-MOCO 价格表",
+      "topics": [
+        "报价",
+        "配置",
+        "场景",
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO"
+      ],
+      "semantic_summary": "价格：轨道电机 套 ￥78,000 影视轨道(2米/节) 米 ￥15,500 延保服务 年 ￥35,800 U-MOCO 价格表",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "￥78,000",
+        "￥15,500",
+        "￥35,800"
+      ]
+    },
+    {
+      "section_title": "U-MOCO OS STD｜配置",
+      "page_range": "第50页",
+      "text": "类别\n物品名称\n标准版\n专业版\n旗舰版\n广播版\n运动控制系统\n影视机械臂本体+一体化底座+配重\n√\n机械臂示教器\n√\n可升降挂载兔笼\n√\n三向快装快拆套件\n倒挂挂载板+快拆套件\n骑士轮套件\n影视多功能接口模块\n摇杆控制器\n自动跟焦套件\n轨道电机\nXR虚拟拍摄跟踪FreeD协议\n智控软件系统\nU-MOCO OS STD（标准版）*终身许可证+ 免费更新\nU-MOCO OS PRO (专业版）*1年许可证\n广播系统\n讯道系统集成中枢\n广电级全场景操控终端\n伺服镜头全维控制系统\n1.5米+5米复合光缆\nU-MOCO 版本配套概览",
+      "topics": [
+        "配置",
+        "场景",
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO OS STD",
+        "U-MOCO OS PRO",
+        "U-MOCO",
+        "U-MOCO OS"
+      ],
+      "semantic_summary": "U-MOCO OS STD｜配置：类别 物品名称 标准版 专业版 旗舰版 广播版 运动控制系统 影视机械臂本体+一体化底座+配重 √ 机械臂示教器 √ 可升降挂载兔笼 √ 三向快装快拆套件 倒挂挂载板+快拆套件 骑",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "第51页｜报价",
+      "page_range": "第51页",
+      "text": "DMX控制盒\n¥15,800\nFIZ控制盒子\n¥19,800\n大师摇轮协议控制模块\n¥8,800\n快门触发器\n¥12,800\n电动跟焦器套件 (可适配变焦和光圈)\n¥12,000\n摇杆控制器\n¥12,500\n视频信号采集卡（SDI+HDMI）\n¥1,200\n附加配件/软件",
+      "topics": [
+        "报价",
+        "配置",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第51页｜报价：DMX控制盒 ¥15,800 FIZ控制盒子 ¥19,800 大师摇轮协议控制模块 ¥8,800 快门触发器 ¥12,800 电动跟焦器套件 (可适配变焦和光圈) ¥12,000 ",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "¥15,800",
+        "¥19,800",
+        "¥8,800",
+        "¥12,800",
+        "¥12,000",
+        "¥12,500",
+        "¥1,200"
+      ]
+    },
+    {
+      "section_title": "第52页｜报价",
+      "page_range": "第52页",
+      "text": "法兰转接+快拆套装\n¥2,300\n倒挂挂载板套件\n¥1,200\n多功能L板套件\n¥5,800\n三向快装快拆套件\n¥9,900\n可升降挂载兔笼\n¥15,800\n探针镜头支架\n¥5,800\n多功能接口集线器\n¥25,800",
+      "topics": [
+        "报价",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第52页｜报价：法兰转接+快拆套装 ¥2,300 倒挂挂载板套件 ¥1,200 多功能L板套件 ¥5,800 三向快装快拆套件 ¥9,900 可升降挂载兔笼 ¥15,800 探针镜头支架 ¥5,8",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "¥2,300",
+        "¥1,200",
+        "¥5,800",
+        "¥9,900",
+        "¥15,800",
+        "¥5,800",
+        "¥25,800"
+      ]
+    },
+    {
+      "section_title": "U-MOCO｜报价",
+      "page_range": "第53页",
+      "text": "U-MOCO操作系统许可证（专业版）\n*购买任何机械臂套餐即可免费获得一年。\n¥28,000\nOS Pro 首次安装费用\n*购买独立软件需要支付安装费。\n¥28,000\nXR 虚拟制作FreeD 协议\n¥25,800\nXR Genlock 帧同步模块\n¥26,500",
+      "topics": [
+        "报价",
+        "配置",
+        "场景",
+        "产品"
+      ],
+      "entities": [
+        "U-MOCO"
+      ],
+      "semantic_summary": "U-MOCO｜报价：U-MOCO操作系统许可证（专业版） *购买任何机械臂套餐即可免费获得一年",
+      "price_fields": {
+        "全部金额": "￥198,000、￥208,000、￥318,000、￥328,000、¥368,000、¥548,000、￥438,000、￥448,000、￥508,000、￥978,000、￥708,000、￥718,000、￥778,000、￥1,248,000、￥748,000、￥758,000、￥818,000、￥1,318,000、￥78,000、￥15,500、￥35,800、¥15,800、¥19,800、¥8,800、¥12,800、¥12,000、¥12,500、¥1,200、¥2,300、¥5,800、¥9,900、¥25,800、¥28,000、¥26,500"
+      },
+      "quote_items": [
+        "¥28,000",
+        "¥28,000",
+        "¥25,800",
+        "¥26,500"
+      ]
+    },
+    {
+      "section_title": "第54页｜售后",
+      "page_range": "第54页",
+      "text": "售后服务\n1. 质保期限\n广播版：专享3年质保\n其他版本：全系1年质保",
+      "topics": [
+        "售后",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "第54页｜售后：售后服务 1",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "2. 维保方案",
+      "page_range": "第54页",
+      "text": "核心臂体：专业工程师上门维修\n配件外设：故障件极速换新/快修\n3. 增值支持\n软件：OS 系统固件持续免费升级\n服务：7×12h 远程诊断+ 交付实操培训",
+      "topics": [
+        "售后",
+        "产品"
+      ],
+      "entities": [],
+      "semantic_summary": "2. 维保方案：核心臂体：专业工程师上门维修 配件外设：故障件极速换新/快修 3",
+      "price_fields": {},
+      "quote_items": []
+    },
+    {
+      "section_title": "u-moco｜产品",
+      "page_range": "第55页",
+      "text": "上海悠动智能科技有限公司\n地址：中国上海市杨浦区平凉路2241号智慧坊28-102室\n网址：www.u-moco.com\n邮箱：info@u-moco.com\n电话：13816118321\n微信：panweida1986\n联系我们\nU-MOCO (ID: panweida)\nU-MOCO (ID: 537632649)",
+      "topics": [
+        "产品"
+      ],
+      "entities": [
+        "u-moco",
+        "U-MOCO"
+      ],
+      "semantic_summary": "u-moco｜产品：上海悠动智能科技有限公司 地址：中国上海市杨浦区平凉路2241号智慧坊28-102室 网址：www",
+      "price_fields": {},
+      "quote_items": []
+    }
+  ],
+  "analysis_method": "heuristic",
+  "analysis_diagnostics": {
+    "text_char_count": 8923,
+    "section_count": 76,
+    "product_count": 12,
+    "price_item_count": 34,
+    "missing_field_count": 0,
+    "extraction_method": "pdf_text_ocr",
+    "warnings": []
+  }
+}

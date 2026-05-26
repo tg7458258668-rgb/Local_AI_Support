@@ -14,7 +14,10 @@ from support_app.services.audit_service import AuditService
 from support_app.services.behavior_config_service import BehaviorConfigService
 from support_app.services.behavior_tuning_service import BehaviorTuningService
 from support_app.services.chat_service import ChatService
+from support_app.services.configuration_quote_service import ConfigurationQuoteService
+from support_app.services.conversation_history_service import ConversationHistoryService
 from support_app.services.customer_memory_service import CustomerMemoryService
+from support_app.services.document_analysis_service import DocumentAnalysisService
 from support_app.services.document_ingestion_service import DocumentIngestionService
 from support_app.services.faq_index_service import FAQIndexService
 from support_app.services.knowledge_gap_service import KnowledgeGapService
@@ -22,6 +25,7 @@ from support_app.services.learning_service import LearningService
 from support_app.services.model_settings_service import ModelSettingsService
 from support_app.services.ollama_client import OllamaClient
 from support_app.services.pricing_catalog_service import PricingCatalogService
+from support_app.services.quote_catalog_service import QuoteCatalogService
 from support_app.services.quote_archive_service import QuoteArchiveService
 from support_app.services.quote_policy_service import QuotePolicyService
 from support_app.services.quote_service import QuoteService
@@ -84,6 +88,11 @@ def get_customer_memory_service() -> CustomerMemoryService:
 
 
 @lru_cache
+def get_conversation_history_service() -> ConversationHistoryService:
+    return ConversationHistoryService(JsonFileRepository(settings.data_dir / "conversation_history.json"))
+
+
+@lru_cache
 def get_audit_service() -> AuditService:
     return AuditService(settings.base_dir / "runtime")
 
@@ -99,6 +108,11 @@ def get_pricing_catalog_service() -> PricingCatalogService:
 @lru_cache
 def get_quote_policy_service() -> QuotePolicyService:
     return QuotePolicyService(JsonFileRepository(settings.data_dir / "quote_policies.json"))
+
+
+@lru_cache
+def get_quote_catalog_service() -> QuoteCatalogService:
+    return QuoteCatalogService(JsonFileRepository(settings.data_dir / "quote_catalog.json"))
 
 
 @lru_cache
@@ -145,6 +159,16 @@ def get_quote_service() -> QuoteService:
         get_quote_policy_service(),
         get_quote_archive_service(),
         get_behavior_config_service(),
+        get_configuration_quote_service(),
+    )
+
+
+@lru_cache
+def get_configuration_quote_service() -> ConfigurationQuoteService:
+    return ConfigurationQuoteService(
+        get_quote_catalog_service(),
+        get_quote_policy_service(),
+        JsonFileRepository(settings.data_dir / "configuration_quote_feedback.json"),
     )
 
 
@@ -175,6 +199,7 @@ def get_chat_service() -> ChatService:
         learning_service=get_learning_service(),
         knowledge_gap_service=get_knowledge_gap_service(),
         behavior_config_service=get_behavior_config_service(),
+        conversation_history_service=get_conversation_history_service(),
     )
 
 
@@ -184,12 +209,18 @@ def get_faq_index_service() -> FAQIndexService:
 
 
 @lru_cache
+def get_document_analysis_service() -> DocumentAnalysisService:
+    return DocumentAnalysisService(get_ollama_client())
+
+
+@lru_cache
 def get_document_ingestion_service() -> DocumentIngestionService:
     return DocumentIngestionService(
         settings,
         get_document_repository(),
         get_ollama_client(),
         get_retrieval_service(),
+        get_document_analysis_service(),
     )
 
 
@@ -204,8 +235,11 @@ def get_admin_service() -> AdminService:
         memory_service=get_customer_memory_service(),
         document_ingestion_service=get_document_ingestion_service(),
         pricing_catalog_service=get_pricing_catalog_service(),
+        quote_catalog_service=get_quote_catalog_service(),
         quote_policy_service=get_quote_policy_service(),
         quote_archive_service=get_quote_archive_service(),
+        configuration_quote_service=get_configuration_quote_service(),
+        answer_feedback_store=JsonFileRepository(settings.data_dir / "answer_feedback.json"),
         learning_service=get_learning_service(),
         behavior_config_service=get_behavior_config_service(),
         behavior_tuning_service=get_behavior_tuning_service(),

@@ -13,7 +13,7 @@ class QuotePolicyService:
         "min_margin_note": "",
         "approval_required": ["优惠价", "低于标价", "交付时间", "合同条款", "特殊定制"],
         "reply_style": "sales_talk",
-        "template": "先复述客户场景，再推荐方案，给参考标价和可选项，最后说明优惠/交付/合同需要人工确认。",
+        "template": "先讲客户场景价值和我们的方案优势，再按直播间面积、直播效果、负载和预算确认型号；价格、配置和交付只给参考，正式方案需人工复核。",
     }
 
     def __init__(self, store: JsonFileRepository):

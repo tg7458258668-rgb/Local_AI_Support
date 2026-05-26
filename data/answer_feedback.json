@@ -1,0 +1,2464 @@
+[
+  {
+    "id": "answer_feedback_3d2106607c51",
+    "message": "我们是做团播的给我推荐一下你们的产品",
+    "answer": "【qwen3:8b】\n了解，按你补充的情况来看，我建议先按单条 U-MOCO GRA 团播版做方案。\nGRA 比较适合 50 平左右的团播间做自动运镜和景别切换；EXT/PRO 可以作为后续升级，主要看你们的场地运动范围和相机镜头重量。\n轨道先不默认加。如果主要是固定机位自动运镜，可以先不上轨道；如果后面想做横移、环绕或更大范围走位，再把轨道单独拆出来。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，用来一键控制运镜、变焦和灯光联动。\n我还需要确认一下相机、镜头和附件总重大概多少，这个会影响最终臂型和挂载配置。\n预算区间也可以告诉我一下，我可以按入门够用和后续可升级两档给你拆。",
+    "verdict": "good",
+    "feedback_type": "answer_quality",
+    "error_reason": "",
+    "fix_target": "regression",
+    "suggested_action": "add_regression_case",
+    "status": "in_regression",
+    "regression_case_id": "case_feedback_d2a0e32be4",
+    "request_id": "b3a28975-ea94-473c-9074-630c6b060dc3",
+    "notes": "",
+    "route": "quote_draft",
+    "expected_route": "quote_draft",
+    "expected_keywords": [
+      "U-MOCO",
+      "GRA",
+      "EXT",
+      "PRO",
+      "轨道"
+    ],
+    "forbidden_keywords": [],
+    "matched_rule": "无",
+    "score": 0.0,
+    "need_human_review": true,
+    "used_tools": [
+      "MemoryTool",
+      "QuoteIntentDetector",
+      "QuoteTool",
+      "SafetyTool"
+    ],
+    "quality_flags": [
+      "quote_requires_review",
+      "need_human_review"
+    ],
+    "next_actions": [
+      "review_quote",
+      "manual_review"
+    ],
+    "decision_trace": [
+      {
+        "step": "MemoryTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      },
+      {
+        "step": "QuoteIntentDetector",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 0.86,
+        "missing_fields": [
+          "产品型号"
+        ]
+      },
+      {
+        "step": "KnowledgeTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 0,
+        "missing_fields": []
+      },
+      {
+        "step": "QuoteTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      },
+      {
+        "step": "SafetyTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      }
+    ],
+    "sources": [
+      {
+        "type": "quote_catalog",
+        "score": null,
+        "adjusted_score": null,
+        "source": "data/quote_catalog.json",
+        "category": "报价规则库",
+        "question": "",
+        "doc_name": "",
+        "section": "",
+        "reason": "本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。"
+      }
+    ],
+    "snapshot": {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "【qwen3:8b】\n了解，按你补充的情况来看，我建议先按单条 U-MOCO GRA 团播版做方案。\nGRA 比较适合 50 平左右的团播间做自动运镜和景别切换；EXT/PRO 可以作为后续升级，主要看你们的场地运动范围和相机镜头重量。\n轨道先不默认加。如果主要是固定机位自动运镜，可以先不上轨道；如果后面想做横移、环绕或更大范围走位，再把轨道单独拆出来。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，用来一键控制运镜、变焦和灯光联动。\n我还需要确认一下相机、镜头和附件总重大概多少，这个会影响最终臂型和挂载配置。\n预算区间也可以告诉我一下，我可以按入门够用和后续可升级两档给你拆。",
+      "route": "quote_draft",
+      "need_human": true,
+      "hint": "已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+      "matched_rule": "无",
+      "faq_top_score": 0,
+      "doc_top_score": 0,
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "score": null,
+          "adjusted_score": null,
+          "source": "data/quote_catalog.json",
+          "category": "报价规则库",
+          "question": "",
+          "doc_name": "",
+          "section": "",
+          "reason": "本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。"
+        }
+      ],
+      "retrieval_debug": [],
+      "memory": {
+        "channel": "api",
+        "user_id": "conversation:session_mpjtm2e0",
+        "customer_name": "",
+        "contact": "",
+        "products": [
+          "EXT"
+        ],
+        "preferences": [],
+        "common_questions": [],
+        "risk_flags": [],
+        "scenario": "团播",
+        "budget": "",
+        "project_time": "",
+        "decision_status": "",
+        "concerns": [
+          "轨道"
+        ],
+        "quoted_schemes": [],
+        "notes": "",
+        "live_room_area": "",
+        "camera_count": "",
+        "robot_arm_count": "",
+        "track_preference": "需要进一步确认轨道",
+        "updated_at": "2026-05-25 23:04:24"
+      },
+      "timings": {
+        "rule_match_ms": 0.4,
+        "memory_ms": 1.2000000000000002,
+        "history_ms": 0.4,
+        "context_plan_ms": 0.4,
+        "faq_retrieval_ms": 0,
+        "doc_retrieval_ms": 0,
+        "route_decision_ms": 11.4,
+        "answer_generation_ms": 0,
+        "source_format_ms": 0,
+        "total_ms": 14.4,
+        "retrieval_cache_hit": false
+      },
+      "metadata": {
+        "test_page": true,
+        "model_compare": true,
+        "model_compare_role": "primary",
+        "regression_test": false,
+        "model_override": {
+          "chat_model": "qwen3:8b"
+        },
+        "request_id": "b3a28975-ea94-473c-9074-630c6b060dc3",
+        "behavior_rules_hit": [],
+        "memory_policy": {
+          "previous_context_words": [
+            "上次",
+            "之前",
+            "刚才",
+            "前面",
+            "上一轮",
+            "那个",
+            "这款"
+          ],
+          "product_recall_words": [
+            "什么机械臂",
+            "哪个机械臂",
+            "聊的什么",
+            "是什么产品",
+            "什么产品"
+          ],
+          "previous_product_anchor": true
+        },
+        "models": {
+          "chat_model": "qwen3:8b",
+          "embed_model": "bge-m3:latest",
+          "override_used": true
+        },
+        "context_plan": {
+          "used_history": true,
+          "used_memory": true,
+          "contextual_query": false,
+          "cache_policy": "context_scoped",
+          "reason": "独立明确问题，可使用上下文范围内缓存",
+          "history_turn_count": 6,
+          "anchors": [
+            "EXT"
+          ],
+          "direct_answer_allowed": true
+        },
+        "conversation_context": [
+          {
+            "message": "EXT加12米轨道到该什么价格",
+            "answer": "U-MOCO EXT 团播系统可以按单条机械臂先看。\n团播版通常是在影视版基础上增加 U-MOCO Live 和 Stream Deck / 直播可编程键盘，现场可以一键控制运镜、变焦和灯光联动。\n轨道不是必选。如果只是固定机位自动运镜，可以先不上轨道；如果要横移、环绕或大范围走位，再单独加轨道。\n你提到 U-MOCO EXT 加 12 米轨道，我先按“机械臂 + 地面轨道 + 轨道电机”的基础组合给你一个参考口径。\nU-MOCO EXT 参考价：¥758,000。\n影视地面轨道：12米，参考小计 ¥186,000。\n轨道电机：默认随上轨道配置，参考小计 ¥78,000。\n这三项参考合计约 ¥1,022,000，不含最终优惠、交付、安装培训和其他团播控制选配。\n上轨道默认需要配轨道电机，我先按这个口径一起算。\n还想确认两点：直播间层高大概多少？上轨道主要是为了横移、环绕、大范围走位，还是只是想保留后续升级空间？\n以上是参考报价口径，正式价格、优惠和交付安排还需要结合现场配置复核。",
+            "route": "quote_draft",
+            "sources": [
+              {
+                "type": "quote_catalog",
+                "source": "data/quote_catalog.json",
+                "doc_name": "",
+                "section": "",
+                "category": "报价规则库"
+              }
+            ],
+            "memory_summary": {
+              "products": [
+                "EXT"
+              ],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 21:38:45"
+            },
+            "created_at": "2026-05-25 21:38:45"
+          },
+          {
+            "message": "加16米呢",
+            "answer": "我暂时无法根据现有文档确认，建议人工进一步确认。",
+            "route": "doc",
+            "sources": [
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "MINI｜参数",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO团播系统_2025.03.pdf",
+                "doc_name": "U-MOCO团播系统_2025.03_20260525011454",
+                "section": "MINI｜参数",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "MINI｜产品",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "第12页｜产品",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "UMoco A4｜产品",
+                "category": "产品资料"
+              }
+            ],
+            "memory_summary": {
+              "products": [
+                "EXT"
+              ],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 21:38:45"
+            },
+            "created_at": "2026-05-25 21:39:44"
+          },
+          {
+            "message": "加16米呢",
+            "answer": "我暂时无法根据现有文档确认，建议人工进一步确认。",
+            "route": "doc",
+            "sources": [
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "MINI｜参数",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO团播系统_2025.03.pdf",
+                "doc_name": "U-MOCO团播系统_2025.03_20260525011454",
+                "section": "MINI｜参数",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "MINI｜产品",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "第12页｜产品",
+                "category": "产品资料"
+              },
+              {
+                "type": "doc",
+                "source": "U-MOCO_影视机械臂_2026.02.pdf",
+                "doc_name": "U-MOCO_影视机械臂_2026.02_20260525011436",
+                "section": "UMoco A4｜产品",
+                "category": "产品资料"
+              }
+            ],
+            "memory_summary": {
+              "products": [
+                "EXT"
+              ],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 21:38:45"
+            },
+            "created_at": "2026-05-25 21:40:31"
+          },
+          {
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "answer": "了解，按你补充的情况来看，我建议先按单条 U-MOCO GRA 团播版做方案。\nGRA 比较适合 50 平左右的团播间做自动运镜和景别切换；EXT/PRO 可以作为后续升级，主要看你们的场地运动范围和相机镜头重量。\n轨道先不默认加。如果主要是固定机位自动运镜，可以先不上轨道；如果后面想做横移、环绕或更大范围走位，再把轨道单独拆出来。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，用来一键控制运镜、变焦和灯光联动。\n我还需要确认一下相机、镜头和附件总重大概多少，这个会影响最终臂型和挂载配置。\n预算区间也可以告诉我一下，我可以按入门够用和后续可升级两档给你拆。",
+            "route": "quote_draft",
+            "sources": [
+              {
+                "type": "quote_catalog",
+                "source": "data/quote_catalog.json",
+                "doc_name": "",
+                "section": "",
+                "category": "报价规则库"
+              }
+            ],
+            "memory_summary": {
+              "products": [
+                "EXT"
+              ],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 22:58:28"
+            },
+            "created_at": "2026-05-25 22:58:28"
+          },
+          {
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "answer": "了解，按你补充的情况来看，我建议先按单条 U-MOCO GRA 团播版做方案。\nGRA 比较适合 50 平左右的团播间做自动运镜和景别切换；EXT/PRO 可以作为后续升级，主要看你们的场地运动范围和相机镜头重量。\n轨道先不默认加。如果主要是固定机位自动运镜，可以先不上轨道；如果后面想做横移、环绕或更大范围走位，再把轨道单独拆出来。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，用来一键控制运镜、变焦和灯光联动。\n我还需要确认一下相机、镜头和附件总重大概多少，这个会影响最终臂型和挂载配置。\n预算区间也可以告诉我一下，我可以按入门够用和后续可升级两档给你拆。",
+            "route": "quote_draft",
+            "sources": [
+              {
+                "type": "quote_catalog",
+                "source": "data/quote_catalog.json",
+                "doc_name": "",
+                "section": "",
+                "category": "报价规则库"
+              }
+            ],
+            "memory_summary": {
+              "products": [
+                "EXT"
+              ],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 22:59:06"
+            },
+            "created_at": "2026-05-25 22:59:06"
+          },
+          {
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+            "route": "quote_draft",
+            "sources": [
+              {
+                "type": "quote_catalog",
+                "source": "data/quote_catalog.json",
+                "doc_name": "",
+                "section": "",
+                "category": "报价规则库"
+              }
+            ],
+            "memory_summary": {
+              "products": [],
+              "scenario": "团播",
+              "budget": "",
+              "updated_at": "2026-05-25 23:02:45"
+            },
+            "created_at": "2026-05-25 23:02:45"
+          }
+        ],
+        "quote_draft": {
+          "need_summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+          "recommended_products": [
+            {
+              "product": "U-MOCO GRA",
+              "version": "",
+              "base_price": "¥448,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。"
+              ]
+            },
+            {
+              "product": "U-MOCO EXT",
+              "version": "团播版",
+              "base_price": "¥758,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              ]
+            },
+            {
+              "product": "U-MOCO PRO",
+              "version": "团播版",
+              "base_price": "¥718,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              ]
+            }
+          ],
+          "quote_items": [
+            {
+              "name": "U-MOCO GRA",
+              "quantity": 1,
+              "unit": "项",
+              "reference_price": "¥448,000",
+              "reference_total": "¥448,000",
+              "source": "结构化报价规则库",
+              "note": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO OS Pro",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥28,000",
+              "reference_total": "¥28,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "三向快装快拆套件",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥9,900",
+              "reference_total": "¥9,900",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO 操作手柄",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥12,500",
+              "reference_total": "¥12,500",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "FIZ / 自动跟焦系统",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥19,800",
+              "reference_total": "¥19,800",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO Live",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "需按最终配置核算",
+              "reference_total": "",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "Stream Deck / 直播可编程键盘",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥10,000",
+              "reference_total": "¥10,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "DMX 灯光联动 / 控台适配",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥15,800",
+              "reference_total": "¥15,800",
+              "source": "结构化报价规则库",
+              "note": "灯光控台联动，需确认现场品牌与协议。",
+              "review_required": true
+            },
+            {
+              "name": "上门部署培训",
+              "quantity": 1,
+              "unit": "项",
+              "reference_price": "需按交付地与排期核算",
+              "reference_total": "",
+              "source": "结构化报价规则库",
+              "note": "安装、按键映射、运镜交付与培训。",
+              "review_required": true
+            }
+          ],
+          "reference_total": "",
+          "pricing_policy": {
+            "mode": "draft_only",
+            "default_when_unconfigured": "list_price_only",
+            "max_discount_percent": "",
+            "min_margin_note": "",
+            "approval_required": [
+              "优惠价",
+              "低于标价",
+              "交付时间",
+              "合同条款",
+              "特殊定制"
+            ],
+            "reply_style": "sales_talk",
+            "template": "先复述客户场景，再推荐方案，给参考标价和可选项，最后说明优惠/交付/合同需要人工确认。"
+          },
+          "recent_quotes": [],
+          "sources": [
+            "data/quote_catalog.json"
+          ],
+          "requires_confirmation": [
+            "优惠价",
+            "低于标价",
+            "交付时间",
+            "合同条款",
+            "特殊定制"
+          ],
+          "status": "draft",
+          "configuration_quote": {
+            "ok": true,
+            "status": "draft",
+            "scenario": "group_live",
+            "package": {
+              "id": "group_live",
+              "name": "团播版",
+              "scenario": "团播 / 直播间 / 电商直播",
+              "description": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+            },
+            "recommended_arm": {
+              "id": "GRA",
+              "name": "U-MOCO GRA",
+              "span": "约 2 米",
+              "payload": "",
+              "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+              "reference_price": "¥448,000"
+            },
+            "alternative_arms": [
+              {
+                "id": "EXT",
+                "name": "U-MOCO EXT",
+                "reference_price": "¥758,000",
+                "description": "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              },
+              {
+                "id": "PRO",
+                "name": "U-MOCO PRO",
+                "reference_price": "¥718,000",
+                "description": "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              }
+            ],
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "needs": {
+              "scenario": "group_live",
+              "budget": "",
+              "budget_value": 0,
+              "track_length": "",
+              "camera_payload": "",
+              "camera_count": "",
+              "live_room_area": "",
+              "robot_arm_count": "",
+              "track_preference": "需要进一步确认轨道",
+              "tracking_required": false,
+              "freed_required": false,
+              "focus_required": false,
+              "dmx_required": false,
+              "keyboard_required": false,
+              "training_required": false,
+              "delivery_urgency": "",
+              "explicit_products": [],
+              "raw_message": "我们是做团播的给我推荐一下你们的产品",
+              "package_name": "团播版",
+              "recommended_arm": "GRA"
+            },
+            "modules": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "module_type": "core_arm",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥448,000",
+                "unit": "",
+                "catalog_item": {
+                  "id": "GRA",
+                  "name": "U-MOCO GRA",
+                  "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+                  "span": "约 2 米",
+                  "payload": "",
+                  "prices": {
+                    "标准版": "¥438,000",
+                    "专业版": "¥448,000",
+                    "旗舰版": "¥508,000",
+                    "广播版": "¥978,000"
+                  }
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥28,000",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "os_pro",
+                  "name": "U-MOCO OS Pro",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "¥28,000",
+                  "description": "机械臂专业版控制与运镜设计软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "module_type": "mount",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥9,900",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "three_way_quick_release",
+                  "name": "三向快装快拆套件",
+                  "category": "mount",
+                  "unit": "套",
+                  "reference_price": "¥9,900",
+                  "description": "影视/TVC 基础快装配置。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥12,500",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "operation_handle",
+                  "name": "U-MOCO 操作手柄",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥12,500",
+                  "description": "现场基础操作控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "module_type": "lens",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥19,800",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "fiz_focus",
+                  "name": "FIZ / 自动跟焦系统",
+                  "category": "lens",
+                  "unit": "套",
+                  "reference_price": "¥19,800",
+                  "description": "跟焦、变焦、光圈控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按最终配置核算",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "umoco_live",
+                  "name": "U-MOCO Live",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "需按最终配置核算",
+                  "description": "团播一键运镜、变焦、灯光联动控制软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥10,000",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "stream_deck",
+                  "name": "Stream Deck / 直播可编程键盘",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥10,000",
+                  "description": "团播现场按键控制运镜、变焦、灯光联动。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "module_type": "lighting",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥15,800",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "dmx_control",
+                  "name": "DMX 灯光联动 / 控台适配",
+                  "category": "lighting",
+                  "unit": "套",
+                  "reference_price": "¥15,800",
+                  "description": "灯光控台联动，需确认现场品牌与协议。"
+                },
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "module_type": "service",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按交付地与排期核算",
+                "unit": "项",
+                "catalog_item": {
+                  "id": "training",
+                  "name": "上门部署培训",
+                  "category": "service",
+                  "unit": "项",
+                  "reference_price": "需按交付地与排期核算",
+                  "description": "安装、按键映射、运镜交付与培训。"
+                },
+                "review_required": true
+              }
+            ],
+            "quote_items": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥448,000",
+                "reference_total": "¥448,000",
+                "source": "结构化报价规则库",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥28,000",
+                "reference_total": "¥28,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥9,900",
+                "reference_total": "¥9,900",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥12,500",
+                "reference_total": "¥12,500",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥19,800",
+                "reference_total": "¥19,800",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "需按最终配置核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥10,000",
+                "reference_total": "¥10,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥15,800",
+                "reference_total": "¥15,800",
+                "source": "结构化报价规则库",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "需按交付地与排期核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "review_required": true
+              }
+            ],
+            "source_refs": [
+              {
+                "type": "quote_rule",
+                "title": "结构化报价规则库",
+                "section": "团播版",
+                "source": "data/quote_catalog.json",
+                "category": "报价规则",
+                "score": 1,
+                "snippet": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+              },
+              {
+                "type": "quote_rule",
+                "title": "U-MOCO GRA",
+                "section": "臂型价格",
+                "source": "data/quote_catalog.json",
+                "category": "臂型",
+                "score": 1,
+                "snippet": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。"
+              }
+            ],
+            "missing_questions": [
+              "客户预算区间是多少？预算会影响 GRA 起步方案、PRO/EXT 升级和选配范围。",
+              "现场是否需要轨道？如果需要，轨道长度和可用空间是多少米？",
+              "客户使用的相机、镜头和附件总重量大约多少？",
+              "现场需要几台相机或几个机位？",
+              "是否需要 FreeD/XR/虚拟制作跟踪，还是只做常规直播运镜？",
+              "客户期望交付和培训时间是什么？"
+            ],
+            "review_flags": [
+              "当前结果是内部配置与报价项草稿，不是正式报价。",
+              "团播场景默认从单条 U-MOCO GRA 起步，AIR/MINI 臂展不足不作为默认推荐。",
+              "轨道不默认添加，只有客户需要横移、走位、全景/环绕或明确轨道长度时才拆成选配。",
+              "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+              "客户需求信息未完整，缺失问题未确认前不应发送正式报价。"
+            ],
+            "summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+            "metadata": {
+              "source": "chat_quote_service",
+              "user_id": null,
+              "memory": {
+                "channel": "api",
+                "user_id": "conversation:session_mpjtm2e0",
+                "customer_name": "",
+                "contact": "",
+                "products": [
+                  "EXT"
+                ],
+                "preferences": [],
+                "common_questions": [],
+                "risk_flags": [],
+                "scenario": "团播",
+                "budget": "",
+                "project_time": "",
+                "decision_status": "",
+                "concerns": [
+                  "轨道"
+                ],
+                "quoted_schemes": [],
+                "notes": "",
+                "live_room_area": "",
+                "camera_count": "",
+                "robot_arm_count": "",
+                "track_preference": "需要进一步确认轨道",
+                "updated_at": "2026-05-25 22:59:06"
+              }
+            },
+            "generated_at": "2026-05-25 23:04:24"
+          }
+        },
+        "knowledge_gaps": {
+          "has_gaps": true,
+          "gaps": [
+            {
+              "type": "low_retrieval_confidence",
+              "title": "检索置信度偏低",
+              "detail": "建议补充与该问题直接相关的产品资料、报价单或 FAQ。"
+            },
+            {
+              "type": "needs_human_policy",
+              "title": "本轮涉及人工确认",
+              "detail": "合同、交付、优惠、特殊定制等内容需要人工复核。"
+            }
+          ],
+          "suggested_questions": [],
+          "needed_documents": [
+            "与客户问题同主题的产品说明、报价单、售后政策或 FAQ。"
+          ]
+        },
+        "decision_trace": [
+          {
+            "step": "MemoryTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          },
+          {
+            "step": "QuoteIntentDetector",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 0.86,
+            "missing_fields": [
+              "产品型号"
+            ]
+          },
+          {
+            "step": "KnowledgeTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 0,
+            "missing_fields": []
+          },
+          {
+            "step": "QuoteTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          },
+          {
+            "step": "SafetyTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          }
+        ],
+        "used_tools": [
+          "MemoryTool",
+          "QuoteIntentDetector",
+          "QuoteTool",
+          "SafetyTool"
+        ],
+        "quality_flags": [
+          "quote_requires_review",
+          "need_human_review"
+        ],
+        "quality_flag_details": [
+          {
+            "type": "quote_requires_review",
+            "label": "报价需人工复核",
+            "severity": "warning"
+          },
+          {
+            "type": "need_human_review",
+            "label": "需要人工确认",
+            "severity": "warning"
+          }
+        ],
+        "next_actions": [
+          "review_quote",
+          "manual_review"
+        ],
+        "next_action_details": [
+          {
+            "type": "review_quote",
+            "label": "复核报价规则和交付口径",
+            "target": "quote_rules"
+          },
+          {
+            "type": "manual_review",
+            "label": "人工确认价格、交期、合同或服务范围",
+            "target": "human"
+          }
+        ],
+        "need_human_review": true
+      },
+      "channel": "api",
+      "user_id": "customer_20260524_5wwt",
+      "conversation_id": "session_mpjtm2e0"
+    },
+    "created_at": "2026-05-25 23:04:31",
+    "updated_at": "2026-05-25 23:04:32"
+  },
+  {
+    "id": "answer_feedback_5c1bd6100aae",
+    "message": "我们是做团播的给我推荐一下你们的产品",
+    "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+    "verdict": "style_issue",
+    "feedback_type": "answer_quality",
+    "error_reason": "style_issue",
+    "fix_target": "prompt",
+    "suggested_action": "edit_knowledge",
+    "status": "pending",
+    "regression_case_id": null,
+    "request_id": "0aff2789-34d5-4a98-be31-23bc0b1bae4c",
+    "notes": "当客户说“我们是做团播的，推荐一下你们的产品”时，不要一上来连续反问。\n请先根据“团播直播间”的典型需求，主动推荐一个主方案，并说明为什么适合团播。\n回答结构必须是：\n\n先给明确推荐：优先推荐哪一款\n说明适合团播的原因：稳定运镜、多机位感、重复动作、降低人工成本\n给升级选择：什么情况选更高配置\n再问 2 个以内关键问题\n语气要像专业销售顾问，不要像问卷调查",
+    "route": "quote_draft",
+    "expected_route": "quote_draft",
+    "expected_keywords": [
+      "U-MOCO",
+      "GRA",
+      "EXT",
+      "PRO",
+      "轨道"
+    ],
+    "forbidden_keywords": [
+      "可以的，团播直播间我们能"
+    ],
+    "matched_rule": "",
+    "score": 0.0,
+    "need_human_review": true,
+    "used_tools": [
+      "MemoryTool",
+      "QuoteIntentDetector",
+      "QuoteTool",
+      "SafetyTool"
+    ],
+    "quality_flags": [
+      "quote_requires_review",
+      "need_human_review"
+    ],
+    "next_actions": [
+      "review_quote",
+      "manual_review"
+    ],
+    "decision_trace": [
+      {
+        "step": "MemoryTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      },
+      {
+        "step": "QuoteIntentDetector",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 0.86,
+        "missing_fields": [
+          "产品型号"
+        ]
+      },
+      {
+        "step": "KnowledgeTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 0,
+        "missing_fields": []
+      },
+      {
+        "step": "QuoteTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      },
+      {
+        "step": "SafetyTool",
+        "ok": true,
+        "route": "quote_draft",
+        "confidence": 1,
+        "missing_fields": []
+      }
+    ],
+    "sources": [
+      {
+        "type": "quote_catalog",
+        "score": null,
+        "adjusted_score": null,
+        "source": "data/quote_catalog.json",
+        "category": "报价规则库",
+        "question": "",
+        "doc_name": "",
+        "section": "",
+        "reason": "本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。"
+      }
+    ],
+    "snapshot": {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "need_human": true,
+      "hint": "已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+      "matched_rule": "",
+      "faq_top_score": 0,
+      "doc_top_score": 0,
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "score": null,
+          "adjusted_score": null,
+          "source": "data/quote_catalog.json",
+          "category": "报价规则库",
+          "question": "",
+          "doc_name": "",
+          "section": "",
+          "reason": "本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。"
+        }
+      ],
+      "retrieval_debug": [],
+      "memory": {
+        "channel": "api",
+        "user_id": "conversation:admin-quality-check",
+        "customer_name": "",
+        "contact": "",
+        "products": [],
+        "preferences": [],
+        "common_questions": [],
+        "risk_flags": [],
+        "scenario": "团播",
+        "budget": "",
+        "project_time": "",
+        "decision_status": "",
+        "concerns": [],
+        "quoted_schemes": [],
+        "notes": "",
+        "live_room_area": "",
+        "camera_count": "",
+        "robot_arm_count": "",
+        "track_preference": "",
+        "updated_at": "2026-05-25 22:40:33"
+      },
+      "timings": {
+        "rule_match_ms": 0.3,
+        "memory_ms": 3.5999999999999996,
+        "history_ms": 0.3,
+        "context_plan_ms": 0.2,
+        "faq_retrieval_ms": 0,
+        "doc_retrieval_ms": 0,
+        "route_decision_ms": 8.8,
+        "answer_generation_ms": 0,
+        "source_format_ms": 0,
+        "total_ms": 14.3,
+        "retrieval_cache_hit": false
+      },
+      "metadata": {
+        "request_id": "0aff2789-34d5-4a98-be31-23bc0b1bae4c",
+        "behavior_rules_hit": [],
+        "memory_policy": {
+          "previous_context_words": [
+            "上次",
+            "之前",
+            "刚才",
+            "前面",
+            "上一轮",
+            "那个",
+            "这款"
+          ],
+          "product_recall_words": [
+            "什么机械臂",
+            "哪个机械臂",
+            "聊的什么",
+            "是什么产品",
+            "什么产品"
+          ],
+          "previous_product_anchor": true
+        },
+        "models": {
+          "chat_model": "qwen3:8b",
+          "embed_model": "bge-m3:latest",
+          "override_used": false
+        },
+        "context_plan": {
+          "used_history": false,
+          "used_memory": false,
+          "contextual_query": false,
+          "cache_policy": "context_scoped",
+          "reason": "独立明确问题，可使用上下文范围内缓存",
+          "history_turn_count": 0,
+          "anchors": [],
+          "direct_answer_allowed": true
+        },
+        "conversation_context": [],
+        "quote_draft": {
+          "need_summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+          "recommended_products": [
+            {
+              "product": "U-MOCO GRA",
+              "version": "",
+              "base_price": "¥448,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。"
+              ]
+            },
+            {
+              "product": "U-MOCO EXT",
+              "version": "团播版",
+              "base_price": "¥758,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              ]
+            },
+            {
+              "product": "U-MOCO PRO",
+              "version": "团播版",
+              "base_price": "¥718,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              ]
+            }
+          ],
+          "quote_items": [
+            {
+              "name": "U-MOCO GRA",
+              "quantity": 1,
+              "unit": "项",
+              "reference_price": "¥448,000",
+              "reference_total": "¥448,000",
+              "source": "结构化报价规则库",
+              "note": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO OS Pro",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥28,000",
+              "reference_total": "¥28,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "三向快装快拆套件",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥9,900",
+              "reference_total": "¥9,900",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO 操作手柄",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥12,500",
+              "reference_total": "¥12,500",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "FIZ / 自动跟焦系统",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥19,800",
+              "reference_total": "¥19,800",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "U-MOCO Live",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "需按最终配置核算",
+              "reference_total": "",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "Stream Deck / 直播可编程键盘",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥10,000",
+              "reference_total": "¥10,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。",
+              "review_required": true
+            },
+            {
+              "name": "DMX 灯光联动 / 控台适配",
+              "quantity": 1,
+              "unit": "套",
+              "reference_price": "¥15,800",
+              "reference_total": "¥15,800",
+              "source": "结构化报价规则库",
+              "note": "灯光控台联动，需确认现场品牌与协议。",
+              "review_required": true
+            },
+            {
+              "name": "上门部署培训",
+              "quantity": 1,
+              "unit": "项",
+              "reference_price": "需按交付地与排期核算",
+              "reference_total": "",
+              "source": "结构化报价规则库",
+              "note": "安装、按键映射、运镜交付与培训。",
+              "review_required": true
+            }
+          ],
+          "reference_total": "",
+          "pricing_policy": {
+            "mode": "draft_only",
+            "default_when_unconfigured": "list_price_only",
+            "max_discount_percent": "",
+            "min_margin_note": "",
+            "approval_required": [
+              "优惠价",
+              "低于标价",
+              "交付时间",
+              "合同条款",
+              "特殊定制"
+            ],
+            "reply_style": "sales_talk",
+            "template": "先复述客户场景，再推荐方案，给参考标价和可选项，最后说明优惠/交付/合同需要人工确认。"
+          },
+          "recent_quotes": [],
+          "sources": [
+            "data/quote_catalog.json"
+          ],
+          "requires_confirmation": [
+            "优惠价",
+            "低于标价",
+            "交付时间",
+            "合同条款",
+            "特殊定制"
+          ],
+          "status": "draft",
+          "configuration_quote": {
+            "ok": true,
+            "status": "draft",
+            "scenario": "group_live",
+            "package": {
+              "id": "group_live",
+              "name": "团播版",
+              "scenario": "团播 / 直播间 / 电商直播",
+              "description": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+            },
+            "recommended_arm": {
+              "id": "GRA",
+              "name": "U-MOCO GRA",
+              "span": "约 2 米",
+              "payload": "",
+              "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+              "reference_price": "¥448,000"
+            },
+            "alternative_arms": [
+              {
+                "id": "EXT",
+                "name": "U-MOCO EXT",
+                "reference_price": "¥758,000",
+                "description": "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              },
+              {
+                "id": "PRO",
+                "name": "U-MOCO PRO",
+                "reference_price": "¥718,000",
+                "description": "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              }
+            ],
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "needs": {
+              "scenario": "group_live",
+              "budget": "",
+              "budget_value": 0,
+              "track_length": "",
+              "camera_payload": "",
+              "camera_count": "",
+              "live_room_area": "",
+              "robot_arm_count": "",
+              "track_preference": "",
+              "tracking_required": false,
+              "freed_required": false,
+              "focus_required": false,
+              "dmx_required": false,
+              "keyboard_required": false,
+              "training_required": false,
+              "delivery_urgency": "",
+              "explicit_products": [],
+              "raw_message": "我们是做团播的给我推荐一下你们的产品",
+              "package_name": "团播版",
+              "recommended_arm": "GRA"
+            },
+            "modules": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "module_type": "core_arm",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥448,000",
+                "unit": "",
+                "catalog_item": {
+                  "id": "GRA",
+                  "name": "U-MOCO GRA",
+                  "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+                  "span": "约 2 米",
+                  "payload": "",
+                  "prices": {
+                    "标准版": "¥438,000",
+                    "专业版": "¥448,000",
+                    "旗舰版": "¥508,000",
+                    "广播版": "¥978,000"
+                  }
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥28,000",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "os_pro",
+                  "name": "U-MOCO OS Pro",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "¥28,000",
+                  "description": "机械臂专业版控制与运镜设计软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "module_type": "mount",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥9,900",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "three_way_quick_release",
+                  "name": "三向快装快拆套件",
+                  "category": "mount",
+                  "unit": "套",
+                  "reference_price": "¥9,900",
+                  "description": "影视/TVC 基础快装配置。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥12,500",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "operation_handle",
+                  "name": "U-MOCO 操作手柄",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥12,500",
+                  "description": "现场基础操作控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "module_type": "lens",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥19,800",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "fiz_focus",
+                  "name": "FIZ / 自动跟焦系统",
+                  "category": "lens",
+                  "unit": "套",
+                  "reference_price": "¥19,800",
+                  "description": "跟焦、变焦、光圈控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按最终配置核算",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "umoco_live",
+                  "name": "U-MOCO Live",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "需按最终配置核算",
+                  "description": "团播一键运镜、变焦、灯光联动控制软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥10,000",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "stream_deck",
+                  "name": "Stream Deck / 直播可编程键盘",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥10,000",
+                  "description": "团播现场按键控制运镜、变焦、灯光联动。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "module_type": "lighting",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥15,800",
+                "unit": "套",
+                "catalog_item": {
+                  "id": "dmx_control",
+                  "name": "DMX 灯光联动 / 控台适配",
+                  "category": "lighting",
+                  "unit": "套",
+                  "reference_price": "¥15,800",
+                  "description": "灯光控台联动，需确认现场品牌与协议。"
+                },
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "module_type": "service",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按交付地与排期核算",
+                "unit": "项",
+                "catalog_item": {
+                  "id": "training",
+                  "name": "上门部署培训",
+                  "category": "service",
+                  "unit": "项",
+                  "reference_price": "需按交付地与排期核算",
+                  "description": "安装、按键映射、运镜交付与培训。"
+                },
+                "review_required": true
+              }
+            ],
+            "quote_items": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥448,000",
+                "reference_total": "¥448,000",
+                "source": "结构化报价规则库",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥28,000",
+                "reference_total": "¥28,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥9,900",
+                "reference_total": "¥9,900",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥12,500",
+                "reference_total": "¥12,500",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥19,800",
+                "reference_total": "¥19,800",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "需按最终配置核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥10,000",
+                "reference_total": "¥10,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "套",
+                "reference_price": "¥15,800",
+                "reference_total": "¥15,800",
+                "source": "结构化报价规则库",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "需按交付地与排期核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "review_required": true
+              }
+            ],
+            "source_refs": [
+              {
+                "type": "quote_rule",
+                "title": "结构化报价规则库",
+                "section": "团播版",
+                "source": "data/quote_catalog.json",
+                "category": "报价规则",
+                "score": 1,
+                "snippet": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+              },
+              {
+                "type": "quote_rule",
+                "title": "U-MOCO GRA",
+                "section": "臂型价格",
+                "source": "data/quote_catalog.json",
+                "category": "臂型",
+                "score": 1,
+                "snippet": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。"
+              }
+            ],
+            "missing_questions": [
+              "客户预算区间是多少？预算会影响 GRA 起步方案、PRO/EXT 升级和选配范围。",
+              "现场是否需要轨道？如果需要，轨道长度和可用空间是多少米？",
+              "客户使用的相机、镜头和附件总重量大约多少？",
+              "现场需要几台相机或几个机位？",
+              "是否需要 FreeD/XR/虚拟制作跟踪，还是只做常规直播运镜？",
+              "客户期望交付和培训时间是什么？"
+            ],
+            "review_flags": [
+              "当前结果是内部配置与报价项草稿，不是正式报价。",
+              "团播场景默认从单条 U-MOCO GRA 起步，AIR/MINI 臂展不足不作为默认推荐。",
+              "轨道不默认添加，只有客户需要横移、走位、全景/环绕或明确轨道长度时才拆成选配。",
+              "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+              "客户需求信息未完整，缺失问题未确认前不应发送正式报价。"
+            ],
+            "summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+            "metadata": {
+              "source": "chat_quote_service",
+              "user_id": null,
+              "memory": {}
+            },
+            "generated_at": "2026-05-25 22:40:33"
+          }
+        },
+        "knowledge_gaps": {
+          "has_gaps": true,
+          "gaps": [
+            {
+              "type": "low_retrieval_confidence",
+              "title": "检索置信度偏低",
+              "detail": "建议补充与该问题直接相关的产品资料、报价单或 FAQ。"
+            },
+            {
+              "type": "needs_human_policy",
+              "title": "本轮涉及人工确认",
+              "detail": "合同、交付、优惠、特殊定制等内容需要人工复核。"
+            }
+          ],
+          "suggested_questions": [],
+          "needed_documents": [
+            "与客户问题同主题的产品说明、报价单、售后政策或 FAQ。"
+          ]
+        },
+        "decision_trace": [
+          {
+            "step": "MemoryTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          },
+          {
+            "step": "QuoteIntentDetector",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 0.86,
+            "missing_fields": [
+              "产品型号"
+            ]
+          },
+          {
+            "step": "KnowledgeTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 0,
+            "missing_fields": []
+          },
+          {
+            "step": "QuoteTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          },
+          {
+            "step": "SafetyTool",
+            "ok": true,
+            "route": "quote_draft",
+            "confidence": 1,
+            "missing_fields": []
+          }
+        ],
+        "used_tools": [
+          "MemoryTool",
+          "QuoteIntentDetector",
+          "QuoteTool",
+          "SafetyTool"
+        ],
+        "quality_flags": [
+          "quote_requires_review",
+          "need_human_review"
+        ],
+        "quality_flag_details": [
+          {
+            "type": "quote_requires_review",
+            "label": "报价需人工复核",
+            "severity": "warning"
+          },
+          {
+            "type": "need_human_review",
+            "label": "需要人工确认",
+            "severity": "warning"
+          }
+        ],
+        "next_actions": [
+          "review_quote",
+          "manual_review"
+        ],
+        "next_action_details": [
+          {
+            "type": "review_quote",
+            "label": "复核报价规则和交付口径",
+            "target": "quote_rules"
+          },
+          {
+            "type": "manual_review",
+            "label": "人工确认价格、交期、合同或服务范围",
+            "target": "human"
+          }
+        ],
+        "need_human_review": true
+      },
+      "channel": "api",
+      "user_id": "",
+      "conversation_id": "admin-quality-check"
+    },
+    "created_at": "2026-05-25 22:52:32",
+    "updated_at": "2026-05-25 22:58:02"
+  },
+  {
+    "id": "answer_feedback_86c225d68a1b",
+    "message": "我们是做团播的给我推荐一下你们的产品",
+    "answer": "【bge-m3:latest】\n可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+    "verdict": "style_issue",
+    "notes": "",
+    "route": "quote_draft",
+    "expected_route": "quote_draft",
+    "expected_keywords": [
+      "U-MOCO",
+      "GRA",
+      "EXT",
+      "PRO",
+      "轨道"
+    ],
+    "forbidden_keywords": [],
+    "snapshot": {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "【bge-m3:latest】\n可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "need_human": true,
+      "hint": "已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+      "matched_rule": "无",
+      "faq_top_score": 0,
+      "doc_top_score": 0,
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "score": null,
+          "adjusted_score": null,
+          "source": "data/quote_catalog.json",
+          "category": "报价规则库",
+          "question": "",
+          "doc_name": "",
+          "section": "",
+          "reason": "本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。"
+        }
+      ],
+      "retrieval_debug": [],
+      "memory": null,
+      "timings": {
+        "rule_match_ms": 0.5,
+        "memory_ms": 0.4,
+        "faq_retrieval_ms": 0,
+        "doc_retrieval_ms": 0,
+        "route_decision_ms": 9.4,
+        "answer_generation_ms": 0,
+        "source_format_ms": 0,
+        "total_ms": 10.5,
+        "retrieval_cache_hit": false
+      },
+      "metadata": {
+        "test_page": true,
+        "regression_test": true,
+        "model_compare": true,
+        "model_override": {
+          "chat_model": "bge-m3:latest"
+        },
+        "behavior_rules_hit": [],
+        "memory_policy": {
+          "previous_context_words": [
+            "上次",
+            "之前",
+            "刚才",
+            "前面",
+            "上一轮",
+            "那个",
+            "这款"
+          ],
+          "product_recall_words": [
+            "什么机械臂",
+            "哪个机械臂",
+            "聊的什么",
+            "是什么产品",
+            "什么产品"
+          ],
+          "previous_product_anchor": true
+        },
+        "models": {
+          "chat_model": "bge-m3:latest",
+          "embed_model": "bge-m3:latest",
+          "override_used": true
+        },
+        "quote_draft": {
+          "need_summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+          "recommended_products": [
+            {
+              "product": "U-MOCO GRA",
+              "version": "",
+              "base_price": "¥448,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。"
+              ]
+            },
+            {
+              "product": "U-MOCO EXT",
+              "version": "团播版",
+              "base_price": "¥758,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              ]
+            },
+            {
+              "product": "U-MOCO PRO",
+              "version": "团播版",
+              "base_price": "¥718,000",
+              "historical_offer": "",
+              "source": "结构化报价规则库",
+              "configuration": [
+                "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              ]
+            }
+          ],
+          "quote_items": [
+            {
+              "name": "U-MOCO GRA",
+              "quantity": 1,
+              "reference_price": "¥448,000",
+              "source": "结构化报价规则库",
+              "note": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。"
+            },
+            {
+              "name": "U-MOCO OS Pro",
+              "quantity": 1,
+              "reference_price": "¥28,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "三向快装快拆套件",
+              "quantity": 1,
+              "reference_price": "¥9,900",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "U-MOCO 操作手柄",
+              "quantity": 1,
+              "reference_price": "¥12,500",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "FIZ / 自动跟焦系统",
+              "quantity": 1,
+              "reference_price": "¥19,800",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "U-MOCO Live",
+              "quantity": 1,
+              "reference_price": "需按最终配置核算",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "Stream Deck / 直播可编程键盘",
+              "quantity": 1,
+              "reference_price": "¥10,000",
+              "source": "结构化报价规则库",
+              "note": "团播版核心配置。"
+            },
+            {
+              "name": "DMX 灯光联动 / 控台适配",
+              "quantity": 1,
+              "reference_price": "¥15,800",
+              "source": "结构化报价规则库",
+              "note": "灯光控台联动，需确认现场品牌与协议。"
+            },
+            {
+              "name": "上门部署培训",
+              "quantity": 1,
+              "reference_price": "需按交付地与排期核算",
+              "source": "结构化报价规则库",
+              "note": "安装、按键映射、运镜交付与培训。"
+            }
+          ],
+          "reference_total": "",
+          "pricing_policy": {
+            "mode": "draft_only",
+            "default_when_unconfigured": "list_price_only",
+            "max_discount_percent": "",
+            "min_margin_note": "",
+            "approval_required": [
+              "优惠价",
+              "低于标价",
+              "交付时间",
+              "合同条款",
+              "特殊定制"
+            ],
+            "reply_style": "sales_talk",
+            "template": "先复述客户场景，再推荐方案，给参考标价和可选项，最后说明优惠/交付/合同需要人工确认。"
+          },
+          "recent_quotes": [],
+          "sources": [
+            "data/quote_catalog.json"
+          ],
+          "requires_confirmation": [
+            "优惠价",
+            "低于标价",
+            "交付时间",
+            "合同条款",
+            "特殊定制"
+          ],
+          "status": "draft",
+          "configuration_quote": {
+            "ok": true,
+            "status": "draft",
+            "scenario": "group_live",
+            "package": {
+              "id": "group_live",
+              "name": "团播版",
+              "scenario": "团播 / 直播间 / 电商直播",
+              "description": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+            },
+            "recommended_arm": {
+              "id": "GRA",
+              "name": "U-MOCO GRA",
+              "span": "约 2 米",
+              "payload": "",
+              "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+              "reference_price": "¥448,000"
+            },
+            "alternative_arms": [
+              {
+                "id": "EXT",
+                "name": "U-MOCO EXT",
+                "reference_price": "¥758,000",
+                "description": "大臂展空间调度臂形，适合大直播间、舞台、晚会和电视台场景。"
+              },
+              {
+                "id": "PRO",
+                "name": "U-MOCO PRO",
+                "reference_price": "¥718,000",
+                "description": "高负载、专业拍摄臂形，适合更重相机镜头组合和高规格影视/TVC。"
+              }
+            ],
+            "message": "我们是做团播的给我推荐一下你们的产品",
+            "needs": {
+              "scenario": "group_live",
+              "budget": "",
+              "budget_value": 0,
+              "track_length": "",
+              "camera_payload": "",
+              "camera_count": "",
+              "live_room_area": "",
+              "robot_arm_count": "",
+              "track_preference": "",
+              "tracking_required": false,
+              "freed_required": false,
+              "focus_required": false,
+              "dmx_required": false,
+              "keyboard_required": false,
+              "training_required": false,
+              "delivery_urgency": "",
+              "explicit_products": [],
+              "raw_message": "我们是做团播的给我推荐一下你们的产品",
+              "package_name": "团播版",
+              "recommended_arm": "GRA"
+            },
+            "modules": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "module_type": "core_arm",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥448,000",
+                "catalog_item": {
+                  "id": "GRA",
+                  "name": "U-MOCO GRA",
+                  "description": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。",
+                  "span": "约 2 米",
+                  "payload": "",
+                  "prices": {
+                    "标准版": "¥438,000",
+                    "专业版": "¥448,000",
+                    "旗舰版": "¥508,000",
+                    "广播版": "¥978,000"
+                  }
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥28,000",
+                "catalog_item": {
+                  "id": "os_pro",
+                  "name": "U-MOCO OS Pro",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "¥28,000",
+                  "description": "机械臂专业版控制与运镜设计软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "module_type": "mount",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥9,900",
+                "catalog_item": {
+                  "id": "three_way_quick_release",
+                  "name": "三向快装快拆套件",
+                  "category": "mount",
+                  "unit": "套",
+                  "reference_price": "¥9,900",
+                  "description": "影视/TVC 基础快装配置。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥12,500",
+                "catalog_item": {
+                  "id": "operation_handle",
+                  "name": "U-MOCO 操作手柄",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥12,500",
+                  "description": "现场基础操作控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "module_type": "lens",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥19,800",
+                "catalog_item": {
+                  "id": "fiz_focus",
+                  "name": "FIZ / 自动跟焦系统",
+                  "category": "lens",
+                  "unit": "套",
+                  "reference_price": "¥19,800",
+                  "description": "跟焦、变焦、光圈控制。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "module_type": "software",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按最终配置核算",
+                "catalog_item": {
+                  "id": "umoco_live",
+                  "name": "U-MOCO Live",
+                  "category": "software",
+                  "unit": "套",
+                  "reference_price": "需按最终配置核算",
+                  "description": "团播一键运镜、变焦、灯光联动控制软件。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "module_type": "control",
+                "reason": "团播版核心配置。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥10,000",
+                "catalog_item": {
+                  "id": "stream_deck",
+                  "name": "Stream Deck / 直播可编程键盘",
+                  "category": "control",
+                  "unit": "套",
+                  "reference_price": "¥10,000",
+                  "description": "团播现场按键控制运镜、变焦、灯光联动。"
+                },
+                "review_required": false
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "module_type": "lighting",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "source": "结构化报价规则库",
+                "reference_price": "¥15,800",
+                "catalog_item": {
+                  "id": "dmx_control",
+                  "name": "DMX 灯光联动 / 控台适配",
+                  "category": "lighting",
+                  "unit": "套",
+                  "reference_price": "¥15,800",
+                  "description": "灯光控台联动，需确认现场品牌与协议。"
+                },
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "module_type": "service",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "source": "结构化报价规则库",
+                "reference_price": "需按交付地与排期核算",
+                "catalog_item": {
+                  "id": "training",
+                  "name": "上门部署培训",
+                  "category": "service",
+                  "unit": "项",
+                  "reference_price": "需按交付地与排期核算",
+                  "description": "安装、按键映射、运镜交付与培训。"
+                },
+                "review_required": true
+              }
+            ],
+            "quote_items": [
+              {
+                "name": "U-MOCO GRA",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥448,000",
+                "reference_total": "¥448,000",
+                "source": "结构化报价规则库",
+                "reason": "U-MOCO GRA 是团播版默认起步臂形，先按单条机械臂报价，再按预算、负载、场地决定是否升级 EXT/PRO 或增加轨道。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO OS Pro",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥28,000",
+                "reference_total": "¥28,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "三向快装快拆套件",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥9,900",
+                "reference_total": "¥9,900",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO 操作手柄",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥12,500",
+                "reference_total": "¥12,500",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "FIZ / 自动跟焦系统",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥19,800",
+                "reference_total": "¥19,800",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "U-MOCO Live",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "需按最终配置核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "Stream Deck / 直播可编程键盘",
+                "role": "required",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥10,000",
+                "reference_total": "¥10,000",
+                "source": "结构化报价规则库",
+                "reason": "团播版核心配置。",
+                "review_required": true
+              },
+              {
+                "name": "DMX 灯光联动 / 控台适配",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "¥15,800",
+                "reference_total": "¥15,800",
+                "source": "结构化报价规则库",
+                "reason": "灯光控台联动，需确认现场品牌与协议。",
+                "review_required": true
+              },
+              {
+                "name": "上门部署培训",
+                "role": "recommended",
+                "quantity": 1,
+                "unit": "项",
+                "reference_price": "需按交付地与排期核算",
+                "reference_total": "",
+                "source": "结构化报价规则库",
+                "reason": "安装、按键映射、运镜交付与培训。",
+                "review_required": true
+              }
+            ],
+            "source_refs": [
+              {
+                "type": "quote_rule",
+                "title": "结构化报价规则库",
+                "section": "团播版",
+                "source": "data/quote_catalog.json",
+                "category": "报价规则",
+                "score": 1,
+                "snippet": "在影视版基础上增加 U-MOCO Live。团播现场可直接打开 U-MOCO Live，用 Stream Deck/可编程键盘一键控制机械臂运镜、镜头变焦和灯光联动；新运镜用 U-MOCO OS Pro 打点后导出给 U-MOCO Live。"
+              },
+              {
+                "type": "quote_rule",
+                "title": "U-MOCO GRA",
+                "section": "臂型价格",
+                "source": "data/quote_catalog.json",
+                "category": "臂型",
+                "score": 1,
+                "snippet": "团播直播间默认起步臂形，适合大多数单条机械臂直播方案。"
+              }
+            ],
+            "missing_questions": [
+              "客户预算区间是多少？预算会影响 GRA 起步方案、PRO/EXT 升级和选配范围。",
+              "现场是否需要轨道？如果需要，轨道长度和可用空间是多少米？",
+              "客户使用的相机、镜头和附件总重量大约多少？",
+              "现场需要几台相机或几个机位？",
+              "是否需要 FreeD/XR/虚拟制作跟踪，还是只做常规直播运镜？",
+              "客户期望交付和培训时间是什么？"
+            ],
+            "review_flags": [
+              "当前结果是内部配置与报价项草稿，不是正式报价。",
+              "团播场景默认从单条 U-MOCO GRA 起步，AIR/MINI 臂展不足不作为默认推荐。",
+              "轨道不默认添加，只有客户需要横移、走位、全景/环绕或明确轨道长度时才拆成选配。",
+              "所有参考价格、优惠价和历史报价都需要销售主管复核。",
+              "客户需求信息未完整，缺失问题未确认前不应发送正式报价。"
+            ],
+            "summary": "已按团播版生成单条 GRA 配置草稿。核心模块：U-MOCO GRA、U-MOCO OS Pro、三向快装快拆套件、U-MOCO 操作手柄、FIZ / 自动跟焦系统、U-MOCO Live、Stream Deck / 直播可编程键盘。可选/需拆项：DMX 灯光联动 / 控台适配、上门部署培训。还需补问 6 个关键信息。",
+            "metadata": {
+              "source": "chat_quote_service",
+              "user_id": null,
+              "memory": {}
+            },
+            "generated_at": "2026-05-25 00:41:33"
+          }
+        },
+        "knowledge_gaps": {
+          "has_gaps": true,
+          "gaps": [
+            {
+              "type": "low_retrieval_confidence",
+              "title": "检索置信度偏低",
+              "detail": "建议补充与该问题直接相关的产品资料、报价单或 FAQ。"
+            },
+            {
+              "type": "needs_human_policy",
+              "title": "本轮涉及人工确认",
+              "detail": "合同、交付、优惠、特殊定制等内容需要人工复核。"
+            }
+          ],
+          "suggested_questions": [],
+          "needed_documents": [
+            "与客户问题同主题的产品说明、报价单、售后政策或 FAQ。"
+          ]
+        }
+      },
+      "channel": "api",
+      "user_id": "customer_20260524_5wwt",
+      "conversation_id": "session_mpjtm2e0"
+    },
+    "created_at": "2026-05-25 00:41:59",
+    "updated_at": "2026-05-25 00:41:59"
+  }
+]

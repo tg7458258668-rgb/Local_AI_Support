@@ -35,10 +35,20 @@ def build_docs_prompt(user_query: str, hits, memory_context: str = "") -> str:
     context_parts = []
     for i, hit in enumerate(hits, start=1):
         payload = hit.payload or {}
+        section = payload.get("section_title") or payload.get("section", "")
+        page = payload.get("page_range", "")
+        topics = payload.get("topics") or []
+        entities = payload.get("entities") or payload.get("products") or []
+        key_points = payload.get("key_points") or []
         context_parts.append(
             f"[文档资料{i}] 文档:{payload.get('doc_name','')}\n"
-            f"章节:{payload.get('section','')}\n"
+            f"章节:{section}\n"
+            f"页码:{page}\n"
             f"来源:{payload.get('source','')}\n"
+            f"摘要:{payload.get('semantic_summary') or payload.get('summary','')}\n"
+            f"主题:{'、'.join(str(item) for item in topics[:8])}\n"
+            f"实体:{'、'.join(str(item) for item in entities[:8])}\n"
+            f"关键点:{'；'.join(str(item) for item in key_points[:6])}\n"
             f"内容:{payload.get('text','')}"
         )
 

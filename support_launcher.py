@@ -85,90 +85,502 @@ class LauncherHandler(BaseHTTPRequestHandler):
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>本地 AI 客服启动器</title>
   <style>
-    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f6f7f9; color: #111827; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    main { width: min(720px, calc(100vw - 32px)); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 18px 50px rgba(15, 23, 42, .08); }
-    h1 { margin: 0 0 8px; font-size: 24px; letter-spacing: 0; }
-    p { color: #6b7280; line-height: 1.7; }
-    .status { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
-    .item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
-    .service { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
-    .label { color: #6b7280; font-size: 13px; }
-    .value { margin-top: 6px; font-weight: 700; }
-    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-    button, a { border: 0; border-radius: 8px; padding: 11px 16px; background: #2563eb; color: #fff; text-decoration: none; font-size: 14px; cursor: pointer; }
-    button.secondary { background: #111827; }
-    button.danger { background: #dc2626; }
-    .small-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-    .small-actions button { padding: 8px 11px; font-size: 13px; }
-    .muted { color: #6b7280; font-size: 13px; margin-top: 6px; }
-    .path { margin: 12px 0 0; padding: 10px 12px; border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; color: #334155; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; overflow-wrap: anywhere; }
-    pre { background: #f3f4f6; border-radius: 8px; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; height: min(34vh, 280px); max-height: 280px; overflow: auto; }
-    @media (max-width: 680px) { .status { grid-template-columns: 1fr; } .service { grid-template-columns: 1fr; } .small-actions { justify-content: flex-start; } }
+    * { box-sizing: border-box; }
+    :root {
+      --panel: #121212;
+      --panel-soft: #1a1a1a;
+      --panel-strong: #0f0f0f;
+      --line: #262626;
+      --line-strong: #333333;
+      --text: #f3f4f6;
+      --muted: #8b8b8b;
+      --dim: #5b5b5b;
+      --green: #10b981;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --radius: 12px;
+    }
+    html, body { min-width: 0; min-height: 100%; margin: 0; padding: 0; }
+    body {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.16), transparent 34%),
+        #050505;
+      color: var(--text);
+      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", ui-sans-serif, sans-serif;
+      letter-spacing: 0;
+    }
+    button, a {
+      min-height: 44px;
+      border: 0;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      cursor: pointer;
+      color: inherit;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-decoration: none;
+      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
+    }
+    button:focus-visible, a:focus-visible { outline: 3px solid rgba(96, 165, 250, 0.36); outline-offset: 2px; }
+    button:hover, a:hover { transform: translateY(-2px); }
+    button:active, a:active { transform: translateY(2px) scale(0.97); }
+    .launcher-wrap {
+      width: min(100vw - 28px, 420px);
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 20px 0;
+    }
+    .launcher-panel {
+      width: 100%;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.78);
+    }
+    .titlebar {
+      height: 50px;
+      flex: 0 0 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      user-select: none;
+    }
+    .brand {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--dim);
+    }
+    .brand-icon {
+      width: 17px;
+      height: 17px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      color: #777;
+      font-size: 10px;
+      font-weight: 900;
+    }
+    .brand span {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .window-actions { display: flex; align-items: center; gap: 8px; }
+    .window-btn {
+      min-height: 28px;
+      width: 28px;
+      padding: 0;
+      background: transparent;
+      color: #666;
+      box-shadow: none;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .window-btn:hover { color: #d1d5db; background: #1a1a1a; transform: none; }
+    .status-center {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 28px 12px;
+      text-align: center;
+    }
+    .status-orb {
+      width: 104px;
+      height: 104px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 24px;
+      border-radius: 999px;
+      background: #1a1a1a;
+      border: 1px solid #222;
+      transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .status-light {
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #5f6368;
+      transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+    }
+    .launcher-panel.running .status-orb {
+      background: #14241d;
+      border-color: rgba(16, 185, 129, 0.28);
+      box-shadow: 0 0 38px rgba(16, 185, 129, 0.18);
+    }
+    .launcher-panel.running .status-light {
+      background: var(--green);
+      box-shadow: 0 0 18px var(--green);
+      transform: scale(1.08);
+    }
+    .launcher-panel.partial .status-orb {
+      background: #272111;
+      border-color: rgba(245, 158, 11, 0.28);
+      box-shadow: 0 0 34px rgba(245, 158, 11, 0.14);
+    }
+    .launcher-panel.partial .status-light {
+      background: #f59e0b;
+      box-shadow: 0 0 16px #f59e0b;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      line-height: 1.2;
+      font-weight: 800;
+      color: #d1d5db;
+    }
+    .launcher-panel.running h1 { color: #f9fafb; }
+    .meta-pill {
+      min-width: 0;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-soft);
+      color: var(--dim);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+    .meta-pill span { overflow: hidden; text-overflow: ellipsis; }
+    .dot-sep { color: #333; }
+    .control-area {
+      display: grid;
+      gap: 13px;
+      padding: 0 28px 18px;
+    }
+    .primary-btn {
+      width: 100%;
+      height: 56px;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(180deg, #2a2a2a, #1e1e1e);
+      color: #e5e7eb;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.46);
+    }
+    .primary-btn:hover { border-color: #4b5563; box-shadow: 0 16px 34px rgba(0, 0, 0, 0.58); }
+    .launcher-panel.running .primary-btn {
+      border-color: #4a2525;
+      background: #2a1515;
+      color: var(--red);
+      box-shadow: 0 12px 30px rgba(127, 29, 29, 0.22);
+    }
+    .primary-btn.is-loading {
+      pointer-events: none;
+      opacity: 0.86;
+      transform: translateY(1px) scale(0.985);
+    }
+    .primary-btn.is-loading::after {
+      content: "";
+      width: 15px;
+      height: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.32);
+      border-top-color: currentColor;
+      border-radius: 999px;
+      animation: spin 0.8s linear infinite;
+    }
+    .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      position: relative;
+      flex: 0 0 18px;
+    }
+    .icon.play::before {
+      content: "";
+      position: absolute;
+      inset: 3px 2px 3px 5px;
+      background: currentColor;
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+    .icon.stop::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+    .secondary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ghost-btn, .ghost-link {
+      height: 42px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: #a3a3a3;
+      box-shadow: none;
+      font-size: 12px;
+    }
+    .ghost-btn:hover, .ghost-link:hover { background: var(--panel-soft); color: #e5e7eb; border-color: #3a3a3a; }
+    .service-list {
+      display: grid;
+      gap: 8px;
+      padding: 0 28px 18px;
+    }
+    .service-row {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 11px;
+      border: 1px solid #1f1f1f;
+      border-radius: 8px;
+      background: #101010;
+    }
+    .service-name { color: #d4d4d4; font-size: 12px; font-weight: 800; }
+    .service-meta { margin-top: 4px; color: #5f6368; font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+    .service-state {
+      min-width: 58px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: #1f1f1f;
+      color: #737373;
+      font-size: 11px;
+      font-weight: 900;
+      text-align: center;
+    }
+    .service-state.good { background: rgba(16, 185, 129, 0.12); color: var(--green); }
+    .service-state.bad { background: rgba(248, 113, 113, 0.1); color: var(--red); }
+    .footer {
+      height: 40px;
+      flex: 0 0 40px;
+      border-top: 1px solid #1a1a1a;
+      background: var(--panel-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+    .log-drawer {
+      display: none;
+      margin: 0 28px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+    .log-drawer.open { display: block; }
+    .log-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 11px;
+      border-bottom: 1px solid #1f1f1f;
+      color: #a3a3a3;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    pre {
+      margin: 0;
+      max-height: 170px;
+      overflow: auto;
+      padding: 10px 11px;
+      color: #a7f3d0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      line-height: 1.55;
+    }
+    .flash { animation: pulse-click 0.44s ease; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse-click {
+      0% { box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.5), 0 12px 28px rgba(0, 0, 0, 0.46); }
+      100% { box-shadow: 0 0 0 14px rgba(96, 165, 250, 0), 0 12px 28px rgba(0, 0, 0, 0.46); }
+    }
+    @media (max-width: 460px) {
+      .launcher-wrap { width: min(100vw - 16px, 420px); padding: 8px 0; }
+      .launcher-panel { min-height: calc(100dvh - 16px); }
+      .status-center { padding-inline: 20px; }
+      .control-area, .service-list { padding-inline: 20px; }
+      .log-drawer { margin-inline: 20px; }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <h1>本地 AI 客服启动器</h1>
-    <p>这个页面独立运行在 7999 端口。即使客服系统 8000 端口没有启动，也可以在这里启动、停止或重启业务服务和 Qdrant 向量库。</p>
-    <div class="path">当前启动目录：__BASE_DIR__</div>
-    <section class="status">
-      <div class="service">
-        <div>
-          <div class="label">业务服务 FastAPI</div>
-          <div id="appRunning" class="value">-</div>
-          <div id="appMeta" class="muted">-</div>
+  <div class="launcher-wrap">
+    <main id="panel" class="launcher-panel">
+      <div class="titlebar">
+        <div class="brand">
+          <div class="brand-icon">AI</div>
+          <span>Local Support Engine</span>
         </div>
-        <div class="small-actions">
-          <button onclick="act('app/start')">启动</button>
-          <button class="secondary" onclick="act('app/restart')">重启</button>
-          <button class="danger" onclick="act('app/stop')">关闭</button>
+        <div class="window-actions">
+          <button class="window-btn" type="button" aria-label="最小化">-</button>
+          <button class="window-btn" type="button" aria-label="关闭">×</button>
         </div>
       </div>
-      <div class="service">
-        <div>
-          <div class="label">Qdrant 向量库</div>
-          <div id="qdrantRunning" class="value">-</div>
-          <div id="qdrantMeta" class="muted">-</div>
+
+      <section class="status-center">
+        <div class="status-orb"><div class="status-light"></div></div>
+        <h1 id="mainTitle">正在检测服务</h1>
+        <div class="meta-pill">
+          <span id="mainAddress">Localhost: 8000</span>
+          <span class="dot-sep">|</span>
+          <span id="mainMeta">Qdrant: -</span>
         </div>
-        <div class="small-actions">
-          <button onclick="act('qdrant/start')">启动</button>
-          <button class="secondary" onclick="act('qdrant/restart')">重启</button>
-          <button class="danger" onclick="act('qdrant/stop')">关闭</button>
+      </section>
+
+      <section class="control-area">
+        <button id="primaryControl" class="primary-btn" type="button" onclick="primaryAction(this)">
+          <span id="primaryIcon" class="icon play"></span>
+          <span id="primaryText">启动客服引擎</span>
+        </button>
+        <div class="secondary-row">
+          <button class="ghost-btn" type="button" onclick="toggleLogs()">日志查看</button>
+          <a class="ghost-link" href="http://127.0.0.1:8000/admin/settings">配置参数</a>
         </div>
+      </section>
+
+      <section class="service-list">
+        <div class="service-row">
+          <div>
+            <div class="service-name">FastAPI 业务服务</div>
+            <div id="appMeta" class="service-meta">-</div>
+          </div>
+          <div id="appState" class="service-state">-</div>
+        </div>
+        <div class="service-row">
+          <div>
+            <div class="service-name">Qdrant 向量库</div>
+            <div id="qdrantMeta" class="service-meta">-</div>
+          </div>
+          <div id="qdrantState" class="service-state">-</div>
+        </div>
+      </section>
+
+      <section id="logDrawer" class="log-drawer">
+        <div class="log-head">
+          <span>运行反馈</span>
+          <button class="window-btn" type="button" onclick="toggleLogs()" aria-label="关闭日志">×</button>
+        </div>
+        <pre id="message">加载中...</pre>
+      </section>
+
+      <div class="footer">
+        <span id="footerText">CPU: - / RAM: -</span>
       </div>
-    </section>
-    <div class="actions">
-      <button onclick="act('start-all')">启动全部</button>
-      <button class="secondary" onclick="act('restart-all')">重启全部</button>
-      <button class="danger" onclick="act('stop-all')">关闭全部</button>
-      <a href="http://127.0.0.1:8000/admin">进入管理后台</a>
-      <a href="http://127.0.0.1:8000/">进入聊天页</a>
-    </div>
-    <pre id="message">加载中...</pre>
-  </main>
+    </main>
+  </div>
   <script>
+    let latestStatus = null;
+
+    function setService(elId, running) {
+      const el = document.querySelector(elId);
+      if (!el) return;
+      el.textContent = running ? '运行中' : '未运行';
+      el.className = 'service-state ' + (running ? 'good' : 'bad');
+    }
+
+    function updatePrimary(appRunning, qdrantRunning) {
+      const panel = document.querySelector('#panel');
+      const title = document.querySelector('#mainTitle');
+      const primaryIcon = document.querySelector('#primaryIcon');
+      const primaryText = document.querySelector('#primaryText');
+      const allRunning = appRunning && qdrantRunning;
+      panel.classList.toggle('running', allRunning);
+      panel.classList.toggle('partial', !allRunning && (appRunning || qdrantRunning));
+      title.textContent = allRunning ? '服务运行中' : appRunning || qdrantRunning ? '部分服务运行中' : '服务未启动';
+      primaryIcon.className = 'icon ' + (allRunning ? 'stop' : 'play');
+      primaryText.textContent = allRunning ? '停止运行引擎' : '启动客服引擎';
+    }
+
     async function status() {
       const data = await fetch('/api/system/status').then(r => r.json());
+      latestStatus = data;
       const app = data.app || data;
       const qdrant = data.qdrant || {};
-      document.querySelector('#appRunning').textContent = app.running ? '运行中' : '未运行';
-      document.querySelector('#appMeta').textContent = `PID：${app.pid || '-'} ｜ 地址：${app.url || '-'} ｜ 目录：${app.base_dir || data.base_dir || '-'}`;
-      document.querySelector('#qdrantRunning').textContent = qdrant.running ? '运行中' : '未运行';
-      const dockerState = qdrant.docker_ready ? 'Docker 已就绪' : (qdrant.docker_error || 'Docker 未就绪');
-      document.querySelector('#qdrantMeta').textContent = `方式：${qdrant.mode || '-'} ｜ ${qdrant.availability_message || qdrant.url || '-'} ｜ Docker：${qdrant.docker_path || '-'} ｜ ${dockerState} ｜ 存储：${qdrant.storage_dir || '-'}`;
+      const appRunning = !!app.running;
+      const qdrantRunning = !!qdrant.running;
+      updatePrimary(appRunning, qdrantRunning);
+      setService('#appState', appRunning);
+      setService('#qdrantState', qdrantRunning);
+      document.querySelector('#mainAddress').textContent = app.url ? `Localhost: ${app.port || 8000}` : 'Localhost: 8000';
+      document.querySelector('#mainMeta').textContent = `Qdrant: ${qdrantRunning ? 'online' : 'offline'}`;
+      document.querySelector('#appMeta').textContent = appRunning ? `PID ${app.pid || '-'} ｜ ${app.url || '-'}` : '聊天页和后台未启动';
+      document.querySelector('#qdrantMeta').textContent = qdrantRunning ? `${qdrant.mode || '-'} ｜ ${qdrant.url || '-'}` : (qdrant.availability_message || '知识库未启动');
+      document.querySelector('#footerText').textContent = `APP: ${appRunning ? 'ON' : 'OFF'} / VECTOR: ${qdrantRunning ? 'ON' : 'OFF'}`;
       document.querySelector('#message').textContent = JSON.stringify(data, null, 2);
     }
-    async function act(name) {
-      const data = await fetch('/api/system/' + name, { method: 'POST' }).then(r => r.json());
-      document.querySelector('#message').textContent = JSON.stringify(data, null, 2);
-      setTimeout(status, 800);
+
+    function toggleLogs() {
+      document.querySelector('#logDrawer').classList.toggle('open');
     }
+
+    async function primaryAction(button) {
+      const data = latestStatus || {};
+      const app = data.app || data;
+      const qdrant = data.qdrant || {};
+      const allRunning = !!app.running && !!qdrant.running;
+      await act(allRunning ? 'stop-all' : 'start-all', button);
+    }
+
+    async function act(name, button) {
+      const originalText = button ? button.textContent : '';
+      if (button) {
+        button.classList.remove('flash');
+        void button.offsetWidth;
+        button.classList.add('flash', 'is-loading');
+        if (button.id === 'primaryControl') {
+          document.querySelector('#primaryText').textContent = '处理中';
+        } else {
+          button.textContent = '处理中';
+        }
+      }
+      try {
+        const data = await fetch('/api/system/' + name, { method: 'POST' }).then(r => r.json());
+        document.querySelector('#message').textContent = JSON.stringify(data, null, 2);
+        setTimeout(status, 800);
+      } catch (err) {
+        document.querySelector('#message').textContent = '操作失败：' + err;
+      } finally {
+        if (button) {
+          setTimeout(() => {
+            button.classList.remove('is-loading');
+            if (button.id !== 'primaryControl') button.textContent = originalText;
+            status();
+          }, 420);
+        }
+      }
+    }
+
     status();
     setInterval(status, 5000);
   </script>
 </body>
 </html>""".replace("__BASE_DIR__", str(BASE_DIR))
-
 
 def main():
     server = ReusableThreadingHTTPServer(("127.0.0.1", 7999), LauncherHandler)

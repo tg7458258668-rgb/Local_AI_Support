@@ -3,976 +3,764 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>本地 AI 客服管理后台</title>
-  <link rel="stylesheet" href="/static/admin.css?v=faq-editor-31" />
+  <title>AI 客服质检工作台</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/static/admin-v2.css?v=20260525-doc-modal-3" />
 </head>
-<body>
-  <div class="admin-layout">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>管理后台</h1>
-        <p>本地 AI 客服系统</p>
+<body data-page="{{ page | default('quality') }}">
+  <div class="admin-shell">
+    <aside class="admin-sidebar" aria-label="后台导航">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">AI</div>
+        <div class="brand-text">
+          <h1>客服中控引擎</h1>
+          <p>QA Workbench</p>
+        </div>
       </div>
 
-      <nav class="nav">
-        <button class="nav-btn active" data-tab="dashboard">系统概览</button>
-        <button class="nav-btn" data-tab="docs">知识库</button>
-        <button class="nav-btn" data-tab="faqs">FAQ</button>
-        <button class="nav-btn" data-tab="rules">优先规则</button>
-        <button class="nav-btn" data-tab="quote-policies">报价规则</button>
-        <button class="nav-btn" data-tab="quote-archives">报价档案</button>
-        <button class="nav-btn" data-tab="memories">客户记忆</button>
-        <button class="nav-btn" data-tab="learned-knowledge">学习库</button>
-        <button class="nav-btn" data-tab="tuning">训练工作台</button>
-        <button class="nav-btn" data-tab="models">模型设置</button>
-        <button class="nav-btn" data-tab="logs">系统日志</button>
+      <nav class="admin-nav">
+        <div class="nav-group">
+          <span class="nav-group-title">WORKFLOW</span>
+          <a class="nav-link" data-page="overview" data-icon="OV" href="/admin/overview">总览</a>
+          <a class="nav-link" data-page="quality" data-icon="QA" href="/admin">质检工作台</a>
+          <a class="nav-link" data-page="regression" data-icon="RG" href="/admin/regression">回归测试</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-group-title">BUSINESS</span>
+          <a class="nav-link" data-page="knowledge" data-icon="KB" href="/admin/knowledge">知识库中心</a>
+          <a class="nav-link" data-page="sales" data-icon="QR" href="/admin/sales">报价规则</a>
+          <a class="nav-link" data-page="memory" data-icon="CM" href="/admin/memory">客户记忆</a>
+        </div>
+        <div class="nav-group">
+          <span class="nav-group-title">SYSTEM</span>
+          <a class="nav-link" data-page="settings" data-icon="ST" href="/admin/settings">系统设置</a>
+        </div>
       </nav>
 
-      <div class="sidebar-footer">
-        <a href="/" class="back-link">返回聊天页</a>
+      <div class="sidebar-actions">
+        <a href="/" class="sidebar-link">返回对话前台</a>
       </div>
     </aside>
 
-    <main class="main">
-      <header class="topbar">
+    <main class="admin-main">
+      <header class="page-header">
         <div>
-          <h2 id="page-title">系统概览</h2>
-          <p id="page-desc">查看系统状态、资料库状态和日志</p>
+          <div id="pageKicker" class="page-kicker">管理后台</div>
+          <h2 id="pageTitle">问答质量</h2>
+          <p id="pageDescription">测试一句客户问题，快速判断系统是否能可靠回答。</p>
         </div>
-        <div class="top-actions">
-          <button class="ghost-btn" id="refreshAllBtn" type="button">刷新数据</button>
+        <div class="header-actions">
+          <div class="top-statusbar" aria-label="系统状态">
+            <span>Backend <strong id="footerFastapiStatus">checking</strong></span>
+            <span>Qdrant <strong id="footerQdrantStatus">checking</strong></span>
+            <span>Ollama <strong id="footerOllamaStatus">checking</strong></span>
+          </div>
+          <button id="refreshPageBtn" class="button button-secondary" type="button">刷新本页</button>
         </div>
       </header>
 
-      <section class="tab-panel active" id="tab-dashboard">
-        <div class="card-grid">
-          <div class="card stat-card health-card">
-            <div class="card-title">服务健康</div>
-            <div class="health-summary">
-              <div>
-                <span class="health-kicker">本地客服系统</span>
-                <strong id="healthOverallText">检测中</strong>
-              </div>
-              <span id="healthOverallBadge" class="status-badge gray">未知</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">FastAPI 后端</span>
-              <span id="backendStatus" class="status-badge gray">未知</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">Ollama 模型服务</span>
-              <span id="ollamaStatus" class="status-badge gray">未知</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">Qdrant 向量库</span>
-              <span id="qdrantStatus" class="status-badge gray">未知</span>
-            </div>
-            <div class="health-detail-grid">
-              <div><span>聊天接口</span><strong>/ask</strong></div>
-              <div><span>新版 API</span><strong>/api/v1/chat</strong></div>
-              <div><span>后台 API</span><strong>/api/admin</strong></div>
-            </div>
-            <div class="runtime-path">
-              <span>当前运行目录</span>
-              <strong id="backendBaseDir">检测中...</strong>
-            </div>
+      <section class="page-section" data-section="overview">
+        <div class="section-toolbar">
+          <div>
+            <h3>总览</h3>
+            <p>围绕回答质量、知识命中、报价风险和待修复事项查看系统状态。</p>
           </div>
-
-          <div class="card stat-card data-card">
-            <div class="card-title">资料库概况</div>
-            <div class="dashboard-metrics">
-              <div class="metric-tile"><span id="docCount">0</span><small>文档数</small></div>
-              <div class="metric-tile"><span id="chunkCount">0</span><small>文档片段</small></div>
-              <div class="metric-tile"><span id="faqCount">0</span><small>FAQ 条目</small></div>
-              <div class="metric-tile"><span id="ruleCount">0</span><small>规则条目</small></div>
-            </div>
-          </div>
+          <a class="button button-primary" href="/admin">进入质检工作台</a>
         </div>
-
-        <div class="card service-control-card">
-          <div class="service-control-head">
-            <div>
-              <div class="card-title">系统控制</div>
-              <div class="sub-info">启动器运行在 7999 端口，可同时管理业务服务和 Qdrant 向量库。</div>
+        <div class="metric-grid" id="overviewMetricGrid"></div>
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>待处理质检</h3>
+              <a class="text-link" href="/admin">查看全部</a>
             </div>
-            <a class="launcher-link" href="http://127.0.0.1:7999" target="_blank">打开启动器</a>
-          </div>
-          <div class="service-control-grid">
-            <div class="status-row">
-              <span class="status-label">业务服务</span>
-              <span id="serviceRunningStatus" class="status-badge gray">未知</span>
+            <div id="overviewQualityList" class="entity-list entity-list-compact"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>知识索引状态</h3>
+              <a class="text-link" href="/admin/knowledge">知识库中心</a>
             </div>
-            <div class="status-row">
-              <span class="status-label">业务 PID</span>
-              <span id="servicePidText" class="mono-text">-</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">Qdrant 向量库</span>
-              <span id="qdrantRunningStatus" class="status-badge gray">未知</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">Qdrant 方式</span>
-              <span id="qdrantModeText" class="mono-text">-</span>
-            </div>
-            <div class="status-row">
-              <span class="status-label">启动器</span>
-              <span id="launcherStatus" class="status-badge gray">未检测</span>
-            </div>
-            <div class="status-row wide-row">
-              <span class="status-label">启动器目录</span>
-              <span id="launcherBaseDirText" class="mono-text">-</span>
-            </div>
-          </div>
-          <div class="service-actions">
-            <button id="serviceStartBtn" type="button" class="primary-btn">启动全部</button>
-            <button id="serviceRestartBtn" type="button" class="ghost-btn">重启全部</button>
-            <button id="serviceStopBtn" type="button" class="danger-btn">关闭全部</button>
-            <button id="qdrantStartBtn" type="button" class="ghost-btn">只启动 Qdrant</button>
-          </div>
-          <div id="serviceControlMessage" class="service-control-message">如按钮不可用，请先打开“本地 AI 客服启动器”。</div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">文档名称</div>
-          <div id="docNameList" class="tag-list"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">最近日志</div>
-          <pre id="dashboardLog" class="log-box">加载中...</pre>
+            <div id="overviewIndexStatus" class="stack-list"></div>
+          </section>
         </div>
       </section>
 
-      <section class="tab-panel" id="tab-docs">
-        <div class="card doc-upload-card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">上传知识库文件</div>
-              <div class="sub-info">支持选择一个或多个 txt、md、docx、pdf、pages 自动入库；图片会保存但暂不 OCR。</div>
+      <section class="page-section" data-section="quality">
+        <div class="quality-layout">
+          <section class="panel panel-primary question-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Live test</p>
+                <h3>测试一句客户问题</h3>
+              </div>
+              <span id="qualityOverallBadge" class="state-pill state-muted">等待测试</span>
             </div>
-          </div>
-          <form id="docUploadForm" class="doc-upload-form">
-            <label class="doc-file-picker" for="docUploadFile">
-              <input id="docUploadFile" type="file" accept=".txt,.md,.docx,.pdf,.pages,.png,.jpg,.jpeg,.webp" multiple />
-              <span class="doc-file-icon">+</span>
-              <span class="doc-file-main">
-                <strong id="docFilePickerTitle">选择知识库文件</strong>
-                <small id="docFilePickerHint">支持 txt、md、docx、pdf、pages；可多选</small>
-              </span>
-            </label>
-            <input id="docUploadName" type="text" placeholder="文档名称（可选）" />
-            <input id="docUploadCategory" type="text" placeholder="分类，例如：售后政策 / 产品说明" />
-            <button id="docUploadBtn" type="submit" class="primary-btn">上传所选文件</button>
-          </form>
-          <div id="docUploadSelection" class="upload-selection hidden"></div>
-          <div id="docUploadNotice" class="action-notice hidden"></div>
+            <form id="qualityTestForm" class="question-form">
+              <label class="field field-wide">
+                <span>客户问题</span>
+                <textarea id="qualityQuestionInput" rows="4" placeholder="例如：mini 标准版多少钱？保修多久？"></textarea>
+              </label>
+              <label class="field">
+                <span>客户 ID（可选）</span>
+                <input id="qualityUserInput" type="text" placeholder="用于读取客户记忆" />
+              </label>
+              <label class="field">
+                <span>会话 ID（可选）</span>
+                <input id="qualityConversationInput" type="text" placeholder="debug-session" />
+              </label>
+              <button id="qualityTestBtn" class="button button-primary" type="submit">测试回答质量</button>
+            </form>
+            <div id="qualityResult" class="result-empty">输入一个真实客户问题后，这里会显示路由、分数、来源、答案和耗时。</div>
+            <section id="qualityActionPanel" class="quality-action-panel hidden">
+              <div class="panel-heading panel-heading-tight">
+                <div>
+                  <h3>质量动作</h3>
+                  <p class="panel-subtitle">把这次回答记录成反馈，或沉淀为以后每次调参都要验证的回归用例。</p>
+                </div>
+              </div>
+              <label class="field field-wide">
+                <span>备注</span>
+                <textarea id="qualityFeedbackNotes" rows="3" placeholder="例如：回答命中了错误资料；或者这条回答可以作为标准答案。"></textarea>
+              </label>
+              <div class="feedback-action-grid">
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="good">好回答</button>
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="factual_error">事实错误</button>
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="missing_knowledge">资料缺失</button>
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="wrong_retrieval">检索错误</button>
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="style_issue">话术不好</button>
+                <button class="button button-secondary button-small" type="button" data-quality-feedback="bad_quote">报价问题</button>
+                <button id="qualityFeedbackRegressionBtn" class="button button-primary button-small" type="button">加入回归测试</button>
+              </div>
+              <div id="qualityFeedbackNotice" class="notice hidden"></div>
+            </section>
+          </section>
+
+          <aside class="side-stack">
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <h3>当前系统</h3>
+                <a class="text-link" href="/admin/diagnostics">去诊断</a>
+              </div>
+              <div id="qualitySystemGrid" class="status-grid"></div>
+            </section>
+            <section class="panel compact-panel">
+              <div class="panel-heading">
+                <h3>回归测试</h3>
+                <button id="qualityRunRegressionBtn" class="button button-secondary button-small" type="button">运行</button>
+              </div>
+              <div id="qualityRegressionSummary" class="mini-report">正在读取测试集...</div>
+            </section>
+          </aside>
         </div>
 
-        <div class="card">
-          <div class="toolbar">
-            <div class="toolbar-title">知识库内容</div>
-            <div class="toolbar-actions">
-              <div class="segmented-control docs-view-toggle">
-                <button id="docViewModeBtn" type="button" class="active">文档视图</button>
-                <button id="chunkViewModeBtn" type="button">片段视图</button>
-              </div>
-              <input id="docSearchInput" type="text" placeholder="搜索 doc_name / section / text" />
-              <button id="docSearchBtn" type="button">搜索</button>
+        <div class="metric-grid" id="qualityMetricGrid"></div>
+
+        <section class="panel quality-workbench-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>问答记录列表</h3>
+              <p class="panel-subtitle">从对话反馈进入质检，点击记录后在右侧完成标注和修复动作。</p>
+            </div>
+            <div class="inline-actions quality-filter-row">
+              <button class="button button-secondary button-small" type="button" data-quality-filter="">全部</button>
+              <button class="button button-secondary button-small" type="button" data-quality-filter="bad_answer">坏回答</button>
+              <button class="button button-secondary button-small" type="button" data-quality-filter="quote_risk">报价风险</button>
+              <button class="button button-secondary button-small" type="button" data-quality-filter="need_human">需人工确认</button>
+              <button class="button button-secondary button-small" type="button" data-quality-filter="knowledge_miss">知识未命中</button>
+              <button class="button button-secondary button-small" type="button" data-quality-filter="resolved">已修复</button>
             </div>
           </div>
-          <div id="docsCount" class="sub-info"></div>
-          <div class="docs-bulk-bar">
-            <label class="docs-select-all">
-              <input id="docSelectAll" type="checkbox" />
-              <span>选择当前展示文档</span>
-            </label>
-            <div id="docSelectionInfo" class="docs-selection-info">未选择文档</div>
-            <button id="docBatchDeleteBtn" type="button" class="danger-btn" disabled>批量删除</button>
+          <div class="quality-workbench-grid">
+            <div id="qualityRecordList" class="quality-record-list"></div>
+            <aside id="qualityDetailDrawer" class="quality-detail-drawer">
+              <div class="drawer-empty">选择一条问答记录查看详情。</div>
+            </aside>
           </div>
-          <div class="table-wrap docs-table-wrap">
-            <table class="docs-table">
-              <colgroup>
-                <col class="docs-col-check" />
-                <col class="docs-col-id" />
-                <col class="docs-col-name" />
-                <col class="docs-col-section" />
-                <col class="docs-col-category" />
-                <col class="docs-col-method" />
-                <col class="docs-col-content" />
-                <col class="docs-col-actions" />
-              </colgroup>
-              <thead id="docsTableHead">
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>最近回答反馈</h3>
+              <p class="panel-subtitle">从测试窗口和质量诊断页沉淀的问题都会进入这里。</p>
+            </div>
+            <button id="qualityReloadFeedbackBtn" class="button button-secondary button-small" type="button">刷新反馈</button>
+          </div>
+          <div id="qualityFeedbackList" class="entity-list entity-list-compact"></div>
+        </section>
+
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>知识健康</h3>
+              <a class="text-link" href="/admin/knowledge">维护资料</a>
+            </div>
+            <div id="qualityKnowledgePanel" class="stack-list"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>关键待办</h3>
+              <span class="subtle">根据当前数据自动生成</span>
+            </div>
+            <div id="qualityTodoList" class="todo-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page-section" data-section="regression">
+        <div class="section-toolbar">
+          <div>
+            <h3>回归测试</h3>
+            <p>把好回答和坏回答都沉淀成测试用例，防止后续调参把核心能力改坏。</p>
+          </div>
+          <button id="regressionRunAllBtn" class="button button-primary" type="button">运行全部测试</button>
+        </div>
+        <section class="panel">
+          <div id="regressionSummary" class="mini-report">尚未运行。</div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
                 <tr>
-                  <th>选择</th>
-                  <th>ID</th>
-                  <th>文档</th>
-                  <th>章节</th>
-                  <th>分类</th>
-                  <th>解析</th>
-                  <th>内容</th>
-                  <th>操作</th>
+                  <th>question</th>
+                  <th>expected_route</th>
+                  <th>expected_tool</th>
+                  <th>must_include</th>
+                  <th>must_not_include</th>
+                  <th>expected_need_human_review</th>
+                  <th>last_result</th>
                 </tr>
               </thead>
-              <tbody id="docsTableBody"></tbody>
+              <tbody id="regressionCaseTable"></tbody>
             </table>
           </div>
-        </div>
+        </section>
       </section>
 
-      <section class="tab-panel" id="tab-faqs">
-        <div class="faq-page">
-          <div class="faq-list-panel card">
-            <div class="faq-left-top">
-              <div>
-                <div class="card-title">FAQ 列表</div>
-                <div id="faqsCount" class="sub-info">加载中...</div>
-              </div>
-              <div class="faq-action-grid">
-                <button id="faqAddBtn" type="button" class="primary-btn">新增 FAQ</button>
-                <button id="faqReindexBtn" type="button" class="ghost-btn">FAQ 重新入库</button>
-                <button id="faqToggleSearchBtn" type="button" class="ghost-btn">搜索</button>
-                <button id="faqSearchResetBtn" type="button" class="ghost-btn">清空</button>
-              </div>
-            </div>
+      <section class="page-section" data-section="knowledge">
+        <div class="section-toolbar">
+          <div>
+            <h3>知识维护</h3>
+            <p>集中查看文档、FAQ、优先规则和纠错学习内容。</p>
+          </div>
+          <button id="knowledgeReloadBtn" class="button button-secondary" type="button">刷新知识库</button>
+        </div>
 
-            <div id="faqSearchPopover" class="search-popover hidden">
-              <div class="search-popover-header">
-                <span>搜索 FAQ</span>
-                <button id="faqSearchPopoverClose" type="button" class="icon-btn">×</button>
-              </div>
-              <div class="search-popover-body">
-                <input id="faqKeywordInput" type="text" placeholder="输入关键词搜索问题、答案、标签、来源" />
-                <button id="faqSearchBtn" type="button" class="primary-btn">立即搜索</button>
-              </div>
-            </div>
+        <div id="knowledgeMetricGrid" class="metric-grid"></div>
 
-            <div class="faq-list-wrap">
-              <div id="faqList" class="faq-list"></div>
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Qdrant 索引状态</h3>
+              <p class="panel-subtitle">用于确认 JSON 内容和向量库是否同步，避免知识已改但检索仍用旧索引。</p>
+            </div>
+            <button id="knowledgeIndexReloadBtn" class="button button-secondary button-small" type="button">刷新索引状态</button>
+          </div>
+          <div id="knowledgeIndexStatus" class="index-status-grid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>文档知识库</h3>
+              <p class="panel-subtitle">上传产品资料、售后政策或项目说明；已导入文档可直接删除。</p>
+            </div>
+            <div class="inline-actions">
+              <input id="knowledgeDocSearch" class="search-input" type="search" placeholder="搜索文档、章节或内容" />
+              <button id="knowledgeDocSearchBtn" class="button button-secondary" type="button">搜索</button>
             </div>
           </div>
+          <form id="knowledgeDocUploadForm" class="upload-strip">
+            <label class="field">
+              <span>选择文件</span>
+              <input id="knowledgeDocFile" type="file" accept=".txt,.md,.docx,.pdf,.pages,.png,.jpg,.jpeg,.webp" multiple />
+            </label>
+            <label class="field">
+              <span>文档名称</span>
+              <input id="knowledgeDocName" type="text" placeholder="可选，默认使用文件名" />
+            </label>
+            <label class="field">
+              <span>分类</span>
+              <input id="knowledgeDocCategory" type="text" placeholder="产品资料 / 售后政策" />
+            </label>
+            <button id="knowledgeDocUploadBtn" class="button button-primary" type="submit">上传入库</button>
+            <button id="knowledgeDocSemanticRebuildBtn" class="button button-secondary" type="button">重建语义索引</button>
+          </form>
+          <div id="knowledgeDocNotice" class="notice hidden"></div>
+          <div id="knowledgeDocsList" class="entity-list"></div>
+        </section>
 
-          <div class="faq-editor-panel card">
-            <div class="faq-editor-header">
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading">
               <div>
-                <div class="card-title" id="faqEditorTitle">FAQ 编辑器</div>
-                <div class="sub-info" id="faqEditorHint">点击左侧 FAQ 开始编辑，或新建一条 FAQ。</div>
+                <h3>FAQ</h3>
+                <p class="panel-subtitle">维护高频问题，保存后会自动重建 FAQ 向量库。</p>
               </div>
-              <div class="faq-editor-status-row">
-                <span class="mini-label">当前模式</span>
-                <span id="faqEditorMode" class="status-badge gray">新建</span>
-              </div>
+              <button id="knowledgeFaqNewBtn" class="button button-secondary button-small" type="button">新建</button>
             </div>
-
-            <div class="faq-right-tools">
-              <div class="faq-tools-card">
-                <div class="faq-tools-title">统计</div>
-                <div class="faq-tools-stats">
-                  <div class="mini-stat-card">
-                    <span>总数</span>
-                    <strong id="faqTotalCount">0</strong>
-                  </div>
-                  <div class="mini-stat-card mini-stat-card-green">
-                    <span>已启用</span>
-                    <strong id="faqActiveCount">0</strong>
-                  </div>
-                  <div class="mini-stat-card mini-stat-card-red">
-                    <span>未启动</span>
-                    <strong id="faqInactiveCount">0</strong>
-                  </div>
-                </div>
-              </div>
-
-              <div class="faq-tools-card">
-                <div class="faq-tools-title">筛选</div>
-                <div class="faq-tools-filters">
-                  <select id="faqCategoryFilter">
-                    <option value="">全部类别</option>
+            <form id="knowledgeFaqForm" class="editor-form">
+              <input id="knowledgeFaqId" type="hidden" />
+              <div class="form-grid form-grid-compact">
+                <label class="field">
+                  <span>状态</span>
+                  <select id="knowledgeFaqStatus">
+                    <option value="active">启用</option>
+                    <option value="inactive">停用</option>
                   </select>
-
-                  <select id="faqStatusFilter">
-                    <option value="">全部状态</option>
-                    <option value="active">已启用</option>
-                    <option value="inactive">未启动</option>
-                  </select>
-                </div>
-                <div id="faqSearchCurrent" class="search-current">当前筛选：全部 FAQ</div>
+                </label>
+                <label class="field">
+                  <span>优先级</span>
+                  <input id="knowledgeFaqPriority" type="number" min="1" value="1" />
+                </label>
+                <label class="field">
+                  <span>分类</span>
+                  <input id="knowledgeFaqCategory" type="text" placeholder="产品 / 售后 / 报价" />
+                </label>
+                <label class="field">
+                  <span>来源</span>
+                  <input id="knowledgeFaqSource" type="text" placeholder="产品手册 / 客服规则" />
+                </label>
               </div>
-            </div>
-
-            <div id="faqActionNotice" class="action-notice hidden"></div>
-
-            <form id="faqForm" class="faq-form">
-              <div class="faq-form-grid">
-                <div class="form-group hidden" id="faqIdRow">
-                  <label for="faqIdInput">FAQ ID</label>
-                  <input id="faqIdInput" type="text" placeholder="系统自动生成" readonly />
-                  <div class="field-tip">FAQ ID 由系统自动生成，不允许手动修改。</div>
-                </div>
-
-                <div class="form-group">
-                  <label for="faqStatusInput">状态</label>
-                  <select id="faqStatusInput">
-                    <option value="active">已启用</option>
-                    <option value="inactive">未启动</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="faqCategoryInput">分类</label>
-                  <div class="inline-select-row">
-                    <select id="faqCategoryInput">
-                      <option value="">请选择分类</option>
-                    </select>
-                    <button type="button" id="faqManageCategoryBtn" class="ghost-btn">管理分类</button>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="faqPriorityInput">优先级（数字越小越高）</label>
-                  <input id="faqPriorityInput" type="number" min="1" value="1" />
-                  <div class="field-tip">建议：1 = 高优先级，2 = 中优先级，3 = 普通优先级</div>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="faqSourceInput">来源</label>
-                  <input id="faqSourceInput" type="text" placeholder="例如：产品手册V1 / 客服规则 / 售后政策手册V1" />
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="faqTagsInput">标签</label>
-                  <input id="faqTagsInput" type="text" placeholder="多个标签用英文逗号分隔，例如：产品, 型号, 档案" />
-                </div>
-
-                <div class="form-group full-width">
-                  <div class="label-row">
-                    <label>问题列表</label>
-                    <button type="button" id="addQuestionBtn" class="text-btn">+ 新增一行</button>
-                  </div>
-                  <div id="faqQuestionsList" class="line-list"></div>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="faqAnswerInput">答案</label>
-                  <textarea id="faqAnswerInput" rows="8" placeholder="请输入 FAQ 标准答案"></textarea>
-                </div>
+              <label class="field field-wide">
+                <span>问题列表</span>
+                <textarea id="knowledgeFaqQuestions" rows="3" placeholder="一行一个问法"></textarea>
+              </label>
+              <label class="field field-wide">
+                <span>标准答案</span>
+                <textarea id="knowledgeFaqAnswer" rows="5"></textarea>
+              </label>
+              <label class="field field-wide">
+                <span>标签</span>
+                <input id="knowledgeFaqTags" type="text" placeholder="多个标签用逗号分隔" />
+              </label>
+              <div class="button-row">
+                <button id="knowledgeFaqSaveBtn" class="button button-primary" type="submit">保存 FAQ</button>
+                <button id="knowledgeFaqDuplicateBtn" class="button button-secondary" type="button">另存为新 FAQ</button>
+                <button id="knowledgeFaqDeleteBtn" class="button button-danger" type="button">删除</button>
+                <button id="knowledgeFaqReindexBtn" class="button button-secondary" type="button">重建 FAQ 索引</button>
               </div>
-
-              <div class="form-footer">
-                <div class="left-actions">
-                  <button type="button" id="faqNewBtn" class="ghost-btn">清空新建</button>
-                  <button type="button" id="faqDuplicateBtn" class="ghost-btn">另存为新 FAQ</button>
-                </div>
-                <div class="right-actions">
-                  <button type="button" id="faqDeleteBtn" class="danger-btn">删除</button>
-                  <button type="submit" id="faqSaveBtn" class="primary-btn">保存 FAQ</button>
-                </div>
-              </div>
+              <div id="knowledgeFaqNotice" class="notice hidden"></div>
             </form>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-panel" id="tab-rules">
-        <div class="rule-page">
-          <div class="rule-list-panel card">
-            <div class="rule-left-top">
+            <div id="knowledgeFaqList" class="entity-list entity-list-compact"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
               <div>
-                <div class="card-title">规则列表</div>
-                <div id="rulesCount" class="sub-info">加载中...</div>
+                <h3>优先规则</h3>
+                <p class="panel-subtitle">控制 FAQ 优先、人工接管、文档优先和禁止承诺。</p>
               </div>
-              <div class="rule-action-grid">
-                <button id="ruleAddBtn" type="button" class="primary-btn">新增规则</button>
-                <button id="ruleReloadBtn" type="button" class="ghost-btn">重新加载规则</button>
-                <button id="ruleToggleSearchBtn" type="button" class="ghost-btn">搜索</button>
-                <button id="ruleSearchResetBtn" type="button" class="ghost-btn">清空</button>
-              </div>
+              <button id="knowledgeRuleNewBtn" class="button button-secondary button-small" type="button">新建</button>
             </div>
-
-            <div id="ruleSearchPopover" class="search-popover hidden">
-              <div class="search-popover-header">
-                <span>搜索规则</span>
-                <button id="ruleSearchPopoverClose" type="button" class="icon-btn">×</button>
-              </div>
-              <div class="search-popover-body">
-                <input id="ruleKeywordInput" type="text" placeholder="输入规则名、关键词、分类、备注进行搜索" />
-                <button id="ruleSearchBtn" type="button" class="primary-btn">立即搜索</button>
-              </div>
-            </div>
-
-            <div class="rule-list-wrap">
-              <div id="ruleList" class="rule-list"></div>
-            </div>
-          </div>
-
-          <div class="rule-editor-panel card">
-            <div class="rule-editor-header">
-              <div>
-                <div class="card-title" id="ruleEditorTitle">规则编辑器</div>
-                <div class="sub-info" id="ruleEditorHint">点击左侧规则开始编辑，或新建一条规则。</div>
-              </div>
-              <div class="faq-editor-status-row">
-                <span class="mini-label">当前模式</span>
-                <span id="ruleEditorMode" class="status-badge gray">新建</span>
-              </div>
-            </div>
-
-            <div id="ruleActionNotice" class="action-notice hidden"></div>
-
-            <form id="ruleForm" class="rule-form">
-              <div class="rule-form-grid">
-                <div class="form-group hidden" id="ruleIdRow">
-                  <label for="ruleIdInput">规则 ID</label>
-                  <input id="ruleIdInput" type="text" placeholder="系统自动生成" readonly />
-                  <div class="field-tip">规则 ID 由系统自动生成，不允许手动修改。</div>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="ruleNameInput">规则名</label>
-                  <input id="ruleNameInput" type="text" placeholder="例如：报价必须人工确认" />
-                </div>
-
-                <div class="form-group">
-                  <label for="ruleCategoryInput">分类</label>
-                  <div class="inline-select-row">
-                    <select id="ruleCategoryInput">
-                      <option value="">请选择分类</option>
-                    </select>
-                    <button type="button" id="ruleManageCategoryBtn" class="ghost-btn">管理分类</button>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="ruleStatusInput">状态</label>
-                  <select id="ruleStatusInput">
-                    <option value="active">已启用</option>
-                    <option value="inactive">未启动</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="rulePriorityInput">优先级（数字越小越高）</label>
-                  <input id="rulePriorityInput" type="number" min="1" value="1" />
-                  <div class="field-tip">建议：1 = 高优先级，2 = 中优先级，3 = 普通优先级</div>
-                </div>
-
-                <div class="form-group">
-                  <label for="ruleActionInput">动作类型</label>
-                  <select id="ruleActionInput">
+            <form id="knowledgeRuleForm" class="editor-form">
+              <input id="knowledgeRuleId" type="hidden" />
+              <label class="field field-wide">
+                <span>规则名</span>
+                <input id="knowledgeRuleName" type="text" placeholder="例如：报价必须人工确认" />
+              </label>
+              <div class="form-grid form-grid-compact">
+                <label class="field">
+                  <span>动作</span>
+                  <select id="knowledgeRuleAction">
                     <option value="faq_first">优先 FAQ</option>
                     <option value="manual_required">必须转人工</option>
                     <option value="doc_first">优先文档</option>
                     <option value="block_commitment">禁止承诺</option>
                   </select>
-                </div>
-
-                <div class="form-group full-width">
-                  <div class="label-row">
-                    <label>关键词列表</label>
-                    <button type="button" id="addRuleKeywordBtn" class="text-btn">+ 新增一行</button>
-                  </div>
-                  <div id="ruleKeywordsList" class="line-list"></div>
-                </div>
-
-                <div class="form-group full-width">
-                  <label for="ruleNoteInput">备注说明</label>
-                  <textarea id="ruleNoteInput" rows="4" placeholder="这条规则是干什么的、适用于什么场景、是否必须转人工"></textarea>
-                </div>
+                </label>
+                <label class="field">
+                  <span>状态</span>
+                  <select id="knowledgeRuleStatus">
+                    <option value="active">启用</option>
+                    <option value="inactive">停用</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>优先级</span>
+                  <input id="knowledgeRulePriority" type="number" min="1" value="1" />
+                </label>
+                <label class="field">
+                  <span>分类</span>
+                  <input id="knowledgeRuleCategory" type="text" placeholder="报价 / 售后 / 风险" />
+                </label>
               </div>
-
-              <div class="form-footer">
-                <div class="left-actions">
-                  <button type="button" id="ruleNewBtn" class="ghost-btn">清空新建</button>
-                  <button type="button" id="ruleDuplicateBtn" class="ghost-btn">另存为新规则</button>
-                </div>
-                <div class="right-actions">
-                  <button type="button" id="ruleDeleteBtn" class="danger-btn">删除</button>
-                  <button type="submit" id="ruleSaveBtn" class="primary-btn">保存规则</button>
-                </div>
+              <label class="field field-wide">
+                <span>关键词</span>
+                <textarea id="knowledgeRuleKeywords" rows="3" placeholder="一行一个关键词"></textarea>
+              </label>
+              <label class="field field-wide">
+                <span>备注</span>
+                <textarea id="knowledgeRuleNote" rows="4"></textarea>
+              </label>
+              <div class="button-row">
+                <button id="knowledgeRuleSaveBtn" class="button button-primary" type="submit">保存规则</button>
+                <button id="knowledgeRuleDuplicateBtn" class="button button-secondary" type="button">另存为新规则</button>
+                <button id="knowledgeRuleDeleteBtn" class="button button-danger" type="button">删除</button>
+                <button id="knowledgeRuleTestBtn" class="button button-secondary" type="button">测试命中</button>
               </div>
+              <label class="field field-wide">
+                <span>测试文本</span>
+                <input id="knowledgeRuleTestInput" type="text" placeholder="输入一句客户问题测试规则命中" />
+              </label>
+              <div id="knowledgeRuleNotice" class="notice hidden"></div>
             </form>
+            <div id="knowledgeRuleList" class="entity-list entity-list-compact"></div>
+          </section>
+        </div>
 
-            <div class="rule-test-panel">
-              <div class="rule-test-header">
-                <div class="card-title">规则命中测试</div>
-                <div class="sub-info">输入一句客户问题，立即验证是否命中规则。</div>
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>客户记忆</h3>
+              <p class="panel-subtitle">查看和修正客户画像、产品偏好、预算、风险标记与历史报价。</p>
+            </div>
+            <div class="inline-actions">
+              <input id="knowledgeMemorySearch" class="search-input" type="search" placeholder="搜索客户、产品、偏好" />
+              <button id="knowledgeMemorySearchBtn" class="button button-secondary" type="button">搜索</button>
+              <button id="knowledgeMemoryNewBtn" class="button button-secondary" type="button">新建记忆</button>
+            </div>
+          </div>
+          <form id="knowledgeMemoryForm" class="editor-form">
+            <div class="form-grid form-grid-compact">
+              <label class="field">
+                <span>渠道</span>
+                <select id="knowledgeMemoryChannel">
+                  <option value="api">api</option>
+                  <option value="wechat">wechat</option>
+                  <option value="feishu">feishu</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>客户 ID</span>
+                <input id="knowledgeMemoryUserId" type="text" />
+              </label>
+              <label class="field">
+                <span>客户名</span>
+                <input id="knowledgeMemoryName" type="text" />
+              </label>
+              <label class="field">
+                <span>联系方式</span>
+                <input id="knowledgeMemoryContact" type="text" />
+              </label>
+              <label class="field">
+                <span>场景</span>
+                <input id="knowledgeMemoryScenario" type="text" />
+              </label>
+              <label class="field">
+                <span>预算</span>
+                <input id="knowledgeMemoryBudget" type="text" />
+              </label>
+            </div>
+            <label class="field field-wide">
+              <span>产品 / 偏好 / 风险 / 关注点</span>
+              <textarea id="knowledgeMemoryLists" rows="4" placeholder="格式：产品=GRA、EXT&#10;偏好=团播、轨道待定&#10;风险=预算不足&#10;关注=交付、培训"></textarea>
+            </label>
+            <label class="field field-wide">
+              <span>备注</span>
+              <textarea id="knowledgeMemoryNotes" rows="3"></textarea>
+            </label>
+            <div class="button-row">
+              <button id="knowledgeMemorySaveBtn" class="button button-primary" type="submit">保存记忆</button>
+              <button id="knowledgeMemoryDeleteBtn" class="button button-danger" type="button">删除记忆</button>
+            </div>
+            <div id="knowledgeMemoryNotice" class="notice hidden"></div>
+          </form>
+          <div id="knowledgeMemoryList" class="entity-list entity-list-compact"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>纠错学习库</h3>
+            <div class="inline-actions">
+              <input id="knowledgeLearnedSearch" class="search-input" type="search" placeholder="搜索学到的事实、客户、分类" />
+              <button id="knowledgeLearnedSearchBtn" class="button button-secondary" type="button">搜索</button>
+              <button id="knowledgeLearnedReindexBtn" class="button button-secondary" type="button">重建学习索引</button>
+            </div>
+          </div>
+          <div id="knowledgeLearnedNotice" class="notice hidden"></div>
+          <div id="knowledgeLearnedList" class="entity-list"></div>
+        </section>
+      </section>
+
+      <section class="page-section" data-section="memory">
+        <div class="section-toolbar">
+          <div>
+            <h3>客户记忆</h3>
+            <p>集中管理客户画像、产品偏好、预算、场景、历史报价和风险点。</p>
+          </div>
+          <a class="button button-secondary" href="/admin/knowledge">使用完整编辑器</a>
+        </div>
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>记忆列表</h3>
+            <div class="inline-actions">
+              <input id="memoryPageSearch" class="search-input" type="search" placeholder="搜索客户、产品、预算、风险点" />
+              <button id="memoryPageSearchBtn" class="button button-secondary" type="button">搜索</button>
+            </div>
+          </div>
+          <div id="memoryPageList" class="entity-list"></div>
+        </section>
+      </section>
+
+      <section class="page-section" data-section="sales">
+        <div class="section-toolbar">
+          <div>
+            <h3>报价销售工作台</h3>
+            <p>结构化报价规则库与内部草案。报价默认需要人工复核，页面不用于直接发送最终报价。</p>
+          </div>
+          <button id="salesClearQuoteDocsBtnTop" class="button button-secondary" type="button">清理旧档并重置</button>
+        </div>
+
+        <div class="warning-panel quote-review-banner">
+          <strong>报价默认需要人工确认</strong>
+          <span>参考价、交期、合同、安装、售后和优惠政策均需销售复核后才能对客户承诺。</span>
+        </div>
+
+        <section class="panel panel-primary config-workbench">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Configuration quote</p>
+              <h3>客户需求分析</h3>
+              <p class="panel-subtitle">输入客户场景，系统会拆成臂型、版本包、选配和待确认项。</p>
+            </div>
+            <span class="state-pill state-warn">内部草稿</span>
+          </div>
+          <div class="config-layout">
+            <form id="configQuoteForm" class="config-input-panel">
+              <label class="field">
+                <span>客户需求描述</span>
+                <textarea id="configQuoteInput" rows="7" placeholder="例如：客户做团播，直播间约 80 平，想要 6 米轨道、FreeD 跟踪，预算 50 万左右，下个月交付。"></textarea>
+              </label>
+              <div class="form-grid form-grid-compact">
+                <label class="field">
+                  <span>场景</span>
+                  <select id="configQuoteScenario">
+                    <option value="live_commerce">直播间/团播</option>
+                  </select>
+                </label>
+                <div class="field">
+                  <span>快速样例</span>
+                  <div class="button-row">
+                    <button class="button button-secondary button-small" type="button" data-config-example="客户做团播，直播间约 80 平，希望 4 台相机位，6 米轨道，FreeD 跟踪，预算 50 万左右，下个月交付。">团播轨道</button>
+                    <button class="button button-secondary button-small" type="button" data-config-example="客户是小型直播间，预算 25 万以内，主要想稳定拍产品和主播，需要快速上线，暂时不确定轨道长度。">轻量直播</button>
+                  </div>
+                </div>
               </div>
-              <div class="rule-test-body">
-                <textarea id="ruleTestInput" rows="3" placeholder="例如：客户问价格能不能直接报"></textarea>
-                <button id="ruleTestBtn" type="button" class="primary-btn">测试规则命中</button>
-              </div>
-              <div id="ruleTestResult" class="rule-test-result empty-result">还没有测试结果</div>
+              <button id="configQuoteDraftBtn" class="button button-primary" type="submit">生成配置草稿</button>
+            </form>
+            <div id="configQuoteResult" class="config-result">
+              <div class="empty-state">输入客户场景后，这里会生成 AI 报价草案、推荐臂型、选配项和人工复核提醒。</div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="tab-panel" id="tab-logs">
-        <div class="card">
-          <div class="toolbar">
-            <div class="toolbar-title">系统日志</div>
-            <div class="toolbar-actions">
-              <button id="reloadLogBtn" type="button">刷新日志</button>
+        <div class="two-column two-column-wide">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>报价策略</h3>
+              <button id="salesPolicySaveBtn" class="button button-primary" type="button">保存策略</button>
             </div>
-          </div>
-          <pre id="logBox" class="log-box large">加载中...</pre>
-        </div>
-      </section>
-
-      <section class="tab-panel" id="tab-quote-policies">
-        <div class="card quote-policy-card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">报价规则</div>
-              <div class="sub-info">控制 AI 报价草案的折扣边界、审批条件和回复风格。</div>
-            </div>
-            <div class="toolbar-actions">
-              <button id="quotePolicySaveBtn" type="button" class="primary-btn">保存报价策略</button>
-            </div>
-          </div>
-          <div class="quote-policy-form">
-            <div class="form-group">
-              <label for="quoteModeInput">报价模式</label>
-              <select id="quoteModeInput">
-                <option value="draft_only">报价草案</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="quoteDefaultInput">未配置规则时</label>
-              <select id="quoteDefaultInput">
-                <option value="list_price_only">只报标价</option>
-                <option value="no_amount">不出金额</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="quoteMaxDiscountInput">最大折扣比例</label>
-              <input id="quoteMaxDiscountInput" type="number" min="0" max="100" step="0.1" placeholder="例如：10，留空则不允许自动折扣" />
-            </div>
-            <div class="form-group">
-              <label for="quoteReplyStyleInput">回复风格</label>
-              <select id="quoteReplyStyleInput">
-                <option value="sales_talk">销售话术</option>
-                <option value="scheme_first">方案优先</option>
-                <option value="table_like">清单式</option>
-              </select>
-            </div>
-            <div class="form-group full-width">
-              <label for="quoteMinMarginInput">最低毛利/底价说明</label>
-              <input id="quoteMinMarginInput" type="text" placeholder="例如：低于标价 10% 需人工审批" />
-            </div>
-            <div class="form-group full-width">
-              <label>需人工确认项</label>
-              <div id="quoteApprovalChecks" class="check-grid"></div>
-            </div>
-            <div class="form-group full-width">
-              <label for="quoteTemplateInput">话术模板</label>
-              <textarea id="quoteTemplateInput" rows="4" placeholder="报价草案回复口径"></textarea>
-            </div>
-          </div>
-          <div id="quotePolicyNotice" class="action-notice hidden"></div>
-        </div>
-
-        <div class="card quote-catalog-card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">产品价目</div>
-              <div id="pricingCatalogCount" class="sub-info">加载中...</div>
-            </div>
-            <div class="toolbar-actions">
-              <button id="pricingRebuildPreviewBtn" type="button" class="ghost-btn">从知识库生成草稿</button>
-              <button id="pricingAddProductBtn" type="button" class="ghost-btn">新增产品</button>
-              <button id="pricingCatalogSaveBtn" type="button" class="primary-btn">保存价目</button>
-            </div>
-          </div>
-          <div class="table-wrap quote-table-wrap">
-            <table class="editable-table">
-              <thead>
-                <tr>
-                  <th>产品</th>
-                  <th>版本</th>
-                  <th>参考标价</th>
-                  <th>历史优惠</th>
-                  <th>来源文件</th>
-                  <th>核心配置</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="pricingProductsBody"></tbody>
-            </table>
-          </div>
-          <div class="toolbar compact-toolbar">
-            <div>
-              <div class="toolbar-title">配件价目</div>
-              <div class="sub-info">用于轨道、FreeD、跟焦、培训等可选项。</div>
-            </div>
-            <div class="toolbar-actions">
-              <button id="pricingAddAccessoryBtn" type="button" class="ghost-btn">新增配件</button>
-            </div>
-          </div>
-          <div class="table-wrap quote-table-wrap">
-            <table class="editable-table">
-              <thead>
-                <tr>
-                  <th>配件名</th>
-                  <th>单位</th>
-                  <th>参考价</th>
-                  <th>来源</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="pricingAccessoriesBody"></tbody>
-            </table>
-          </div>
-          <div id="pricingCatalogNotice" class="action-notice hidden"></div>
-        </div>
-
-        <div class="card quote-json-card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">高级 JSON</div>
-              <div class="sub-info">用于导入导出和排错，日常维护建议使用上方表单。</div>
-            </div>
-            <div class="toolbar-actions">
-              <button id="quoteJsonToggleBtn" type="button" class="ghost-btn">展开高级 JSON</button>
-              <button id="quoteJsonSyncBtn" type="button" class="ghost-btn hidden">从表单同步到 JSON</button>
-              <button id="quoteJsonSaveBtn" type="button" class="primary-btn hidden">保存 JSON 并刷新表单</button>
-            </div>
-          </div>
-          <div id="quoteJsonPanel" class="quote-json-panel hidden">
-            <div class="quote-json-grid">
-              <div class="form-group">
-                <label for="quotePolicyJson">报价策略 JSON</label>
-                <textarea id="quotePolicyJson" rows="12" placeholder="报价规则 JSON"></textarea>
-              </div>
-              <div class="form-group">
-                <label for="pricingCatalogJson">价目表 JSON</label>
-                <textarea id="pricingCatalogJson" rows="12" placeholder="产品价目 JSON"></textarea>
+            <div id="salesPolicyForm" class="form-grid"></div>
+            <div id="salesPolicyNotice" class="notice hidden"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>报价档案</h3>
+              <div class="inline-actions">
+                <input id="salesArchiveSearch" class="search-input" type="search" placeholder="搜索客户、产品、方案" />
+                <button id="salesArchiveSearchBtn" class="button button-secondary" type="button">搜索</button>
               </div>
             </div>
-          </div>
-          <div id="quoteJsonNotice" class="action-notice hidden"></div>
+            <div id="salesArchiveList" class="entity-list entity-list-compact"></div>
+          </section>
         </div>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>报价规则库</h3>
+              <p id="salesCatalogMeta" class="panel-subtitle">正在读取结构化报价规则...</p>
+            </div>
+            <div class="inline-actions">
+              <button id="salesCatalogValidateBtn" class="button button-secondary" type="button">校验规则</button>
+              <button id="salesCatalogSaveBtn" class="button button-primary" type="button">保存规则库</button>
+              <button id="salesClearQuoteDocsBtn" class="button button-danger" type="button">清理旧报价文档</button>
+            </div>
+          </div>
+          <div id="salesCatalogNotice" class="notice hidden"></div>
+          <div class="quote-catalog-layout">
+            <div id="salesCatalogList" class="entity-list catalog-main-list"></div>
+            <aside id="salesCatalogInspector" class="catalog-inspector"></aside>
+          </div>
+          <div id="salesCatalogModal"></div>
+        </section>
       </section>
 
-      <section class="tab-panel" id="tab-quote-archives">
-        <div class="card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">客户报价档案</div>
-              <div id="quoteArchivesCount" class="sub-info">加载中...</div>
-            </div>
-            <div class="toolbar-actions">
-              <input id="quoteArchiveSearchInput" type="text" placeholder="搜索客户、产品、方案、来源" />
-              <button id="quoteArchiveSearchBtn" type="button">搜索</button>
-            </div>
+      <section class="page-section" data-section="training">
+        <div class="section-toolbar">
+          <div>
+            <h3>训练与测试</h3>
+            <p>用自然语言生成规则草稿，运行回归测试，维护客服行为和话术。</p>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>客户</th>
-                  <th>需求与方案</th>
-                  <th>参考价格</th>
-                  <th>状态</th>
-                  <th>更新时间</th>
-                </tr>
-              </thead>
-              <tbody id="quoteArchivesTableBody"></tbody>
-            </table>
+          <div class="inline-actions">
+            <button id="trainingRunTestsBtn" class="button button-secondary" type="button">运行测试集</button>
+            <button id="trainingApplyDraftBtn" class="button button-primary" type="button">应用当前草稿</button>
           </div>
         </div>
-      </section>
 
-      <section class="tab-panel" id="tab-memories">
-        <div class="card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">客户关键画像</div>
-              <div id="memoriesCount" class="sub-info">加载中...</div>
-            </div>
-            <div class="toolbar-actions">
-              <input id="memorySearchInput" type="text" placeholder="搜索客户、产品、偏好、风险标记" />
-              <button id="memorySearchBtn" type="button">搜索</button>
-            </div>
+        <section class="panel panel-primary">
+          <div class="panel-heading">
+            <h3>自然语言训练</h3>
+            <span class="subtle">确认草稿后才会生效</span>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>客户</th>
-                  <th>画像</th>
-                  <th>风险</th>
-                  <th>更新时间</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="memoriesTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-panel" id="tab-learned-knowledge">
-        <div class="card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">纠错学习库</div>
-              <div id="learnedKnowledgeCount" class="sub-info">加载中...</div>
-            </div>
-            <div class="toolbar-actions">
-              <input id="learnedKnowledgeSearchInput" type="text" placeholder="搜索学到的事实、客户、分类" />
-              <button id="learnedKnowledgeSearchBtn" type="button">搜索</button>
-              <button id="learnedKnowledgeReindexBtn" type="button" class="ghost-btn">重建索引</button>
-            </div>
-          </div>
-          <div class="sub-info">
-            测试聊天页通过“你说错了 / 正确是 / 以后记住”等纠错学到的内容会显示在这里。删除后会同步重建文档向量库。
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>学习项</th>
-                  <th>学到的事实</th>
-                  <th>来源</th>
-                  <th>更新时间</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="learnedKnowledgeTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="tab-panel" id="tab-tuning">
-        <div class="card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">自然语言训练工作台</div>
-              <div class="sub-info">用一句话生成规则、话术和回归测试草稿，确认后才生效。</div>
-            </div>
-            <div class="toolbar-actions">
-              <button id="tuningRunTestsBtn" type="button" class="ghost-btn">运行测试集</button>
-              <button id="tuningApplyBtn" type="button" class="primary-btn">应用当前草稿</button>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <label class="form-field field-wide">
+          <div class="training-command">
+            <label class="field field-wide">
               <span>优化指令</span>
-              <textarea id="tuningInstructionInput" rows="4" placeholder="例如：以后用户问上次聊的产品价格，要先看客户记忆里的产品"></textarea>
+              <textarea id="trainingInstructionInput" rows="4" placeholder="例如：客户问上次聊的产品价格时，优先看客户记忆里的产品。"></textarea>
             </label>
+            <button id="trainingDraftBtn" class="button button-primary" type="button">生成草稿</button>
           </div>
-          <div class="toolbar-actions tuning-actions">
-            <button id="tuningDraftBtn" type="button" class="primary-btn">生成草稿</button>
-            <button id="tuningReloadBtn" type="button" class="ghost-btn">刷新配置</button>
-          </div>
-          <div id="tuningNotice" class="action-notice hidden"></div>
+          <div id="trainingNotice" class="notice hidden"></div>
+        </section>
+
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading"><h3>当前草稿</h3></div>
+            <pre id="trainingDraftPreview" class="code-panel">暂无草稿。</pre>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><h3>测试结果</h3></div>
+            <div id="trainingTestSummary" class="mini-report">尚未运行。</div>
+            <div id="trainingTestList" class="entity-list entity-list-compact"></div>
+          </section>
         </div>
 
-        <div class="card-grid tuning-grid">
-          <div class="card">
-            <div class="card-title">当前草稿</div>
-            <pre id="tuningDraftPreview" class="code-panel">暂无草稿。</pre>
-          </div>
-          <div class="card">
-            <div class="card-title">测试结果</div>
-            <div id="tuningTestSummary" class="sub-info">尚未运行。</div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>用例</th>
-                    <th>结果</th>
-                    <th>回答摘要</th>
-                  </tr>
-                </thead>
-                <tbody id="tuningTestTableBody"></tbody>
-              </table>
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>行为规则</h3>
+              <button id="trainingBehaviorSaveBtn" class="button button-secondary" type="button">保存规则</button>
             </div>
-          </div>
+            <div id="trainingBehaviorForm" class="settings-stack"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>话术模板</h3>
+              <button id="trainingAnswerSaveBtn" class="button button-secondary" type="button">保存话术</button>
+            </div>
+            <div id="trainingAnswerForm" class="settings-stack"></div>
+          </section>
         </div>
-
-        <div class="card-grid tuning-grid">
-          <div class="card">
-            <div class="toolbar">
-              <div>
-                <div class="card-title">行为规则</div>
-                <div class="sub-info">控制什么时候优先使用客户记忆，以及资料不足时是否主动追问。</div>
-              </div>
-              <button id="behaviorRulesSaveBtn" type="button" class="ghost-btn">保存规则</button>
-            </div>
-            <div class="settings-list">
-              <label class="toggle-row">
-                <input id="previousProductAnchorInput" type="checkbox" />
-                <span>
-                  <strong>上次产品优先</strong>
-                  <small>客户问“上次/之前/那个产品”时，优先读取客户记忆里的产品。</small>
-                </span>
-              </label>
-              <label class="toggle-row">
-                <input id="activeGapPromptInput" type="checkbox" />
-                <span>
-                  <strong>资料不足主动追问</strong>
-                  <small>测试页命中不可靠时，主动说明缺少什么资料，而不是硬答。</small>
-                </span>
-              </label>
-              <label class="form-field">
-                <span>上下文触发词</span>
-                <input id="previousContextWordsInput" class="text-input" placeholder="上次、之前、刚才、那个" />
-              </label>
-              <label class="form-field">
-                <span>产品回忆问法</span>
-                <input id="productRecallWordsInput" class="text-input" placeholder="什么机械臂、哪个机械臂、什么产品" />
-              </label>
-              <div class="hint-box">多个词用中文逗号、英文逗号或换行分隔。</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="toolbar">
-              <div>
-                <div class="card-title">话术模板</div>
-                <div class="sub-info">维护资料不足、记忆回答、报价免责声明的客服口径。</div>
-              </div>
-              <button id="answerStylesSaveBtn" type="button" class="ghost-btn">保存话术</button>
-            </div>
-            <div class="settings-list">
-              <label class="form-field">
-                <span>资料不足时怎么说</span>
-                <textarea id="fallbackGapTemplateInput" rows="4" placeholder="我现在还不能确认这个问题，因为..."></textarea>
-              </label>
-              <label class="form-field">
-                <span>引用客户记忆时怎么说</span>
-                <textarea id="memoryRecallTemplateInput" rows="3" placeholder="你上次记录里关注的是 {product}..."></textarea>
-              </label>
-              <label class="form-field">
-                <span>报价免责声明</span>
-                <textarea id="quoteDisclaimerInput" rows="3" placeholder="优惠价、交付时间、合同条款..."></textarea>
-              </label>
-              <div class="hint-box">可用占位符：<strong>{product}</strong> 表示客户记忆里的产品，<strong>{needed_document}</strong> 表示缺少的资料。</div>
-            </div>
-          </div>
-        </div>
-
-        <details class="card advanced-config">
-          <summary>高级 JSON 配置</summary>
-          <div class="card-grid tuning-grid advanced-config-grid">
-            <div>
-              <div class="label-row">
-                <div>
-                  <div class="card-title">行为规则原始配置</div>
-                  <div class="sub-info">仅用于排错或批量复制。</div>
-                </div>
-                <button id="behaviorJsonSaveBtn" type="button" class="ghost-btn">保存 JSON</button>
-              </div>
-              <textarea id="behaviorRulesJson" class="json-editor" rows="14"></textarea>
-            </div>
-            <div>
-              <div class="label-row">
-                <div>
-                  <div class="card-title">话术模板原始配置</div>
-                  <div class="sub-info">仅用于排错或批量复制。</div>
-                </div>
-                <button id="answerJsonSaveBtn" type="button" class="ghost-btn">保存 JSON</button>
-              </div>
-              <textarea id="answerStylesJson" class="json-editor" rows="14"></textarea>
-            </div>
-          </div>
-        </details>
       </section>
 
-      <section class="tab-panel" id="tab-models">
-        <div class="card">
-          <div class="toolbar">
-            <div>
-              <div class="toolbar-title">模型设置</div>
-              <div class="sub-info">切换全局回答模型和向量模型；模型列表来自本机 Ollama。</div>
-            </div>
-            <button id="modelsReloadBtn" type="button" class="ghost-btn">刷新模型</button>
+      <section class="page-section" data-section="diagnostics">
+        <div class="section-toolbar">
+          <div>
+            <h3>系统诊断</h3>
+            <p>查看服务健康、模型、向量库、启动器和日志。</p>
           </div>
-          <div id="modelsNotice" class="action-notice hidden"></div>
-          <div class="model-status-grid">
-            <div class="model-status-item">
-              <span>Ollama</span>
-              <strong id="modelsOllamaStatus">未知</strong>
+          <button id="diagnosticsReloadBtn" class="button button-secondary" type="button">重新检测</button>
+        </div>
+
+        <div id="diagnosticsStatusGrid" class="metric-grid"></div>
+
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading">
+              <h3>启动器控制</h3>
+              <a class="text-link" href="http://127.0.0.1:7999" target="_blank" rel="noreferrer">打开启动器</a>
             </div>
-            <div class="model-status-item">
+            <div id="diagnosticsLauncherPanel" class="stack-list"></div>
+            <div class="button-row">
+              <button data-system-action="start" class="button button-primary" type="button">启动全部</button>
+              <button data-system-action="restart" class="button button-secondary" type="button">重启全部</button>
+              <button data-system-action="stop" class="button button-danger" type="button">关闭全部</button>
+              <button data-system-action="qdrant/start" class="button button-secondary" type="button">只启动 Qdrant</button>
+            </div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><h3>模型状态</h3></div>
+            <div id="diagnosticsModelPanel" class="stack-list"></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-heading"><h3>最近日志</h3></div>
+          <pre id="diagnosticsLogBox" class="log-panel">正在读取日志...</pre>
+        </section>
+      </section>
+
+      <section class="page-section" data-section="settings">
+        <div class="section-toolbar">
+          <div>
+            <h3>高级设置</h3>
+            <p>模型切换、原始 JSON 配置和高风险维护操作集中在这里。</p>
+          </div>
+        </div>
+
+        <div class="warning-panel">
+          <strong>危险操作提醒</strong>
+          <span>切换向量模型会重建 FAQ 和文档向量库；保存原始 JSON 会直接覆盖配置文件。操作前请确认当前页面数据正确。</span>
+        </div>
+
+        <div class="two-column">
+          <section class="panel">
+            <div class="panel-heading"><h3>回答模型</h3></div>
+            <label class="field">
               <span>当前回答模型</span>
-              <strong id="currentChatModelText">-</strong>
-            </div>
-            <div class="model-status-item">
+              <select id="settingsChatModelSelect"></select>
+            </label>
+            <button id="settingsChatModelSaveBtn" class="button button-primary" type="button">保存回答模型</button>
+            <div id="settingsChatNotice" class="notice hidden"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-heading"><h3>向量模型</h3></div>
+            <label class="field">
               <span>当前向量模型</span>
-              <strong id="currentEmbedModelText">-</strong>
-            </div>
-            <div class="model-status-item">
-              <span>向量索引状态</span>
-              <strong id="embedIndexStatusText">-</strong>
-            </div>
-          </div>
+              <select id="settingsEmbedModelSelect"></select>
+            </label>
+            <button id="settingsEmbedRebuildBtn" class="button button-danger" type="button">保存并重建向量库</button>
+            <div id="settingsEmbedNotice" class="notice hidden"></div>
+          </section>
         </div>
 
-        <div class="card-grid tuning-grid">
-          <div class="card">
-            <div class="card-title">回答模型</div>
-            <div class="sub-info">影响客服回答生成。保存后立即全局生效，不需要重启。</div>
-            <label class="form-field">
-              <span>选择回答模型</span>
-              <select id="chatModelSelect" class="text-input"></select>
-            </label>
-            <button id="saveChatModelBtn" type="button" class="primary-btn full-width-btn">保存回答模型</button>
+        <section class="panel">
+          <div class="panel-heading">
+            <h3>原始 JSON 配置</h3>
+            <button id="settingsReloadJsonBtn" class="button button-secondary" type="button">刷新 JSON</button>
           </div>
-          <div class="card">
-            <div class="card-title">向量模型</div>
-            <div class="sub-info">影响 FAQ 和文档检索。切换后必须重建向量库。</div>
-            <label class="form-field">
-              <span>选择向量模型</span>
-              <select id="embedModelSelect" class="text-input"></select>
+          <div class="json-grid">
+            <label class="field field-wide">
+              <span>行为规则 JSON</span>
+              <textarea id="settingsBehaviorJson" rows="14"></textarea>
+              <button id="settingsBehaviorSaveBtn" class="button button-secondary" type="button">保存行为规则 JSON</button>
             </label>
-            <button id="rebuildEmbedModelBtn" type="button" class="danger-btn full-width-btn">保存并重建向量库</button>
-            <div class="hint-box">重建会重新写入 FAQ 和知识库向量索引；如果模型维度不同，这是必须步骤。</div>
+            <label class="field field-wide">
+              <span>话术模板 JSON</span>
+              <textarea id="settingsAnswerJson" rows="14"></textarea>
+              <button id="settingsAnswerSaveBtn" class="button button-secondary" type="button">保存话术 JSON</button>
+            </label>
+            <label class="field field-wide">
+              <span>报价策略 JSON</span>
+              <textarea id="settingsQuotePolicyJson" rows="14"></textarea>
+              <button id="settingsQuotePolicySaveBtn" class="button button-secondary" type="button">保存报价策略 JSON</button>
+            </label>
+            <label class="field field-wide">
+              <span>报价规则库 JSON</span>
+              <textarea id="settingsPricingJson" rows="14"></textarea>
+              <button id="settingsPricingSaveBtn" class="button button-secondary" type="button">保存报价规则库 JSON</button>
+            </label>
           </div>
-        </div>
+          <div id="settingsJsonNotice" class="notice hidden"></div>
+        </section>
       </section>
+      <footer class="admin-statusbar">
+        <span>AI 客服质检工作台</span>
+        <span>回答 → 质检 → 标注 → 修复 → 回归</span>
+      </footer>
     </main>
   </div>
 
-  <div id="categoryModal" class="modal-overlay hidden">
-    <div class="modal-card modal-card-large">
-      <div class="modal-header">
-        <h3>管理分类</h3>
-        <button id="categoryModalClose" type="button" class="icon-btn">×</button>
-      </div>
-      <div class="modal-body category-modal-body">
-        <div class="category-manage-top">
-          <input id="categoryNameInput" type="text" placeholder="输入新的分类名称，例如：发货规则" />
-          <button id="categoryAddBtn" type="button" class="primary-btn">新增分类</button>
-        </div>
-
-        <div class="sub-info">
-          FAQ 和优先规则共用同一套分类。已被 FAQ 或规则使用的分类不能删除。
-        </div>
-
-        <div id="categoryList" class="category-list"></div>
-      </div>
-      <div class="modal-footer">
-        <button id="categoryModalDone" type="button" class="primary-btn">完成</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="resultModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="resultModalTitle">操作完成</h3>
-        <button id="resultModalClose" type="button" class="icon-btn">×</button>
-      </div>
-      <div id="resultModalBody" class="modal-body"></div>
-      <div class="modal-footer">
-        <button id="resultModalConfirm" type="button" class="primary-btn">知道了</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="/static/admin.js?v=faq-editor-31"></script>
+  <script src="/static/admin-v2.js?v=20260525-doc-modal-3"></script>
 </body>
 </html>

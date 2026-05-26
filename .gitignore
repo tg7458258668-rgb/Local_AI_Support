@@ -37,3 +37,10 @@ skills-lock.json
 
 # Local vector database storage
 data/qdrant_storage/
+
+# Temporary inspection/output
+tmp_docx_inspect/
+
+# Tool build artifacts
+tools/codex-node-keeper/build/
+tools/codex-node-keeper/dist/

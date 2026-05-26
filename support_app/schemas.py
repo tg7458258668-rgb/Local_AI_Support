@@ -19,7 +19,7 @@ class LegacyAskRequest(BaseModel):
 
 
 class SourceItem(BaseModel):
-    type: Literal["faq", "doc"]
+    type: Literal["faq", "doc", "quote_catalog"]
     score: float | None = None
     adjusted_score: float | None = None
     source: str = ""
@@ -33,6 +33,8 @@ class SourceItem(BaseModel):
 class TimingInfo(BaseModel):
     rule_match_ms: float = 0
     memory_ms: float = 0
+    history_ms: float = 0
+    context_plan_ms: float = 0
     faq_retrieval_ms: float = 0
     doc_retrieval_ms: float = 0
     route_decision_ms: float = 0
@@ -129,4 +131,47 @@ class CustomerMemoryItem(BaseModel):
     concerns: list[str] = Field(default_factory=list)
     quoted_schemes: list[str] = Field(default_factory=list)
     notes: str = ""
+    live_room_area: str = ""
+    camera_count: str = ""
+    robot_arm_count: str = ""
+    track_preference: str = ""
     updated_at: str = ""
+
+
+class ConfigurationQuoteDraftRequest(BaseModel):
+    message: str = Field(..., min_length=1)
+    scenario: str = "live_commerce"
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ConfigurationQuoteFeedbackRequest(BaseModel):
+    message: str = ""
+    verdict: Literal["usable", "needs_change", "wrong_module", "missing_item", "needs_review"] = "needs_review"
+    notes: str = ""
+    draft: dict[str, Any] = Field(default_factory=dict)
+
+
+class AnswerFeedbackRequest(BaseModel):
+    message: str = ""
+    answer: str = ""
+    verdict: Literal[
+        "good",
+        "factual_error",
+        "missing_knowledge",
+        "wrong_retrieval",
+        "style_issue",
+        "bad_quote",
+        "needs_review",
+    ] = "needs_review"
+    feedback_type: str = "answer_quality"
+    error_reason: str = ""
+    fix_target: str = ""
+    suggested_action: str = ""
+    status: str = "pending"
+    regression_case_id: str | None = None
+    notes: str = ""
+    route: str = ""
+    expected_route: str = ""
+    expected_keywords: list[str] = Field(default_factory=list)
+    forbidden_keywords: list[str] = Field(default_factory=list)
+    snapshot: dict[str, Any] = Field(default_factory=dict)

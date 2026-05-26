@@ -1,9 +1,13 @@
+import requests
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import FileResponse
 
 from support_app.api.upload_utils import parse_upload_files_request
 from support_app.dependencies import get_admin_service
-from support_app.schemas import CustomerMemoryItem, FAQItem, RuleItem
+from support_app.schemas import AnswerFeedbackRequest, ConfigurationQuoteDraftRequest, ConfigurationQuoteFeedbackRequest, CustomerMemoryItem, FAQItem, RuleItem
 from support_app.services.admin_service import AdminService
+from support_app.settings import settings
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -15,6 +19,44 @@ def _handle_errors(fn):
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def _check(url: str) -> str:
+    try:
+        resp = requests.get(url, timeout=2)
+        return "online" if resp.status_code == 200 else "offline"
+    except Exception:
+        return "offline"
+
+
+def _read_admin_logs() -> dict:
+    candidates = [
+        settings.base_dir / "runtime" / "support_app.log",
+        settings.base_dir / "runtime" / "requests.log",
+    ]
+    chunks = []
+    for path in candidates:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        lines = text.splitlines()[-80:]
+        if lines:
+            chunks.append(f"== {path.name} ==\n" + "\n".join(lines))
+    if not chunks:
+        return {"text": "暂无运行日志。服务由终端直接启动时，启动日志会显示在当前终端窗口。"}
+    return {"text": "\n\n".join(chunks)}
+
+
+@router.get("/status")
+def status():
+    return {
+        "backend": "online",
+        "ollama": _check(f"{settings.ollama_url}/api/tags"),
+        "qdrant": _check(f"{settings.qdrant_url}/collections"),
+        "base_dir": str(settings.base_dir),
+        "log_path": str(settings.base_dir / "runtime" / "support_app.log"),
+        "qdrant_storage_dir": str(settings.data_dir / "qdrant_storage"),
+    }
 
 
 @router.get("/summary")
@@ -47,6 +89,26 @@ def delete_docs(payload: dict, service: AdminService = Depends(get_admin_service
     if not isinstance(doc_names, list):
         raise HTTPException(status_code=400, detail="doc_names 必须是数组")
     return _handle_errors(lambda: service.delete_docs(doc_names))
+
+
+@router.post("/docs/clear-quote-references")
+def clear_quote_references(service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(service.clear_quote_references)
+
+
+@router.post("/docs/rebuild-semantic-index")
+def rebuild_semantic_docs(service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(service.rebuild_semantic_docs)
+
+
+@router.get("/docs/{doc_name}/page-image")
+def doc_page_image(
+    doc_name: str,
+    page: int = Query(default=1, ge=1),
+    service: AdminService = Depends(get_admin_service),
+):
+    path = _handle_errors(lambda: service.render_doc_page_image(doc_name, page))
+    return FileResponse(path, media_type="image/png")
 
 
 @router.get("/faqs")
@@ -183,6 +245,41 @@ def tuning_apply(payload: dict, service: AdminService = Depends(get_admin_servic
     return _handle_errors(lambda: service.apply_tuning_draft(payload))
 
 
+@router.get("/answer-feedback")
+def answer_feedback(
+    q: str = Query(default=""),
+    verdict: str = Query(default=""),
+    service: AdminService = Depends(get_admin_service),
+):
+    return service.list_answer_feedback(q, verdict)
+
+
+@router.post("/answer-feedback")
+def save_answer_feedback(payload: AnswerFeedbackRequest, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.save_answer_feedback(payload))
+
+
+@router.post("/answer-feedback/{feedback_id}/regression-case")
+def answer_feedback_to_regression_case(feedback_id: str, payload: dict | None = None, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.answer_feedback_to_regression_case(feedback_id, payload or {}))
+
+
+@router.get("/quality-records")
+def quality_records(
+    q: str = Query(default=""),
+    status: str = Query(default=""),
+    reason: str = Query(default=""),
+    flag: str = Query(default=""),
+    service: AdminService = Depends(get_admin_service),
+):
+    return service.list_quality_records(q=q, status=status, reason=reason, flag=flag)
+
+
+@router.put("/quality-records/{record_id}")
+def update_quality_record(record_id: str, payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_quality_record(record_id, payload))
+
+
 @router.get("/regression-cases")
 def regression_cases(service: AdminService = Depends(get_admin_service)):
     return service.list_regression_cases()
@@ -213,6 +310,11 @@ def rebuild_embed_model(payload: dict, service: AdminService = Depends(get_admin
     return _handle_errors(lambda: service.rebuild_embed_model(payload))
 
 
+@router.get("/knowledge-index-status")
+def knowledge_index_status(service: AdminService = Depends(get_admin_service)):
+    return service.knowledge_index_status()
+
+
 @router.get("/quote-policies")
 def quote_policies(service: AdminService = Depends(get_admin_service)):
     return service.get_quote_policies()
@@ -238,6 +340,21 @@ def rebuild_pricing_catalog_preview(service: AdminService = Depends(get_admin_se
     return _handle_errors(service.rebuild_pricing_catalog_preview)
 
 
+@router.get("/quote-catalog")
+def quote_catalog(service: AdminService = Depends(get_admin_service)):
+    return service.get_quote_catalog()
+
+
+@router.put("/quote-catalog")
+def update_quote_catalog(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.update_quote_catalog(payload))
+
+
+@router.post("/quote-catalog/validate")
+def validate_quote_catalog(payload: dict, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.validate_quote_catalog(payload))
+
+
 @router.get("/quote-archives")
 def quote_archives(q: str = Query(default=""), service: AdminService = Depends(get_admin_service)):
     return service.list_quote_archives(q)
@@ -246,3 +363,23 @@ def quote_archives(q: str = Query(default=""), service: AdminService = Depends(g
 @router.put("/quote-archives/{channel}/{user_id}/{quote_id}")
 def update_quote_archive(channel: str, user_id: str, quote_id: str, payload: dict, service: AdminService = Depends(get_admin_service)):
     return _handle_errors(lambda: service.update_quote_archive(channel, user_id, quote_id, payload))
+
+
+@router.post("/config-quotes/draft")
+def draft_config_quote(payload: ConfigurationQuoteDraftRequest, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.draft_configuration_quote(payload.model_dump()))
+
+
+@router.get("/config-quotes/feedback")
+def config_quote_feedback(q: str = Query(default=""), service: AdminService = Depends(get_admin_service)):
+    return service.list_configuration_quote_feedback(q)
+
+
+@router.post("/config-quotes/feedback")
+def save_config_quote_feedback(payload: ConfigurationQuoteFeedbackRequest, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.save_configuration_quote_feedback(payload.model_dump()))
+
+
+@router.get("/logs")
+def logs():
+    return _read_admin_logs()

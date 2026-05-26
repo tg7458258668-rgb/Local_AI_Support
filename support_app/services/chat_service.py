@@ -1,3 +1,5 @@
+import hashlib
+import json
 import time
 import uuid
 from typing import Literal
@@ -5,7 +7,9 @@ from typing import Literal
 from support_app.repositories.rule_repository import RuleRepository
 from support_app.schemas import ChatRequest, ChatResponse, SourceItem, TimingInfo
 from support_app.services.audit_service import AuditService
+from support_app.services.answer_pipeline import AnswerPipeline
 from support_app.services.behavior_config_service import BehaviorConfigService
+from support_app.services.conversation_history_service import ConversationHistoryService
 from support_app.services.customer_memory_service import CustomerMemoryService
 from support_app.services.knowledge_gap_service import KnowledgeGapService
 from support_app.services.learning_service import LearningService
@@ -29,6 +33,7 @@ class ChatService:
         learning_service: LearningService,
         knowledge_gap_service: KnowledgeGapService,
         behavior_config_service: BehaviorConfigService,
+        conversation_history_service: ConversationHistoryService | None = None,
     ):
         self.settings = settings
         self.ollama = ollama
@@ -40,12 +45,16 @@ class ChatService:
         self.learning_service = learning_service
         self.knowledge_gap_service = knowledge_gap_service
         self.behavior_config_service = behavior_config_service
+        self.conversation_history_service = conversation_history_service
 
     def answer(self, request: ChatRequest) -> ChatResponse:
+        return AnswerPipeline(self).answer(request)
+
+    def _answer_current(self, request: ChatRequest) -> ChatResponse:
         start = time.perf_counter()
         timings = TimingInfo()
         user_query = request.message.strip()
-        request_id = str(uuid.uuid4())
+        request_id = str((request.metadata or {}).get("request_id") or uuid.uuid4())
         chat_model_override = self._chat_model_override(request)
 
         faq_hits = []
@@ -56,19 +65,37 @@ class ChatService:
         memory = None
         faq_top_score = 0.0
         doc_top_score = 0.0
+        base_metadata = self._base_metadata(request)
 
         try:
             t = time.perf_counter()
             memory = self.memory_service.load_for_request(request)
-            memory_context = self.memory_service.render_prompt_block(memory)
             timings.memory_ms = self._elapsed(t)
-            base_metadata = self._base_metadata(request)
+
+            t = time.perf_counter()
+            history = self.conversation_history_service.recent_for_request(request) if self.conversation_history_service else []
+            timings.history_ms = self._elapsed(t)
+
+            t = time.perf_counter()
+            context_plan = self._build_context_plan(user_query, request, memory, history)
+            timings.context_plan_ms = self._elapsed(t)
+            memory_for_context = self._memory_with_context(memory, context_plan)
+            context_blocks = [
+                self.memory_service.render_prompt_block(memory_for_context),
+                self.conversation_history_service.prompt_block(history) if self.conversation_history_service else "",
+            ]
+            memory_context = "\n\n".join(block for block in context_blocks if block)
+            base_metadata.update({
+                "context_plan": self._public_context_plan(context_plan),
+                "conversation_context": self.conversation_history_service.debug_summary(history) if self.conversation_history_service else [],
+            })
 
             identity_answer = self._identity_answer(user_query)
             if identity_answer:
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["identity_intent"] = True
+                metadata["context_plan"]["fast_path"] = "identity"
                 metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
                     user_query,
                     "identity",
@@ -172,7 +199,7 @@ class ChatService:
             t = time.perf_counter()
             matched_rule = self.rule_repo.match(user_query)
             timings.rule_match_ms = self._elapsed(t)
-            if self._requires_handoff(user_query):
+            if self._requires_handoff(user_query) or self._intent_is(request, "handoff"):
                 answer = build_handoff_answer(user_query, matched_rule)
                 t = time.perf_counter()
                 memory = self.memory_service.update_from_turn(request, answer, "handoff")
@@ -247,8 +274,120 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
+            if context_plan["contextual_query"] and not context_plan["anchors"] and not self._has_explicit_product_anchor(user_query):
+                answer = "我需要先确认你说的是哪一款或上一轮哪个方案。你可以补一句型号，比如 GRA、MINI、AIR、EXT 或 PRO。"
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "fallback",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=answer,
+                    route="fallback",
+                    need_human=False,
+                    hint="追问缺少可用上下文，已要求确认型号",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
+            if self._intent_is(request, "clarify"):
+                answer = self._intent_clarify_answer(request)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "fallback",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=answer,
+                    route="fallback",
+                    need_human=False,
+                    hint="已识别到场景或产品词，但缺少明确动作，先澄清需求",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
+            if self._intent_needs_quote(request, user_query):
+                quote_request = self._request_for_intent(request)
+                t = time.perf_counter()
+                quote_result = self.quote_service.draft(quote_request, memory_for_context, [])
+                timings.route_decision_ms = self._elapsed(t)
+                t = time.perf_counter()
+                memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
+                timings.memory_ms += self._elapsed(t)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["quote_draft"] = quote_result["draft"]
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "quote_draft",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    True,
+                )
+                response = ChatResponse(
+                    answer=quote_result["answer"],
+                    route="quote_draft",
+                    need_human=True,
+                    hint="已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=self._quote_sources(quote_result["draft"]),
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
             t = time.perf_counter()
-            retrieval = self.retrieval_service.retrieve(user_query, request.channel, request.user_id)
+            retrieval = self.retrieval_service.retrieve(
+                context_plan["effective_query"],
+                request.channel,
+                request.user_id,
+                cache_context=context_plan["cache_context"],
+                bypass_cache=context_plan["bypass_cache"],
+            )
             retrieval_ms = self._elapsed(t)
             faq_hits = retrieval.faq_hits
             doc_hits = retrieval.doc_hits
@@ -265,6 +404,7 @@ class ChatService:
                 learned_candidate
                 and learned_candidate.adjusted_score >= self.settings.doc_score_threshold
                 and not (faq_hits and faq_top_score >= self.settings.faq_direct_answer_threshold)
+                and context_plan["direct_answer_allowed"]
             ):
                 answer = self._direct_learned_answer(learned_candidate)
                 t = time.perf_counter()
@@ -301,9 +441,10 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
-            if self.quote_service.is_quote_request(user_query):
+            if self._intent_needs_quote(request, user_query):
+                quote_request = self._request_for_intent(request)
                 t = time.perf_counter()
-                quote_result = self.quote_service.draft(request, memory, doc_candidates)
+                quote_result = self.quote_service.draft(quote_request, memory_for_context, doc_candidates)
                 timings.route_decision_ms = self._elapsed(t)
                 sources = self._format_sources(doc_candidates, "doc")
                 t = time.perf_counter()
@@ -350,6 +491,7 @@ class ChatService:
                 faq_top_score=faq_top_score,
                 doc_top_score=doc_top_score,
                 memory_context=memory_context,
+                context_plan=context_plan,
             )
             timings.route_decision_ms = self._elapsed(t)
 
@@ -426,10 +568,115 @@ class ChatService:
                 channel=request.channel,
                 conversation_id=request.conversation_id,
                 user_id=request.user_id,
-                metadata=self._base_metadata(request),
+                metadata=base_metadata,
             )
             self._audit(request_id, request, response)
             return response
+
+    def _build_context_plan(self, user_query: str, request: ChatRequest, memory: dict | None, history: list[dict]) -> dict:
+        text = str(user_query or "").strip()
+        intent_plan = self._intent_plan(request)
+        policy = self.behavior_config_service.memory_policy()
+        previous_words = policy.get("previous_context_words") or ["上次", "之前", "刚才", "前面", "上一轮", "那个", "这款"]
+        contextual_words = list(dict.fromkeys([
+            *previous_words,
+            "继续",
+            "上面",
+            "刚刚",
+            "它",
+            "这个",
+            "这种",
+            "该款",
+            "这套",
+            "这个方案",
+        ]))
+        has_explicit_anchor = self._has_explicit_product_anchor(text)
+        short_price_followup = any(word in text for word in ("多少钱", "价格", "费用", "报价", "保修多久")) and not has_explicit_anchor and len(text) <= 18
+        short_history_turn = bool(history) and len(text) <= 28 and not self._intent_is(request, "identity", "handoff", "correction_learning")
+        contextual_query = any(word in text for word in contextual_words) or short_price_followup or short_history_turn or bool(intent_plan.get("contextual_followup"))
+        history_anchors = self.conversation_history_service.product_anchors(history) if self.conversation_history_service else []
+        memory_products = [str(item).strip() for item in (memory or {}).get("products", []) if str(item).strip()]
+        intent_anchors = [str(item).strip() for item in intent_plan.get("product_anchors", []) if str(item).strip()] if isinstance(intent_plan.get("product_anchors"), list) else []
+        anchors = list(dict.fromkeys([*intent_anchors, *history_anchors, *memory_products]))[:8]
+        anchor_text = " ".join(anchors)
+        effective_query = str(intent_plan.get("resolved_query") or "").strip() or text
+        if contextual_query and anchor_text:
+            effective_query = f"{effective_query} 上下文产品:{anchor_text}"
+        history_hash = self.conversation_history_service.fingerprint(history) if self.conversation_history_service else ""
+        memory_hash = self._memory_fingerprint(memory)
+        reason = "独立明确问题，可使用上下文范围内缓存"
+        cache_policy = "context_scoped"
+        if not request.conversation_id:
+            reason = "无会话 ID，本轮没有最近对话上下文"
+            cache_policy = "no_history_context"
+        if contextual_query:
+            reason = intent_plan.get("reason") or "问题引用了最近上下文，已绕过检索缓存"
+            cache_policy = "bypass_contextual"
+            if not anchors:
+                reason = "问题像追问，但最近上下文里没有明确产品锚点"
+        return {
+            "used_history": bool(history),
+            "used_memory": bool(memory),
+            "contextual_query": contextual_query,
+            "cache_policy": cache_policy,
+            "reason": reason,
+            "history_turn_count": len(history),
+            "history_hash": history_hash,
+            "memory_hash": memory_hash,
+            "anchors": anchors,
+            "effective_query": effective_query,
+            "cache_context": f"conversation={request.conversation_id or ''}|history={history_hash}|memory={memory_hash}|contextual={int(contextual_query)}",
+            "bypass_cache": contextual_query,
+            "direct_answer_allowed": not contextual_query,
+        }
+
+    @staticmethod
+    def _public_context_plan(context_plan: dict) -> dict:
+        return {
+            "used_history": bool(context_plan.get("used_history")),
+            "used_memory": bool(context_plan.get("used_memory")),
+            "contextual_query": bool(context_plan.get("contextual_query")),
+            "cache_policy": context_plan.get("cache_policy", ""),
+            "reason": context_plan.get("reason", ""),
+            "history_turn_count": int(context_plan.get("history_turn_count") or 0),
+            "anchors": context_plan.get("anchors", []),
+            "direct_answer_allowed": bool(context_plan.get("direct_answer_allowed", True)),
+        }
+
+    @staticmethod
+    def _memory_with_context(memory: dict | None, context_plan: dict) -> dict | None:
+        anchors = [str(item).strip() for item in context_plan.get("anchors", []) if str(item).strip()]
+        if not anchors:
+            return memory
+        merged = dict(memory or {})
+        products = [str(item).strip() for item in merged.get("products", []) if str(item).strip()]
+        merged["products"] = list(dict.fromkeys([*products, *anchors]))
+        return merged
+
+    @staticmethod
+    def _has_explicit_product_anchor(text: str) -> bool:
+        upper = str(text or "").upper()
+        return any(token in upper for token in ("GRA", "MINI", "AIR", "EXT", "PRO", "U-MOCO", "UMOCO"))
+
+    @staticmethod
+    def _memory_fingerprint(memory: dict | None) -> str:
+        if not memory:
+            return ""
+        selected = {
+            key: memory.get(key)
+            for key in (
+                "products",
+                "preferences",
+                "scenario",
+                "budget",
+                "project_time",
+                "concerns",
+                "track_preference",
+                "updated_at",
+            )
+        }
+        raw = json.dumps(selected, ensure_ascii=False, sort_keys=True)
+        return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
 
     def _route(
         self,
@@ -440,6 +687,7 @@ class ChatService:
         faq_top_score: float,
         doc_top_score: float,
         memory_context: str = "",
+        context_plan: dict | None = None,
     ) -> tuple[Literal["faq", "doc", "handoff", "fallback"], list, Literal["faq", "doc"] | None, str | None, str, bool, str]:
         route: Literal["faq", "doc", "handoff", "fallback"] = "fallback"
         selected_hits = []
@@ -448,6 +696,8 @@ class ChatService:
         answer = "我暂时无法根据现有文档确认，建议人工进一步确认。"
         need_human = False
         hint = "当前未触发人工接管提示"
+        context_plan = context_plan or {}
+        direct_answer_allowed = bool(context_plan.get("direct_answer_allowed", True))
 
         if matched_rule:
             need_human = True
@@ -457,7 +707,8 @@ class ChatService:
                 route = "doc"
                 selected_hits = doc_hits
                 source_type = "doc"
-                answer = self._direct_price_answer(user_query, doc_hits[0]) or answer
+                answer = self._direct_price_answer(user_query, doc_hits[0]) if direct_answer_allowed else ""
+                answer = answer or "我暂时无法根据现有文档确认，建议人工进一步确认。"
                 prompt = None if answer != "我暂时无法根据现有文档确认，建议人工进一步确认。" else build_docs_prompt(user_query, doc_hits, memory_context)
                 hint = "已按知识库报价单回答，正式报价仍建议人工复核"
             elif action in ("manual_required", "block_commitment"):
@@ -479,7 +730,7 @@ class ChatService:
             route = "faq"
             selected_hits = faq_hits
             source_type = "faq"
-            if faq_top_score >= self.settings.faq_direct_answer_threshold:
+            if direct_answer_allowed and faq_top_score >= self.settings.faq_direct_answer_threshold:
                 answer = self._direct_faq_answer(faq_hits[0])
             else:
                 prompt = build_faq_prompt(user_query, faq_hits, memory_context)
@@ -487,7 +738,8 @@ class ChatService:
             route = "doc"
             selected_hits = doc_hits
             source_type = "doc"
-            answer = self._direct_price_answer(user_query, doc_hits[0]) or answer
+            answer = self._direct_price_answer(user_query, doc_hits[0]) if direct_answer_allowed else ""
+            answer = answer or "我暂时无法根据现有文档确认，建议人工进一步确认。"
             prompt = None if answer != "我暂时无法根据现有文档确认，建议人工进一步确认。" else build_docs_prompt(user_query, doc_hits, memory_context)
         elif faq_hits and faq_top_score >= self.settings.faq_score_threshold:
             route = "faq"
@@ -679,6 +931,75 @@ class ChatService:
         return metadata
 
     @staticmethod
+    def _intent_plan(request: ChatRequest) -> dict:
+        metadata = request.metadata or {}
+        plan = metadata.get("intent_plan")
+        return plan if isinstance(plan, dict) else {}
+
+    @classmethod
+    def _intent_is(cls, request: ChatRequest, *intents: str) -> bool:
+        plan = cls._intent_plan(request)
+        return str(plan.get("intent", "")) in set(intents)
+
+    def _intent_needs_quote(self, request: ChatRequest, user_query: str) -> bool:
+        plan = self._intent_plan(request)
+        if plan.get("intent"):
+            return bool(plan.get("needs_quote_tool"))
+        return self.quote_service.is_quote_request(user_query)
+
+    @classmethod
+    def _request_for_intent(cls, request: ChatRequest) -> ChatRequest:
+        plan = cls._intent_plan(request)
+        if not plan.get("contextual_followup"):
+            return request
+        message = str(request.message or "").strip()
+        additions: list[str] = []
+        upper_message = message.upper()
+        anchors = [
+            str(item).strip()
+            for item in plan.get("product_anchors", [])
+            if str(item).strip()
+        ] if isinstance(plan.get("product_anchors"), list) else []
+        missing_anchors = [
+            item
+            for item in anchors
+            if item.upper() not in upper_message
+        ]
+        if missing_anchors:
+            additions.append("上下文产品:" + "、".join(missing_anchors[:4]))
+        scenario_terms = [
+            str(item).strip()
+            for item in plan.get("scenario_terms", [])
+            if str(item).strip()
+        ] if isinstance(plan.get("scenario_terms"), list) else []
+        missing_scenarios = [
+            item
+            for item in scenario_terms
+            if item not in message
+        ]
+        if missing_scenarios:
+            additions.append("上下文场景:" + "、".join(missing_scenarios[:3]))
+        if not additions:
+            return request
+        quote_message = f"{message} {' '.join(additions)}".strip()
+        try:
+            if hasattr(request, "model_copy"):
+                return request.model_copy(update={"message": quote_message})
+            return request.copy(update={"message": quote_message})
+        except Exception:
+            data = request.model_dump() if hasattr(request, "model_dump") else request.dict()
+            data["message"] = quote_message
+            return ChatRequest(**data)
+
+    @classmethod
+    def _intent_clarify_answer(cls, request: ChatRequest) -> str:
+        plan = cls._intent_plan(request)
+        scenario = "、".join(str(item) for item in plan.get("scenario_terms", []) if str(item)) or "这个方向"
+        products = "、".join(str(item) for item in plan.get("product_anchors", []) if str(item))
+        subject = f"{scenario} / {products}" if products else scenario
+        return f"我看到你提到了{subject}。你是想了解它的适用场景、核心配置、价格口径，还是想让我帮你写一份可发客户的方案？"
+
+    @staticmethod
     def _chat_model_override(request: ChatRequest) -> str | None:
         metadata = request.metadata or {}
         if not metadata.get("test_page"):
@@ -700,7 +1021,27 @@ class ChatService:
 
     @staticmethod
     def _requires_handoff(user_query: str) -> bool:
-        return any(keyword in user_query for keyword in ("合同", "签约", "交付时间", "交期", "保证", "承诺"))
+        return any(keyword in user_query for keyword in ("合同", "签约", "交付时间", "交期", "保证", "承诺", "最低价", "一定", "三天", "免费", "库存"))
+
+    @staticmethod
+    def _quote_sources(draft: dict) -> list[SourceItem]:
+        sources = []
+        for source in draft.get("sources", []) or []:
+            if source:
+                sources.append(SourceItem(
+                    type="quote_catalog",
+                    source=str(source),
+                    category="报价规则库",
+                    reason="本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。",
+                ))
+        if not sources:
+            sources.append(SourceItem(
+                type="quote_catalog",
+                source="data/quote_catalog.json",
+                category="报价规则库",
+                reason="本轮报价推荐来自结构化报价规则库，不使用 OCR 报价单自动推价。",
+            ))
+        return sources[:3]
 
     @staticmethod
     def _debug_candidates(faq_candidates: list[RetrievalCandidate], doc_candidates: list[RetrievalCandidate]) -> list[dict]:
@@ -718,6 +1059,11 @@ class ChatService:
         return rows
 
     def _audit(self, request_id: str, request: ChatRequest, response: ChatResponse) -> None:
+        try:
+            if self.conversation_history_service:
+                self.conversation_history_service.append_turn(request, response)
+        except Exception:
+            pass
         try:
             self.audit_service.record({
                 "request_id": request_id,

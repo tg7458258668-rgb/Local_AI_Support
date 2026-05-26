@@ -38,7 +38,8 @@ class RetrievalService:
     CATEGORY_HINTS = {
         "售后": ["售后", "退款", "退货", "换货", "维修", "质保", "保修", "坏了"],
         "报价": ["报价", "价格", "多少钱", "费用", "合同", "优惠"],
-        "产品": ["产品", "功能", "型号", "参数", "配置"],
+        "配置": ["配置", "标配", "选配", "包含", "FreeD", "轨道", "控制器"],
+        "产品": ["产品", "功能", "型号", "参数"],
         "发货": ["发货", "物流", "快递", "多久到", "交期"],
     }
 
@@ -48,10 +49,17 @@ class RetrievalService:
         self.vector_repo = vector_repo
         self._cache: dict[tuple[str, str, str], tuple[float, RetrievalResult]] = {}
 
-    def retrieve(self, query: str, channel: str = "api", user_id: str | None = None) -> RetrievalResult:
+    def retrieve(
+        self,
+        query: str,
+        channel: str = "api",
+        user_id: str | None = None,
+        cache_context: str = "",
+        bypass_cache: bool = False,
+    ) -> RetrievalResult:
         embed_model = self.ollama.current_embed_model()
-        cache_key = (query.strip().lower(), channel, user_id or "", embed_model)
-        cached = self._cache.get(cache_key)
+        cache_key = (query.strip().lower(), channel, user_id or "", embed_model, cache_context or "")
+        cached = None if bypass_cache else self._cache.get(cache_key)
         if cached and time.time() - cached[0] <= self.settings.retrieval_cache_ttl_seconds:
             result = cached[1]
             return RetrievalResult(
@@ -78,8 +86,9 @@ class RetrievalService:
             doc_top_score=doc_candidates[0].score if doc_candidates else 0.0,
             cache_hit=False,
         )
-        self._cache[cache_key] = (time.time(), result)
-        self._trim_cache()
+        if not bypass_cache:
+            self._cache[cache_key] = (time.time(), result)
+            self._trim_cache()
         return result
 
     def clear_cache(self) -> None:
@@ -98,9 +107,10 @@ class RetrievalService:
             category_bonus = 0.04 if category_hint and category_hint in str(payload.get("category", "")) else 0.0
             keyword_bonus = min(overlap * 0.015, 0.09)
             name_bonus = self._name_bonus(query, payload) if source_type == "doc" else 0.0
+            semantic_bonus = self._semantic_bonus(query_tokens, payload) if source_type == "doc" else 0.0
             learned_bonus = 0.14 if source_type == "doc" and payload.get("doc_type") == "学习知识" else 0.0
             priority_bonus = max(0, 8 - min(priority, 8)) * 0.004
-            adjusted_score = score + category_bonus + keyword_bonus + name_bonus + learned_bonus + priority_bonus
+            adjusted_score = score + category_bonus + keyword_bonus + name_bonus + semantic_bonus + learned_bonus + priority_bonus
             reason = "向量召回"
             if category_bonus:
                 reason += f"+分类:{category_hint}"
@@ -108,6 +118,8 @@ class RetrievalService:
                 reason += "+关键词重合"
             if name_bonus:
                 reason += "+文件名匹配"
+            if semantic_bonus:
+                reason += "+语义标签"
             if learned_bonus:
                 reason += "+纠错学习"
             candidates.append(RetrievalCandidate(
@@ -132,13 +144,22 @@ class RetrievalService:
             "question",
             "answer",
             "text",
+            "search_text",
             "category",
             "tags",
             "doc_name",
             "source",
             "doc_type",
+            "section_title",
+            "page_range",
+            "semantic_summary",
+            "topics",
+            "entities",
+            "products",
+            "scenarios",
             "price_fields",
             "quote_items",
+            "price_items",
         ))
 
     @staticmethod
@@ -169,6 +190,21 @@ class RetrievalService:
             if len(token) >= 2 and token in target
         ]
         return min(len(matches) * 0.025, 0.22)
+
+    @staticmethod
+    def _semantic_bonus(query_tokens: set[str], payload: dict) -> float:
+        values = []
+        for key in ("topics", "entities", "products", "scenarios"):
+            value = payload.get(key, [])
+            if isinstance(value, list):
+                values.extend(str(item) for item in value)
+            else:
+                values.append(str(value))
+        semantic_text = " ".join(values)
+        if not semantic_text.strip():
+            return 0.0
+        matches = query_tokens.intersection(RetrievalService._tokens(semantic_text))
+        return min(len(matches) * 0.02, 0.14)
 
     @staticmethod
     def _priority(value: object) -> int:

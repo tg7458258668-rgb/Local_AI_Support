@@ -40,6 +40,14 @@ class BehaviorTuningService:
         draft = self._resolve_draft(payload)
         if not draft:
             raise KeyError("未找到可应用的草稿")
+        regression_check = payload.get("regression_check")
+        if isinstance(regression_check, dict) and regression_check.get("failed", 0) and not payload.get("force"):
+            return {
+                "ok": False,
+                "blocked": True,
+                "reason": "当前回归测试未通过，默认不应用草稿。",
+                "regression_check": regression_check,
+            }
         applied_config = self.behavior_config.apply_patch(
             draft.get("behavior_rules_patch") or {},
             draft.get("answer_style_patch") or {},
@@ -62,7 +70,7 @@ class BehaviorTuningService:
         items = payload.get("items", [])
         if not isinstance(items, list):
             raise ValueError("items 必须是数组")
-        normalized = [self._normalize_case(item) for item in items if isinstance(item, dict)]
+        normalized = [case for item in items if isinstance(item, dict) for case in [self._normalize_case(item)] if case]
         self.regression_store.save_list(normalized)
         return {"ok": True, "total": len(normalized), "items": normalized}
 
@@ -71,7 +79,13 @@ class BehaviorTuningService:
         cases = payload.get("cases")
         if not isinstance(cases, list):
             cases = self.regression_store.load_list()
-        enabled_cases = [self._normalize_case(item) for item in cases if item.get("enabled", True)]
+        enabled_cases = [
+            case
+            for item in cases
+            if isinstance(item, dict) and item.get("enabled", True)
+            for case in [self._normalize_case(item)]
+            if case
+        ]
         results = []
         for item in enabled_cases:
             metadata = dict(item.get("metadata") or {})
@@ -86,10 +100,21 @@ class BehaviorTuningService:
                 metadata=metadata,
             ))
             answer = response.answer or ""
+            metadata = response.metadata or {}
+            used_tools = metadata.get("used_tools") if isinstance(metadata.get("used_tools"), list) else []
             failures = []
             expected_route = item.get("expected_route", "")
             if expected_route and response.route != expected_route:
                 failures.append(f"route 应为 {expected_route}，实际为 {response.route}")
+            expected_tool = str(item.get("expected_tool", "") or "").strip()
+            if expected_tool and expected_tool not in used_tools:
+                failures.append(f"expected_tool 应包含 {expected_tool}，实际为 {', '.join(str(x) for x in used_tools) or '无'}")
+            if isinstance(item.get("expected_need_human_review"), bool):
+                actual_need_human = bool(metadata.get("need_human_review", response.need_human))
+                if actual_need_human != item["expected_need_human_review"]:
+                    expected_text = "是" if item["expected_need_human_review"] else "否"
+                    actual_text = "是" if actual_need_human else "否"
+                    failures.append(f"need_human_review 应为 {expected_text}，实际为 {actual_text}")
             for keyword in item.get("expected_keywords", []):
                 if str(keyword) and str(keyword) not in answer:
                     failures.append(f"缺少关键词：{keyword}")
@@ -103,7 +128,10 @@ class BehaviorTuningService:
                 "failures": failures,
                 "route": response.route,
                 "answer": answer,
-                "metadata": response.metadata,
+                "used_tools": used_tools,
+                "need_human_review": bool(metadata.get("need_human_review", response.need_human)),
+                "intent_plan": metadata.get("intent_plan") if isinstance(metadata.get("intent_plan"), dict) else {},
+                "metadata": metadata,
             })
         return {
             "ok": True,
@@ -132,7 +160,13 @@ JSON 字段固定为 behavior_rules_patch、answer_style_patch、regression_case
             if isinstance(data.get(key), dict):
                 draft[key] = BehaviorConfigService._deep_merge(draft[key], data[key])
         if isinstance(data.get("regression_cases"), list) and data["regression_cases"]:
-            draft["regression_cases"] = [self._normalize_case(item) for item in data["regression_cases"] if isinstance(item, dict)]
+            draft["regression_cases"] = [
+                case
+                for item in data["regression_cases"]
+                if isinstance(item, dict)
+                for case in [self._normalize_case(item)]
+                if case
+            ]
         if isinstance(data.get("notes"), list):
             draft["notes"].extend(str(item) for item in data["notes"])
         return draft
@@ -229,25 +263,43 @@ JSON 字段固定为 behavior_rules_patch、answer_style_patch、regression_case
         by_id = {item.get("id"): item for item in current if item.get("id")}
         for item in cases:
             normalized = self._normalize_case(item)
+            if not normalized:
+                continue
             by_id[normalized["id"]] = normalized
         items = list(by_id.values())
         self.regression_store.save_list(items)
         return items
 
     @staticmethod
-    def _normalize_case(item: dict[str, Any]) -> dict[str, Any]:
+    def _normalize_case(item: dict[str, Any]) -> dict[str, Any] | None:
+        message = str(item.get("message", "") or item.get("question", "") or "").strip()
+        if not message:
+            return None
         case_id = str(item.get("id", "") or "").strip() or f"case_{uuid.uuid4().hex[:10]}"
-        return {
+        must_include = [str(x) for x in item.get("must_include", []) if str(x)]
+        must_not_include = [str(x) for x in item.get("must_not_include", []) if str(x)]
+        expected_keywords = [str(x) for x in item.get("expected_keywords", []) if str(x)] or must_include
+        forbidden_keywords = [str(x) for x in item.get("forbidden_keywords", []) if str(x)] or must_not_include
+        normalized = {
             "id": case_id,
             "name": str(item.get("name", "") or case_id).strip(),
-            "message": str(item.get("message", "") or "").strip(),
+            "message": message,
+            "question": message,
             "channel": str(item.get("channel", "") or "api").strip(),
             "metadata": item.get("metadata") if isinstance(item.get("metadata"), dict) else {},
             "test_memory": item.get("test_memory") if isinstance(item.get("test_memory"), dict) else {},
             "expected_route": str(item.get("expected_route", "") or "").strip(),
-            "expected_keywords": [str(x) for x in item.get("expected_keywords", []) if str(x)],
-            "forbidden_keywords": [str(x) for x in item.get("forbidden_keywords", []) if str(x)],
+            "expected_tool": str(item.get("expected_tool", "") or "").strip(),
+            "expected_keywords": expected_keywords,
+            "forbidden_keywords": forbidden_keywords,
+            "must_include": must_include or expected_keywords,
+            "must_not_include": must_not_include or forbidden_keywords,
             "enabled": bool(item.get("enabled", True)),
+        }
+        if isinstance(item.get("expected_need_human_review"), bool):
+            normalized["expected_need_human_review"] = bool(item["expected_need_human_review"])
+        return {
+            **normalized,
         }
 
     @staticmethod

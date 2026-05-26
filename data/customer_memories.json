@@ -1,16 +1,63 @@
 {
-  "api:001": {
+  "api:conversation:session_mpjtm2e0": {
     "channel": "api",
-    "user_id": "001",
+    "user_id": "conversation:session_mpjtm2e0",
     "customer_name": "",
     "contact": "",
     "products": [
-      "MINI"
+      "GRA",
+      "EXT"
     ],
     "preferences": [],
     "common_questions": [
-      "mini 保修多久"
+      "gra怎么样"
     ],
+    "risk_flags": [],
+    "scenario": "团播",
+    "budget": "",
+    "project_time": "",
+    "decision_status": "",
+    "concerns": [
+      "轨道"
+    ],
+    "quoted_schemes": [],
+    "notes": "",
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "需要进一步确认轨道",
+    "updated_at": "2026-05-26 03:35:40"
+  },
+  "api:conversation:admin-quality-check": {
+    "channel": "api",
+    "user_id": "conversation:admin-quality-check",
+    "customer_name": "",
+    "contact": "",
+    "products": [],
+    "preferences": [],
+    "common_questions": [],
+    "risk_flags": [],
+    "scenario": "团播",
+    "budget": "",
+    "project_time": "",
+    "decision_status": "",
+    "concerns": [],
+    "quoted_schemes": [],
+    "notes": "",
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "",
+    "updated_at": "2026-05-26 03:22:48"
+  },
+  "api:customer_20260526_avp3": {
+    "channel": "api",
+    "user_id": "customer_20260526_avp3",
+    "customer_name": "",
+    "contact": "",
+    "products": [],
+    "preferences": [],
+    "common_questions": [],
     "risk_flags": [],
     "scenario": "",
     "budget": "",
@@ -19,6 +66,59 @@
     "concerns": [],
     "quoted_schemes": [],
     "notes": "",
-    "updated_at": "2026-05-07 22:57:12"
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "",
+    "updated_at": "2026-05-26 03:36:01"
+  },
+  "api:customer_20260526_6on8": {
+    "channel": "api",
+    "user_id": "customer_20260526_6on8",
+    "customer_name": "",
+    "contact": "",
+    "products": [],
+    "preferences": [],
+    "common_questions": [],
+    "risk_flags": [],
+    "scenario": "",
+    "budget": "",
+    "project_time": "",
+    "decision_status": "",
+    "concerns": [],
+    "quoted_schemes": [],
+    "notes": "",
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "",
+    "updated_at": "2026-05-26 03:36:10"
+  },
+  "api:conversation:session_mpllx0nb": {
+    "channel": "api",
+    "user_id": "conversation:session_mpllx0nb",
+    "customer_name": "",
+    "contact": "",
+    "products": [
+      "EXT",
+      "GRA"
+    ],
+    "preferences": [],
+    "common_questions": [],
+    "risk_flags": [],
+    "scenario": "",
+    "budget": "",
+    "project_time": "",
+    "decision_status": "",
+    "concerns": [
+      "轨道"
+    ],
+    "quoted_schemes": [],
+    "notes": "",
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "需要进一步确认轨道",
+    "updated_at": "2026-05-26 03:44:02"
   }
 }

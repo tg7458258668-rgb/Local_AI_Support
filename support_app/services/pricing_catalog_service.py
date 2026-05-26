@@ -18,7 +18,7 @@ class PricingCatalogService:
         saved = self.store.load_object()
         if saved:
             return saved
-        return self.build_from_documents()
+        return {"products": [], "accessories": [], "updated_at": "", "note": "报价已迁移到结构化 quote_catalog，旧文档不再自动生成价目。"}
 
     def save(self, payload: dict[str, Any]) -> dict[str, Any]:
         catalog = {
@@ -30,6 +30,7 @@ class PricingCatalogService:
         return catalog
 
     def build_from_documents(self) -> dict[str, Any]:
+        return {"products": [], "accessories": [], "updated_at": "", "note": "已停用从 OCR 文档自动生成价目，避免组合报价误判。请维护 quote_catalog。"}
         products = []
         seen = set()
         for row in self.document_repo.list():

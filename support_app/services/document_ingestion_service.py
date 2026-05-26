@@ -16,6 +16,7 @@ import requests
 from docx import Document
 
 from support_app.repositories.document_repository import DocumentRepository
+from support_app.services.document_analysis_service import DocumentAnalysisService
 from support_app.services.ollama_client import OllamaClient
 from support_app.services.retrieval_service import RetrievalService
 from support_app.settings import Settings
@@ -33,11 +34,13 @@ class DocumentIngestionService:
         document_repo: DocumentRepository,
         ollama: OllamaClient,
         retrieval_service: RetrievalService,
+        analysis_service: DocumentAnalysisService | None = None,
     ):
         self.settings = settings
         self.document_repo = document_repo
         self.ollama = ollama
         self.retrieval_service = retrieval_service
+        self.analysis_service = analysis_service or DocumentAnalysisService(ollama)
         self.raw_dir = settings.data_dir / "docs_raw"
         self.parsed_dir = settings.data_dir / "docs_parsed"
         self.chunks_path = settings.data_dir / "docs_chunks" / "docs_chunks.json"
@@ -90,9 +93,18 @@ class DocumentIngestionService:
                 }
             raise ValueError("文件未提取到可入库的文字内容")
 
-        quote_info = self._extract_quote_info(text, display_name)
         extraction_method = self._last_extract_info.get("method", "text")
+        quote_info = self._extract_quote_info(text, display_name)
         doc_type = category.strip() or quote_info.get("doc_type") or self._guess_doc_type(display_name, text)
+        analysis = self.analysis_service.analyze(
+            doc_name=display_name,
+            text=text,
+            category=doc_type,
+            quote_info=quote_info,
+            extraction_method=extraction_method,
+        )
+        clean_text = analysis.get("clean_text") or text
+        doc_type = analysis.get("doc_type") or doc_type
 
         parsed = {
             "doc_name": doc_key,
@@ -101,13 +113,24 @@ class DocumentIngestionService:
             "file_type": ext.lstrip("."),
             "doc_type": doc_type,
             "extraction_method": extraction_method,
-            "text_char_count": len(text),
+            "text_char_count": len(clean_text),
+            "raw_text_char_count": len(text),
             "price_fields": quote_info.get("price_fields", {}),
             "quote_items": quote_info.get("quote_items", []),
-            "summary": "",
-            "key_points": [],
-            "missing_fields": [],
-            "text": text,
+            "summary": analysis.get("summary", ""),
+            "key_points": analysis.get("key_points", []),
+            "missing_fields": analysis.get("missing_fields", []),
+            "products": analysis.get("products", []),
+            "scenarios": analysis.get("scenarios", []),
+            "topics": analysis.get("topics", []),
+            "key_parameters": analysis.get("key_parameters", []),
+            "price_items": analysis.get("price_items", []),
+            "warranty_terms": analysis.get("warranty_terms", []),
+            "restrictions": analysis.get("restrictions", []),
+            "semantic_sections": analysis.get("semantic_sections", []),
+            "analysis_method": analysis.get("analysis_method", ""),
+            "analysis_diagnostics": analysis.get("diagnostics", {}),
+            "text": clean_text,
             "updated_at": self._now(),
         }
         parsed_path = self.parsed_dir / f"{doc_key}.json"
@@ -135,6 +158,7 @@ class DocumentIngestionService:
                 "source_file": stored_name,
                 "doc_name": doc_key,
                 "chunk_count": len(new_chunks),
+                "analysis": self._upload_analysis_summary(parsed, new_chunks),
                 "indexed": False,
             }
 
@@ -146,8 +170,9 @@ class DocumentIngestionService:
             "doc_name": doc_key,
             "chunk_count": len(new_chunks),
             "extraction_method": extraction_method,
-            "text_char_count": len(text),
+            "text_char_count": len(clean_text),
             "doc_type": doc_type,
+            "analysis": self._upload_analysis_summary(parsed, new_chunks),
             "indexed": True,
             "index": index_result,
         }
@@ -215,6 +240,139 @@ class DocumentIngestionService:
         result = self._rebuild_docs_index(rows)
         self.retrieval_service.clear_cache()
         return result
+
+    def rebuild_semantic_index(self) -> dict:
+        self.parsed_dir.mkdir(parents=True, exist_ok=True)
+        self.chunks_path.parent.mkdir(parents=True, exist_ok=True)
+        parsed_items = []
+        chunks = []
+        for path in sorted(self.parsed_dir.glob("*.json")):
+            try:
+                parsed = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            text = str(parsed.get("text", "")).strip()
+            if not text:
+                continue
+            quote_info = {
+                "doc_type": parsed.get("doc_type", ""),
+                "price_fields": parsed.get("price_fields", {}),
+                "quote_items": parsed.get("quote_items", []),
+            }
+            analysis = self.analysis_service.analyze(
+                doc_name=parsed.get("display_name") or parsed.get("doc_name", path.stem),
+                text=text,
+                category=parsed.get("doc_type", ""),
+                quote_info=quote_info,
+                extraction_method=parsed.get("extraction_method", ""),
+            )
+            parsed.update({
+                "doc_type": analysis.get("doc_type") or parsed.get("doc_type", ""),
+                "text": analysis.get("clean_text") or text,
+                "text_char_count": len(analysis.get("clean_text") or text),
+                "summary": analysis.get("summary", ""),
+                "key_points": analysis.get("key_points", []),
+                "missing_fields": analysis.get("missing_fields", []),
+                "products": analysis.get("products", []),
+                "scenarios": analysis.get("scenarios", []),
+                "topics": analysis.get("topics", []),
+                "key_parameters": analysis.get("key_parameters", []),
+                "price_items": analysis.get("price_items", []),
+                "warranty_terms": analysis.get("warranty_terms", []),
+                "restrictions": analysis.get("restrictions", []),
+                "semantic_sections": analysis.get("semantic_sections", []),
+                "analysis_method": analysis.get("analysis_method", ""),
+                "analysis_diagnostics": analysis.get("diagnostics", {}),
+                "updated_at": self._now(),
+            })
+            path.write_text(json.dumps(parsed, ensure_ascii=False, indent=2), encoding="utf-8")
+            parsed_items.append(parsed)
+            chunks.extend(self._build_chunks(parsed))
+
+        self.document_repo.save(chunks)
+        index_error = ""
+        index_result = {"collection": self.settings.doc_collection, "chunk_count": len(chunks), "point_count": 0}
+        if chunks:
+            try:
+                index_result = self._rebuild_docs_index(chunks)
+            except Exception as exc:
+                index_error = f"{type(exc).__name__}: {exc}"
+        else:
+            try:
+                self._delete_docs_collection()
+            except Exception as exc:
+                index_error = f"{type(exc).__name__}: {exc}"
+        self.retrieval_service.clear_cache()
+        return {
+            "ok": not index_error,
+            "doc_count": len(parsed_items),
+            "chunk_count": len(chunks),
+            "index": index_result,
+            "index_error": index_error,
+            "message": f"已重建 {len(parsed_items)} 份文档的语义切块，生成 {len(chunks)} 个片段。"
+        }
+
+    def render_doc_page_image(self, doc_name: str, page: int) -> Path:
+        target = str(doc_name or "").strip()
+        if not target:
+            raise ValueError("doc_name 不能为空")
+        page_num = max(1, int(page or 1))
+        rows = self.document_repo.list()
+        doc_rows = [item for item in rows if item.get("doc_name") == target]
+        if not doc_rows:
+            raise KeyError(f"未找到文档: {target}")
+        source = str(doc_rows[0].get("source") or "")
+        raw_path = self.raw_dir / source
+        if not raw_path.exists():
+            raise KeyError(f"未找到原始文件: {source}")
+        if raw_path.suffix.lower() != ".pdf":
+            raise ValueError("当前只支持 PDF 页图片预览")
+
+        cache_dir = self.settings.data_dir / "doc_page_images"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        cache_path = cache_dir / f"{self._clean_doc_name(target)}_p{page_num:03d}.png"
+        if cache_path.exists() and cache_path.stat().st_mtime >= raw_path.stat().st_mtime:
+            return cache_path
+
+        with fitz.open(str(raw_path)) as doc:
+            if page_num > len(doc):
+                raise ValueError(f"页码超出范围: {page_num} / {len(doc)}")
+            page_obj = doc[page_num - 1]
+            pix = page_obj.get_pixmap(matrix=fitz.Matrix(1.6, 1.6), alpha=False)
+            pix.save(str(cache_path))
+        return cache_path
+
+    def clear_quote_references(self) -> dict:
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
+        self.parsed_dir.mkdir(parents=True, exist_ok=True)
+        self.chunks_path.parent.mkdir(parents=True, exist_ok=True)
+
+        removed_files = []
+        for directory in (self.raw_dir, self.parsed_dir):
+            for path in directory.iterdir():
+                if path.is_file():
+                    path.unlink()
+                    removed_files.append(str(path))
+
+        old_rows = self.document_repo.list()
+        self.document_repo.save([])
+        if self.chunks_path.exists():
+            self.chunks_path.unlink()
+
+        index_error = ""
+        try:
+            self._delete_docs_collection()
+        except Exception as exc:
+            index_error = f"{type(exc).__name__}: {exc}"
+        self.retrieval_service.clear_cache()
+        return {
+            "ok": True,
+            "deleted_chunk_count": len(old_rows),
+            "removed_file_count": len(removed_files),
+            "removed_files": removed_files,
+            "index_cleared": not index_error,
+            "index_error": index_error,
+        }
 
     def _extract_text(self, path: Path, ext: str) -> str:
         if ext in {".txt", ".md"}:
@@ -444,11 +602,48 @@ class DocumentIngestionService:
         category = parsed.get("doc_type", "其他") or "其他"
         source = parsed.get("source_file", "")
         chunks = []
+        semantic_sections = parsed.get("semantic_sections") or []
+        if semantic_sections:
+            for index, section in enumerate(self._normalize_semantic_sections(semantic_sections, parsed), start=1):
+                text = section.get("text", "")
+                chunks.append({
+                    "id": f"{doc_name}_chunk_{index:03d}",
+                    "doc_name": doc_name,
+                    "section": section.get("section_title", "正文"),
+                    "section_title": section.get("section_title", "正文"),
+                    "page_range": section.get("page_range", ""),
+                    "category": category,
+                    "source": source,
+                    "summary": parsed.get("summary", ""),
+                    "key_points": parsed.get("key_points", []),
+                    "missing_fields": parsed.get("missing_fields", []),
+                    "doc_type": parsed.get("doc_type", ""),
+                    "extraction_method": parsed.get("extraction_method", ""),
+                    "products": parsed.get("products", []),
+                    "scenarios": parsed.get("scenarios", []),
+                    "topics": section.get("topics", []),
+                    "entities": section.get("entities", []),
+                    "semantic_summary": section.get("semantic_summary", ""),
+                    "price_fields": section.get("price_fields", {}) if self._is_price_section(section, text) else {},
+                    "quote_items": section.get("quote_items", []) if self._is_price_section(section, text) else [],
+                    "price_items": parsed.get("price_items", []) if self._is_price_section(section, text) else [],
+                    "analysis_method": parsed.get("analysis_method", ""),
+                    "analysis_diagnostics": parsed.get("analysis_diagnostics", {}),
+                    "text": text,
+                    "search_text": self._build_search_text(parsed, section, text),
+                    "updated_at": self._now(),
+                    "priority": self._section_priority(section),
+                })
+            return chunks
+
         for index, text in enumerate(self._chunk_text(parsed.get("text", ""), parsed), start=1):
+            price_section = self._looks_like_price_text(text)
             chunks.append({
                 "id": f"{doc_name}_chunk_{index:03d}",
                 "doc_name": doc_name,
-                "section": "全文",
+                "section": "报价" if price_section else "正文",
+                "section_title": "报价" if price_section else "正文",
+                "page_range": "",
                 "category": category,
                 "source": source,
                 "summary": parsed.get("summary", ""),
@@ -456,9 +651,16 @@ class DocumentIngestionService:
                 "missing_fields": parsed.get("missing_fields", []),
                 "doc_type": parsed.get("doc_type", ""),
                 "extraction_method": parsed.get("extraction_method", ""),
-                "price_fields": parsed.get("price_fields", {}),
-                "quote_items": parsed.get("quote_items", []),
+                "products": parsed.get("products", []),
+                "scenarios": parsed.get("scenarios", []),
+                "topics": ["报价"] if price_section else parsed.get("topics", []),
+                "entities": parsed.get("products", []),
+                "semantic_summary": parsed.get("summary", ""),
+                "price_fields": parsed.get("price_fields", {}) if price_section else {},
+                "quote_items": parsed.get("quote_items", []) if price_section else [],
+                "price_items": parsed.get("price_items", []) if price_section else [],
                 "text": text,
+                "search_text": self._build_search_text(parsed, {}, text),
                 "updated_at": self._now(),
                 "priority": 1,
             })
@@ -466,8 +668,6 @@ class DocumentIngestionService:
 
     def _chunk_text(self, text: str, parsed: dict | None = None) -> list[str]:
         parsed = parsed or {}
-        if parsed.get("price_fields") or parsed.get("quote_items"):
-            return self._chunk_quote_text(text, parsed)
         normalized = re.sub(r"\s+", " ", text).strip()
         if not normalized:
             return []
@@ -487,37 +687,96 @@ class DocumentIngestionService:
             chunks.append(normalized[:900])
         return chunks
 
+    def _normalize_semantic_sections(self, sections: list[dict], parsed: dict) -> list[dict]:
+        normalized = []
+        for item in sections:
+            if not isinstance(item, dict):
+                continue
+            text = str(item.get("text") or "").strip()
+            if len(text) < 6:
+                continue
+            normalized.append({
+                "section_title": str(item.get("section_title") or item.get("title") or "正文")[:100],
+                "page_range": str(item.get("page_range") or ""),
+                "text": text,
+                "topics": self._as_list(item.get("topics")) or parsed.get("topics", []),
+                "entities": self._as_list(item.get("entities")) or parsed.get("products", []),
+                "semantic_summary": str(item.get("semantic_summary") or parsed.get("summary", ""))[:300],
+                "price_fields": item.get("price_fields") if isinstance(item.get("price_fields"), dict) else {},
+                "quote_items": self._as_list(item.get("quote_items")),
+            })
+        return normalized
+
+    def _build_search_text(self, parsed: dict, section: dict, text: str) -> str:
+        parts = [
+            parsed.get("display_name", ""),
+            section.get("section_title", ""),
+            section.get("page_range", ""),
+            parsed.get("summary", ""),
+            section.get("semantic_summary", ""),
+            " ".join(str(item) for item in parsed.get("key_points", [])[:8]),
+            " ".join(str(item) for item in section.get("topics", [])),
+            " ".join(str(item) for item in section.get("entities", [])),
+            " ".join(str(item) for item in parsed.get("products", [])),
+            " ".join(str(item) for item in parsed.get("scenarios", [])),
+            text,
+        ]
+        return re.sub(r"\s+", " ", " ".join(str(part or "") for part in parts)).strip()
+
+    def _is_price_section(self, section: dict, text: str) -> bool:
+        topics = set(str(item) for item in section.get("topics", []))
+        title = str(section.get("section_title", ""))
+        return "报价" in topics or any(keyword in title for keyword in ("报价", "价格", "费用")) or self._looks_like_price_text(text)
+
     @staticmethod
-    def _chunk_quote_text(text: str, parsed: dict) -> list[str]:
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        header = f"文档类型：{parsed.get('doc_type', '报价单')}；解析方式：{parsed.get('extraction_method', '')}"
-        prices = parsed.get("price_fields", {})
-        if prices:
-            header += "；价格字段：" + "；".join(f"{key}={value}" for key, value in prices.items())
-        chunks = []
-        current = header
-        for line in lines:
-            if len(current) + len(line) <= 700:
-                current = f"{current}\n{line}".strip()
-            else:
-                if len(current) >= 12:
-                    chunks.append(current)
-                current = f"{header}\n{line}"
-        if len(current) >= 12:
-            chunks.append(current)
-        return chunks
+    def _looks_like_price_text(text: str) -> bool:
+        value = str(text or "")
+        return bool(re.search(r"[¥￥]\s*[\d,]+(?:\.\d+)?|\d+(?:,\d{3})+\s*元", value)) or any(
+            keyword in value for keyword in ("报价", "总价", "单价", "优惠价", "合计")
+        )
+
+    @staticmethod
+    def _section_priority(section: dict) -> int:
+        topics = set(str(item) for item in section.get("topics", []))
+        if topics.intersection({"报价", "售后", "配置"}):
+            return 1
+        if topics.intersection({"参数", "场景", "产品"}):
+            return 2
+        return 3
+
+    @staticmethod
+    def _as_list(value: object) -> list:
+        if value is None:
+            return []
+        if isinstance(value, list):
+            return value
+        return [value]
+
+    @staticmethod
+    def _upload_analysis_summary(parsed: dict, chunks: list[dict]) -> dict:
+        diagnostics = parsed.get("analysis_diagnostics", {}) or {}
+        return {
+            "method": parsed.get("analysis_method", ""),
+            "text_char_count": parsed.get("text_char_count", 0),
+            "chunk_count": len(chunks),
+            "products": parsed.get("products", []),
+            "topics": parsed.get("topics", []),
+            "price_item_count": len(parsed.get("price_items", []) or []),
+            "missing_fields": parsed.get("missing_fields", []),
+            "warnings": diagnostics.get("warnings", []),
+        }
 
     def _rebuild_docs_index(self, rows: list[dict]) -> dict:
         active_rows = [row for row in rows if str(row.get("text", "")).strip()]
         if not active_rows:
             raise ValueError("没有可入库的文档片段")
 
-        first_vector = self.ollama.embedding(active_rows[0]["text"])
+        first_vector = self.ollama.embedding(active_rows[0].get("search_text") or active_rows[0]["text"])
         self._recreate_collection(len(first_vector))
 
         points = []
         for row in active_rows:
-            vector = self.ollama.embedding(row["text"])
+            vector = self.ollama.embedding(row.get("search_text") or row["text"])
             points.append({
                 "id": str(uuid.uuid4()),
                 "vector": vector,
@@ -525,6 +784,8 @@ class DocumentIngestionService:
                     "chunk_id": row.get("id", ""),
                     "doc_name": row.get("doc_name", ""),
                     "section": row.get("section", ""),
+                    "section_title": row.get("section_title", ""),
+                    "page_range": row.get("page_range", ""),
                     "category": row.get("category", ""),
                     "source": row.get("source", ""),
                     "summary": row.get("summary", ""),
@@ -534,6 +795,15 @@ class DocumentIngestionService:
                     "extraction_method": row.get("extraction_method", ""),
                     "price_fields": row.get("price_fields", {}),
                     "quote_items": row.get("quote_items", []),
+                    "price_items": row.get("price_items", []),
+                    "products": row.get("products", []),
+                    "scenarios": row.get("scenarios", []),
+                    "topics": row.get("topics", []),
+                    "entities": row.get("entities", []),
+                    "semantic_summary": row.get("semantic_summary", ""),
+                    "search_text": row.get("search_text", ""),
+                    "analysis_method": row.get("analysis_method", ""),
+                    "analysis_diagnostics": row.get("analysis_diagnostics", {}),
                     "text": row.get("text", ""),
                     "learned_id": row.get("learned_id", ""),
                     "updated_at": row.get("updated_at", ""),

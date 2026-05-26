@@ -20,6 +20,10 @@ MEMORY_FIELDS = [
     "concerns",
     "quoted_schemes",
     "notes",
+    "live_room_area",
+    "camera_count",
+    "robot_arm_count",
+    "track_preference",
 ]
 
 
@@ -97,6 +101,10 @@ class CustomerMemoryRepository:
             "concerns": [],
             "quoted_schemes": [],
             "notes": "",
+            "live_room_area": "",
+            "camera_count": "",
+            "robot_arm_count": "",
+            "track_preference": "",
             "updated_at": "",
         }
 

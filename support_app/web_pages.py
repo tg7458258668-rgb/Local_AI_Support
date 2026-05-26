@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 router = APIRouter(tags=["web"])
@@ -24,12 +24,52 @@ def chat_page_head():
 
 
 @router.get("/admin")
-def legacy_admin_page(request: Request):
-    return templates.TemplateResponse(request=request, name="admin.html", context={})
+def admin_home_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={"page": "quality"},
+    )
 
 
 @router.head("/admin")
+def admin_home_page_head():
+    return html_head_response()
+
+
+@router.get("/admin-legacy")
+def legacy_admin_page(request: Request):
+    return RedirectResponse(url="/admin", status_code=307)
+
+
+@router.head("/admin-legacy")
 def legacy_admin_page_head():
+    return html_head_response()
+
+
+@router.get("/admin/{page_name}")
+def admin_section_page(request: Request, page_name: str):
+    pages = {
+        "overview",
+        "quality",
+        "regression",
+        "knowledge",
+        "sales",
+        "memory",
+        "training",
+        "diagnostics",
+        "settings",
+    }
+    page = page_name if page_name in pages else "quality"
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={"page": page},
+    )
+
+
+@router.head("/admin/{page_name}")
+def admin_section_page_head(page_name: str):
     return html_head_response()
 
 

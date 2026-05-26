@@ -22,7 +22,7 @@ class CustomerMemoryService:
             return test_memory
         if not self._enabled(request):
             return None
-        return self.repo.get(request.channel, request.user_id or "")
+        return self.repo.get(request.channel, self._memory_id(request))
 
     def update_from_turn(self, request: ChatRequest, answer: str, route: str) -> dict | None:
         if (request.metadata or {}).get("regression_test"):
@@ -33,8 +33,8 @@ class CustomerMemoryService:
         if route in ("handoff", "error"):
             updates.setdefault("risk_flags", []).append("需要人工关注")
         if not any(updates.values()):
-            return self.repo.get(request.channel, request.user_id or "")
-        return self.repo.upsert(request.channel, request.user_id or "", updates)
+            return self.repo.get(request.channel, self._memory_id(request))
+        return self.repo.upsert(request.channel, self._memory_id(request), updates)
 
     def list(self, q: str = "") -> dict:
         items = self.repo.list(q)
@@ -74,12 +74,28 @@ class CustomerMemoryService:
             lines.append(f"历史报价方案：{'、'.join(memory['quoted_schemes'][:3])}")
         if memory.get("notes"):
             lines.append(f"备注：{memory['notes']}")
+        if memory.get("live_room_area"):
+            lines.append(f"直播间面积：{memory['live_room_area']}")
+        if memory.get("camera_count"):
+            lines.append(f"机位/相机数量：{memory['camera_count']}")
+        if memory.get("robot_arm_count"):
+            lines.append(f"机械臂数量：{memory['robot_arm_count']}")
+        if memory.get("track_preference"):
+            lines.append(f"轨道需求：{memory['track_preference']}")
         if not lines:
             return ""
         return "客户关键画像（仅用于延续上下文，不得编造事实）：\n" + "\n".join(lines)
 
     def _enabled(self, request: ChatRequest) -> bool:
-        return bool(self.settings.memory_enabled and request.user_id)
+        return bool(self.settings.memory_enabled and self._memory_id(request))
+
+    @staticmethod
+    def _memory_id(request: ChatRequest) -> str:
+        if request.user_id:
+            return request.user_id
+        if request.conversation_id:
+            return f"conversation:{request.conversation_id}"
+        return ""
 
     def _extract(self, text: str) -> dict:
         updates: dict[str, list[str] | str] = {
@@ -110,6 +126,19 @@ class CustomerMemoryService:
             if word in cleaned:
                 updates["scenario"] = word
                 break
+        area_match = re.search(r"(\d+(?:\.\d+)?)\s*(?:平|平方|平方米|㎡)", cleaned)
+        if area_match:
+            updates["live_room_area"] = area_match.group(1)
+        camera_count = self._count_before(cleaned, ("机位", "相机", "摄像机"))
+        if camera_count:
+            updates["camera_count"] = camera_count
+        arm_count = self._count_near_arm(cleaned)
+        if arm_count:
+            updates["robot_arm_count"] = arm_count
+        if any(word in cleaned for word in ("固定机位", "不上轨道", "不需要轨道", "不用轨道", "先不上轨道")):
+            updates["track_preference"] = "暂不需要轨道"
+        elif any(word in cleaned for word in ("轨道", "横移", "环绕", "走位", "全景")):
+            updates["track_preference"] = "需要进一步确认轨道"
         budget_match = re.search(r"(预算\s*)?([¥￥]?\s*\d+(?:\.\d+)?\s*[万千]?)", cleaned)
         if "预算" in cleaned and budget_match:
             updates["budget"] = budget_match.group(2).replace(" ", "")
@@ -129,3 +158,33 @@ class CustomerMemoryService:
         if "?" in cleaned or "？" in cleaned or any(word in cleaned for word in ["怎么", "多久", "能不能", "是否", "可以"]):
             updates["common_questions"].append(cleaned[:80])
         return {key: value for key, value in updates.items() if value}
+
+    @classmethod
+    def _count_before(cls, text: str, nouns: tuple[str, ...]) -> str:
+        noun_pattern = "|".join(re.escape(noun) for noun in nouns)
+        match = re.search(rf"([一二两三四五六七八九十\d]+)\s*(?:个|台|路)?\s*(?:{noun_pattern})", text)
+        if not match:
+            return ""
+        return cls._chinese_number(match.group(1))
+
+    @classmethod
+    def _count_near_arm(cls, text: str) -> str:
+        match = re.search(r"机械臂.{0,6}(?:用|要|配|上)?\s*([一二两三四五六七八九十\d]+)\s*台", text)
+        if not match:
+            match = re.search(r"([一二两三四五六七八九十\d]+)\s*台\s*机械臂", text)
+        return cls._chinese_number(match.group(1)) if match else ""
+
+    @staticmethod
+    def _chinese_number(value: str) -> str:
+        text = str(value or "").strip()
+        if text.isdigit():
+            return text
+        mapping = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+        if text == "十":
+            return "10"
+        if "十" in text:
+            left, _, right = text.partition("十")
+            tens = mapping.get(left, 1) if left else 1
+            ones = mapping.get(right, 0) if right else 0
+            return str(tens * 10 + ones)
+        return str(mapping.get(text, "")) if text in mapping else ""

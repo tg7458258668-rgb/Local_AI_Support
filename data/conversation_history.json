@@ -1,0 +1,335 @@
+{
+  "api:session_mpjtm2e0": [
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "了解，按你补充的情况来看，我建议先按单条 U-MOCO GRA 团播版做方案。\nGRA 比较适合 50 平左右的团播间做自动运镜和景别切换；EXT/PRO 可以作为后续升级，主要看你们的场地运动范围和相机镜头重量。\n轨道先不默认加。如果主要是固定机位自动运镜，可以先不上轨道；如果后面想做横移、环绕或更大范围走位，再把轨道单独拆出来。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，用来一键控制运镜、变焦和灯光联动。\n我还需要确认一下相机、镜头和附件总重大概多少，这个会影响最终臂型和挂载配置。\n预算区间也可以告诉我一下，我可以按入门够用和后续可升级两档给你拆。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 02:57:57"
+      },
+      "created_at": "2026-05-26 02:57:57"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以，团播直播间这块我们比较有优势。\n我们不是只卖一台机械臂，而是围绕直播效果做自动运镜、景别变化、镜头控制和现场流程，把画面稳定性和可复制性先建立起来。\n按你补充的情况来看，我会先判断直播间面积、走位范围和想要的直播效果，再决定是看 U-MOCO GRA、U-MOCO EXT 还是 U-MOCO PRO；型号不要一上来拍死。\n如果主要是固定机位和小范围自动运镜，可以先控制配置复杂度；如果后面要横移、环绕或大范围走位，再把轨道和更大臂形单独拆出来。\n具体配置清单不用现在一次性定死，后面补齐面积、机位数、直播效果目标和相机镜头重量，我再按标准版/升级版给你拆。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:23:11"
+      },
+      "created_at": "2026-05-26 03:23:11"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以，团播直播间这块我们比较有优势。\n我们不是只卖一台机械臂，而是围绕直播效果做自动运镜、景别变化、镜头控制和现场流程，把画面稳定性和可复制性先建立起来。\n按你补充的情况来看，我会先判断直播间面积、走位范围和想要的直播效果，再决定是看 U-MOCO GRA、U-MOCO EXT 还是 U-MOCO PRO；型号不要一上来拍死。\n如果主要是固定机位和小范围自动运镜，可以先控制配置复杂度；如果后面要横移、环绕或大范围走位，再把轨道和更大臂形单独拆出来。\n具体配置清单不用现在一次性定死，后面补齐面积、机位数、直播效果目标和相机镜头重量，我再按标准版/升级版给你拆。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:27:57"
+      },
+      "created_at": "2026-05-26 03:27:57"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以，你们做团播的话，这个场景我们比较熟。\n我们这套不是单纯让机械臂动起来，而是帮直播间把运镜、景别和镜头控制做稳。主播走位的时候画面不乱，现场也少靠人临时切。\n型号我不会直接拍死。先看直播间面积、走位范围和想要的直播效果，再在 U-MOCO GRA、U-MOCO EXT、U-MOCO PRO 里选档位。\n如果只是固定机位加顺滑运镜，GRA 这档可以先看；如果要横移、环绕、大范围走位，或者设备更重，再看 EXT/PRO 和轨道。\n你先给我直播间面积和想要的效果，我就能把方案收成标准版/升级版，不会一上来把所有配置全摊开。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:28:15"
+      },
+      "created_at": "2026-05-26 03:28:15"
+    },
+    {
+      "message": "gra怎么样",
+      "answer": "可以，你们做团播的话，这个场景我们比较熟。\n我们这套不是单纯让机械臂动起来，而是帮直播间把运镜、景别和镜头控制做稳。主播走位的时候画面不乱，现场也少靠人临时切。\n型号我不会直接拍死。先看直播间面积、走位范围和想要的直播效果，再在 U-MOCO GRA、U-MOCO EXT、U-MOCO PRO 里选档位。\n如果只是固定机位加顺滑运镜，GRA 这档可以先看；如果要横移、环绕、大范围走位，或者设备更重，再看 EXT/PRO 和轨道。\n你先给我直播间面积和想要的效果，我就能把方案收成标准版/升级版，不会一上来把所有配置全摊开。\n你提到轨道/走位需求的话，我会把它单独拆出来；轨道会作为独立选配单独核算。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:28:44"
+      },
+      "created_at": "2026-05-26 03:28:44"
+    },
+    {
+      "message": "ext加12米轨道多少钱",
+      "answer": "U-MOCO EXT 可以作为这个团播方案的核心臂形来核价。\n团播方案的价值不只是机械臂本体，而是把自动运镜、镜头控制和现场一键操作做成稳定流程，减少人工临场切换的不确定性。\n具体选 U-MOCO GRA、U-MOCO EXT 还是 U-MOCO PRO，还是要看直播间面积、主播走位范围、想要的画面效果和相机镜头重量；轨道也是根据横移、环绕或大范围走位需求再加。\n你提到 U-MOCO EXT 加 12 米轨道，我先按“机械臂 + 地面轨道 + 轨道电机”的基础组合给你一个参考口径。\nU-MOCO EXT 参考价：¥758,000。\n影视地面轨道：12米，参考小计 ¥186,000。\n轨道电机：默认随上轨道配置，参考小计 ¥78,000。\n这三项参考合计约 ¥1,022,000，不含最终优惠、交付、安装培训和其他团播控制选配。\n上轨道默认需要配轨道电机，我先按这个口径一起算。\n还想确认两点：直播间层高大概多少？上轨道主要是为了横移、环绕、大范围走位，还是只是想保留后续升级空间？\n以上是参考报价口径，正式价格、优惠和交付安排还需要结合现场配置复核。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "GRA",
+          "EXT"
+        ],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:35:40"
+      },
+      "created_at": "2026-05-26 03:35:40"
+    }
+  ],
+  "api:smoke_admin_v3": [
+    {
+      "message": "你好",
+      "answer": "你好，我是 U-MOCO 本地 AI 客服，可以帮你解答产品、报价、方案配置、售后政策和知识库资料问题。如果涉及优惠价、合同、交付时间或特殊定制，我会先给参考建议，并提示人工同事复核。",
+      "route": "identity",
+      "sources": [],
+      "memory_summary": {
+        "products": [],
+        "scenario": "",
+        "budget": "",
+        "updated_at": ""
+      },
+      "created_at": "2026-05-25 22:24:41"
+    }
+  ],
+  "api:admin-quality-check": [
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-25 22:59:51"
+      },
+      "created_at": "2026-05-25 22:59:51"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-25 22:59:55"
+      },
+      "created_at": "2026-05-25 22:59:55"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-25 22:59:59"
+      },
+      "created_at": "2026-05-25 22:59:59"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-25 23:05:38"
+      },
+      "created_at": "2026-05-25 23:05:38"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以的，团播直播间我们能做。\n为了推荐得更合适，我先确认几个信息：\n1. 直播间大概多大，主播走位范围大不大？\n2. 计划用几台相机？相机、镜头和附件大概多重？\n3. 主要是固定机位自动运镜，还是需要轨道横移、环绕或灯光联动？\n如果你们暂时还没有详细参数，一般可以先从 U-MOCO GRA 团播版看；空间更大、负载更高或拍摄规格更专业时，再升级到 U-MOCO EXT / U-MOCO PRO。\n团播版会配 U-MOCO Live 和 Stream Deck / 直播可编程键盘，可以一键控制运镜、变焦和灯光联动。轨道不是必选，有横移或环绕需求时再单独加。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 02:57:35"
+      },
+      "created_at": "2026-05-26 02:57:35"
+    },
+    {
+      "message": "我们是做团播的给我推荐一下你们的产品",
+      "answer": "可以，团播直播间这块我们比较有优势。\n我们不是只给你推荐一台机械臂，而是围绕直播间效果做一套机械臂自动运镜和现场控制方案，让画面更稳定、景别切换更顺、主播走位更容易标准化。\n具体选 U-MOCO GRA、U-MOCO EXT 还是 U-MOCO PRO，应该看直播间面积、主播走位范围、想要的直播效果，以及相机镜头和附件重量来定，不建议一上来就把型号和配置全部说死。\n一般我会先帮客户把方向定住：中小型直播间先评估 U-MOCO GRA 这个档位；更大空间、更强运镜效果或更高负载，再看 EXT/PRO 和轨道方案。\n具体配置清单后面再按面积、机位数量、效果需求和预算拆成标准版/升级版，先不用一次性把所有选配都堆出来。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [],
+        "scenario": "团播",
+        "budget": "",
+        "updated_at": "2026-05-26 03:22:48"
+      },
+      "created_at": "2026-05-26 03:22:48"
+    }
+  ],
+  "api:session_mpllx0nb": [
+    {
+      "message": "ext加12米轨道多少钱",
+      "answer": "U-MOCO EXT 可以作为这个团播方案的核心臂形来核价。\n团播方案的价值不只是机械臂本体，而是把自动运镜、镜头控制和现场一键操作做成稳定流程，减少人工临场切换的不确定性。\n具体选 U-MOCO GRA、U-MOCO EXT 还是 U-MOCO PRO，还是要看直播间面积、主播走位范围、想要的画面效果和相机镜头重量；轨道也是根据横移、环绕或大范围走位需求再加。\n你提到 U-MOCO EXT 加 12 米轨道，我先按“机械臂 + 地面轨道 + 轨道电机”的基础组合给你一个参考口径。\nU-MOCO EXT 参考价：¥758,000。\n影视地面轨道：12米，参考小计 ¥186,000。\n轨道电机：默认随上轨道配置，参考小计 ¥78,000。\n这三项参考合计约 ¥1,022,000，不含最终优惠、交付、安装培训和其他团播控制选配。\n上轨道默认需要配轨道电机，我先按这个口径一起算。\n还想确认两点：直播间层高大概多少？上轨道主要是为了横移、环绕、大范围走位，还是只是想保留后续升级空间？\n以上是参考报价口径，正式价格、优惠和交付安排还需要结合现场配置复核。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "EXT"
+        ],
+        "scenario": "",
+        "budget": "",
+        "updated_at": "2026-05-26 03:36:14"
+      },
+      "created_at": "2026-05-26 03:36:14"
+    },
+    {
+      "message": "gra+100米轨道多少钱",
+      "answer": "可以先粗算，但我先说明一下：你这句还没说是团播版、影视版还是广播版，我不会默认按团播来算。\n下面先按常规专业版口径，把 U-MOCO GRA + 100 米地面轨道 + 轨道电机做参考；如果你确认是团播版或广播版，控制软件、现场联动和交付范围要重新核。\n你提到 U-MOCO GRA 加 100 米轨道，我先按“机械臂 + 地面轨道 + 轨道电机”的基础组合给你一个参考口径。\nU-MOCO GRA 参考价：¥448,000。\n影视地面轨道：100米，参考小计 ¥1,550,000。\n轨道电机：默认随上轨道配置，参考小计 ¥78,000。\n这三项参考合计约 ¥2,076,000，不含最终优惠、交付、安装培训和其他场景选配。\n上轨道默认需要配轨道电机，我先按这个口径一起算。\n还需要确认三点：这是团播版、影视版还是广播版？现场层高大概多少？上轨道主要是横移、环绕、大范围走位，还是预留升级？\n以上是参考报价口径，正式价格、优惠和交付安排还需要结合现场配置复核。",
+      "route": "quote_draft",
+      "sources": [
+        {
+          "type": "quote_catalog",
+          "source": "data/quote_catalog.json",
+          "doc_name": "",
+          "section": "",
+          "category": "报价规则库"
+        }
+      ],
+      "memory_summary": {
+        "products": [
+          "EXT",
+          "GRA"
+        ],
+        "scenario": "",
+        "budget": "",
+        "updated_at": "2026-05-26 03:44:02"
+      },
+      "created_at": "2026-05-26 03:44:02"
+    }
+  ]
+}

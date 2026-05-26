@@ -1,9 +1,10 @@
 import requests
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import FileResponse
 
 from support_app.dependencies import get_admin_service
 from support_app.api.upload_utils import parse_upload_files_request
-from support_app.schemas import CustomerMemoryItem, FAQItem, RuleItem
+from support_app.schemas import AnswerFeedbackRequest, CustomerMemoryItem, FAQItem, RuleItem
 from support_app.services.admin_service import AdminService
 from support_app.settings import settings
 
@@ -69,6 +70,21 @@ def delete_docs(payload: dict, service: AdminService = Depends(get_admin_service
     if not isinstance(doc_names, list):
         raise HTTPException(status_code=400, detail="doc_names 必须是数组")
     return _handle_errors(lambda: service.delete_docs(doc_names))
+
+
+@router.post("/docs/rebuild-semantic-index")
+def rebuild_semantic_docs(service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(service.rebuild_semantic_docs)
+
+
+@router.get("/docs/{doc_name}/page-image")
+def doc_page_image(
+    doc_name: str,
+    page: int = Query(default=1, ge=1),
+    service: AdminService = Depends(get_admin_service),
+):
+    path = _handle_errors(lambda: service.render_doc_page_image(doc_name, page))
+    return FileResponse(path, media_type="image/png")
 
 
 @router.get("/faqs")
@@ -203,6 +219,25 @@ def tuning_draft(payload: dict, service: AdminService = Depends(get_admin_servic
 @router.post("/tuning/apply")
 def tuning_apply(payload: dict, service: AdminService = Depends(get_admin_service)):
     return _handle_errors(lambda: service.apply_tuning_draft(payload))
+
+
+@router.get("/answer-feedback")
+def answer_feedback(
+    q: str = Query(default=""),
+    verdict: str = Query(default=""),
+    service: AdminService = Depends(get_admin_service),
+):
+    return service.list_answer_feedback(q, verdict)
+
+
+@router.post("/answer-feedback")
+def save_answer_feedback(payload: AnswerFeedbackRequest, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.save_answer_feedback(payload))
+
+
+@router.post("/answer-feedback/{feedback_id}/regression-case")
+def answer_feedback_to_regression_case(feedback_id: str, payload: dict | None = None, service: AdminService = Depends(get_admin_service)):
+    return _handle_errors(lambda: service.answer_feedback_to_regression_case(feedback_id, payload or {}))
 
 
 @router.get("/regression-cases")

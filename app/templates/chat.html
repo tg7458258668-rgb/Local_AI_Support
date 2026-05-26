@@ -4,64 +4,65 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>本地 AI 客服</title>
-  <link rel="stylesheet" href="/static/chat-v2.css?v=20260508-models-1" />
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="/static/chat-v2.css?v=20260525-answer-feedback-1" />
 </head>
 <body>
   <div class="chat-page">
     <div class="chat-shell">
-      <header class="chat-topbar">
-        <div>
-          <h1>本地 AI 客服</h1>
-          <p>连接你本地知识库的简易聊天页</p>
-        </div>
-
-        <div class="topbar-right">
-          <label class="debug-switch">
-            <input type="checkbox" id="debug-toggle" />
-            <span>显示调试信息</span>
-          </label>
-          <a href="/admin" class="admin-link">进入后台</a>
-        </div>
-      </header>
-
-      <section class="test-panel">
-        <div class="test-panel-header">
+      <aside class="chat-sidebar" aria-label="聊天测试设置">
+        <div class="brand-panel">
+          <div class="brand-mark" aria-hidden="true">AI</div>
           <div>
-            <div class="panel-title">测试客户</div>
-            <div id="memory-status" class="panel-subtitle">未填写客户 ID，不会写入长期记忆。</div>
-          </div>
-          <div class="test-panel-actions">
-            <span class="compact-badge">纠错学习：测试页启用</span>
-            <button id="refresh-memory-btn" type="button" class="mini-btn">刷新记忆</button>
+            <h1>本地 AI 客服</h1>
+            <p>销售与客服问答工作台</p>
           </div>
         </div>
 
-        <div class="test-fields">
-          <label class="test-field">
-            <span>渠道</span>
-            <select id="channel-input">
-              <option value="api">API</option>
-              <option value="wechat">微信</option>
-              <option value="feishu">飞书</option>
-            </select>
-          </label>
-          <label class="test-field">
-            <span>客户 ID</span>
-            <input id="user-id-input" type="text" placeholder="例如：test_customer_001" />
-          </label>
-          <label class="test-field">
-            <span>会话 ID</span>
-            <input id="conversation-id-input" type="text" placeholder="例如：demo_session_001" />
-          </label>
-        </div>
-
-        <div class="model-test-panel">
-          <div class="model-test-head">
+        <section class="side-section">
+          <div class="side-section-head">
             <div>
-              <div class="detail-title">模型测试</div>
+              <div class="panel-title">测试客户</div>
+              <div id="memory-status" class="panel-subtitle">未填写客户 ID，不会写入长期记忆。</div>
+            </div>
+            <button id="refresh-memory-btn" type="button" class="mini-btn">刷新</button>
+          </div>
+
+          <div class="test-fields">
+            <label class="test-field">
+              <span>渠道</span>
+              <select id="channel-input">
+                <option value="api">API</option>
+                <option value="wechat">微信</option>
+                <option value="feishu">飞书</option>
+              </select>
+            </label>
+            <label class="test-field">
+              <span>选择客户</span>
+              <select id="customer-select"></select>
+            </label>
+            <div class="customer-actions">
+              <button id="new-customer-btn" type="button" class="mini-btn">新增客户</button>
+              <button id="reload-customers-btn" type="button" class="mini-btn">客户列表</button>
+            </div>
+            <label class="test-field">
+              <span>客户 ID</span>
+              <input id="user-id-input" type="text" placeholder="test_customer_001" autocomplete="off" />
+            </label>
+            <label class="test-field">
+              <span>会话 ID</span>
+              <input id="conversation-id-input" type="text" placeholder="demo_session_001" autocomplete="off" />
+            </label>
+          </div>
+        </section>
+
+        <section class="side-section">
+          <div class="side-section-head">
+            <div>
+              <div class="panel-title">模型测试</div>
               <div id="model-status" class="panel-subtitle">正在读取当前模型...</div>
             </div>
-            <button id="refresh-models-btn" type="button" class="mini-btn">刷新模型</button>
+            <button id="refresh-models-btn" type="button" class="mini-btn">刷新</button>
           </div>
           <div class="model-test-grid">
             <label class="test-field">
@@ -80,9 +81,9 @@
               <select id="model-b-input"></select>
             </label>
           </div>
-        </div>
+        </section>
 
-        <div id="test-debug-details" class="test-debug-details hidden">
+        <section id="test-debug-details" class="side-section test-debug-details hidden">
           <div class="detail-block">
             <div class="detail-title">客户画像</div>
             <div id="memory-summary" class="memory-summary empty">当前没有加载客户画像。</div>
@@ -97,41 +98,64 @@
               <span>主动调试</span>
               <strong id="gap-status">发送问题后显示系统需要什么资料和追问</strong>
             </div>
-            <a class="mini-btn learning-link" href="/admin#learned-knowledge">查看学习库</a>
           </div>
-        </div>
-      </section>
+          <a class="mini-btn learning-link" href="/admin#learned-knowledge">查看学习库</a>
+        </section>
 
-      <main id="chat-box" class="chat-body">
-        <div class="msg msg-ai">
-          <div class="msg-avatar">AI</div>
-          <div class="msg-bubble">
-            <div class="msg-text">
-              你好，我是本地 AI 客服助手。你可以直接问我产品、保修、售后等问题。
+        <div class="sidebar-footer">
+          <label class="debug-switch">
+            <input type="checkbox" id="debug-toggle" />
+            <span>调试信息</span>
+          </label>
+          <a href="/admin" class="admin-link">进入后台</a>
+        </div>
+      </aside>
+
+      <section class="chat-workspace">
+        <header class="chat-topbar">
+          <div>
+            <div class="page-kicker">Live conversation</div>
+            <h2>客户对话</h2>
+            <p>直接输入客户问题，系统会返回答案、报价草稿和可选调试信息。</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="quick-chip" type="button" data-quick-prompt="我们是做团播的给我推荐一下你们的产品">团播产品推荐</button>
+            <button class="quick-chip" type="button" data-quick-prompt="gra 团播系统需要什么价格">GRA 价格</button>
+            <button class="quick-chip" type="button" data-quick-prompt="团播直播间需要上轨道吗">轨道判断</button>
+          </div>
+        </header>
+
+        <main id="chat-box" class="chat-body">
+          <div class="msg msg-ai">
+            <div class="msg-avatar">AI</div>
+            <div class="msg-bubble">
+              <div class="msg-text">
+                你好，我是本地 AI 客服助手。你可以直接问我产品推荐、报价、保修和售后问题。
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      <footer class="chat-composer">
-        <div class="composer-left">
-          <textarea
-            id="question-input"
-            class="composer-input"
-            placeholder="请输入你的问题，例如：电池保修多久？"
-            rows="3"
-          ></textarea>
-          <div class="composer-tip">快捷发送：Ctrl + Enter（Mac 可用 Command + Enter）</div>
-        </div>
+        <footer class="chat-composer">
+          <div class="composer-left">
+            <textarea
+              id="question-input"
+              class="composer-input"
+              placeholder="输入客户问题，例如：我们是做团播的给我推荐一下你们的产品"
+              rows="3"
+            ></textarea>
+            <div class="composer-tip">Ctrl / Command + Enter 发送</div>
+          </div>
 
-        <div class="composer-right">
-          <button id="send-btn" class="btn btn-primary">发送</button>
-          <button id="clear-btn" class="btn btn-secondary">清空</button>
-        </div>
-      </footer>
+          <div class="composer-right">
+            <button id="send-btn" class="btn btn-primary">发送</button>
+            <button id="clear-btn" class="btn btn-secondary">清空</button>
+          </div>
+        </footer>
+      </section>
     </div>
   </div>
 
-  <script src="/static/chat-v2.js?v=20260508-models-1"></script>
+  <script src="/static/chat-v2.js?v=20260525-answer-feedback-1"></script>
 </body>
 </html>
