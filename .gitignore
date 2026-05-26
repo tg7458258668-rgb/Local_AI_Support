@@ -38,6 +38,9 @@ skills-lock.json
 # Local vector database storage
 data/qdrant_storage/
 
+# Generated document preview cache
+data/doc_page_images/
+
 # Temporary inspection/output
 tmp_docx_inspect/
 

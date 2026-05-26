@@ -7,3 +7,4 @@ pydantic
 python-docx
 PyMuPDF
 python-multipart
+pytest
