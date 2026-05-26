@@ -2,7 +2,39 @@
 
 本项目是一个本地运行的 AI 客服与销售支持系统，面向 U-MOCO 产品资料、FAQ、报价规则、售后政策和多渠道客服接入场景。系统以 FastAPI 为核心，保留本地 RAG、Ollama 和 Qdrant 能力，并把聊天、后台管理、知识库维护、渠道适配拆成清晰模块，方便继续迭代。
 
-当前版本：`v2.3.0`
+## 版本状态
+
+| 项目 | 当前值 |
+| --- | --- |
+| 当前版本 | `v2.3.1` |
+| GitHub 仓库 | `tg7458258668-rgb/Local_AI_Support` |
+| 主应用入口 | `support_app.main:app` |
+| 发布流程 | `docs/RELEASE_WORKFLOW.md` |
+| 版本记录 | `CHANGELOG.md` |
+
+## 快速入口
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn support_app.main:app --reload --port 8000
+```
+
+- 聊天页：`http://localhost:8000/chat`
+- 管理后台：`http://localhost:8000/admin`
+- API 文档：`http://localhost:8000/docs`
+
+## 后续上传到 GitHub
+
+每次发布按 `docs/RELEASE_WORKFLOW.md` 执行，核心顺序是：
+
+1. 更新 `VERSION`、`support_app/main.py`、README 顶部版本和 `CHANGELOG.md`。
+2. 清理本地缓存、日志、pid、临时文件和文档页面预览缓存。
+3. 运行 Python 编译、pytest 和 JS 语法检查。
+4. 提交为 `Release vX.Y.Z`，创建同名 tag，并推送 `main` 和 tag。
+
+本仓库还内置了 `.agents/skills/github-repo-release`，后续可直接让 Codex 使用 `$github-repo-release` 执行同一套流程。
 
 ## 功能概览
 
@@ -41,7 +73,7 @@ support_launcher.py       # 本地服务启动器
 - Ollama：默认 `http://localhost:11434`
 - Ollama 模型：`bge-m3`、`qwen3:8b`
 
-## 快速启动
+## 本地启动
 
 ```bash
 cd /Users/ai_studio/ai-cs-mvp-refactor

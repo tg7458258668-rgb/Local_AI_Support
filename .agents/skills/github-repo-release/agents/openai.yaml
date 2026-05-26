@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Repo Release"
+  short_description: "Organize repository docs and publish versioned GitHub releases"
+  default_prompt: "Use $github-repo-release to prepare, verify, tag, and push this project to GitHub."

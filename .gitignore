@@ -29,7 +29,11 @@ runtime/
 .DS_Store
 
 # Local agent tooling
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/github-repo-release/
+!.agents/skills/github-repo-release/**
 skills-lock.json
 
 # Local backups
