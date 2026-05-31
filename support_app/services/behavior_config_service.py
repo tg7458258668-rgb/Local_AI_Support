@@ -42,6 +42,9 @@ class BehaviorConfigService:
     def fallback_policy(self) -> dict[str, Any]:
         return self.get_behavior_rules().get("fallback_policy", {})
 
+    def sales_strategy_policy(self) -> dict[str, Any]:
+        return self.get_behavior_rules().get("sales_strategy", {})
+
     def fallback_gap_template(self) -> str:
         return str(self.get_answer_styles().get("fallback_gap_template", "") or "")
 
@@ -67,6 +70,27 @@ class BehaviorConfigService:
                 "previous_product_anchor": True,
             },
             "fallback_policy": {"active_gap_prompt_on_test_page": True},
+            "sales_strategy": {
+                "direct_answer_intents": ["knowledge_lookup", "identity", "correction_learning"],
+                "commercial_risk_words": ["合同", "签约", "交付时间", "交期", "保证", "承诺", "最低价", "库存", "优惠", "折扣", "直接确认"],
+                "contextual_followup_words": ["这个", "这款", "那款", "那个", "这套", "它", "多少钱", "价格", "适合吗", "多大直播间", "要不要轨道", "还有轨道"],
+                "quote_ready_threshold": 3,
+                "required_fields_by_scenario": {
+                    "group_live": ["scenario", "live_room_area", "camera_count", "track_preference", "budget"],
+                    "film_pro": ["scenario", "camera_payload", "track_preference", "budget"],
+                    "broadcast": ["scenario", "camera_count", "freed_required", "budget"],
+                    "default": ["scenario", "budget", "track_preference"],
+                },
+                "soft_question_by_field": {
+                    "live_room_area": "我再顺手确认一下直播间大概面积和主播走位范围。",
+                    "camera_count": "我再确认一下现场大概是几台相机或几个机位。",
+                    "track_preference": "我再确认一下是否需要横移、环绕或轨道走位。",
+                    "budget": "预算区间也可以后面补一下，它会影响臂形档位和选配范围。",
+                    "camera_payload": "相机、镜头和附件重量也需要再确认一下。",
+                    "freed_required": "如果涉及虚拟制作或 XR，还需要确认是否要 FreeD/跟踪协议。",
+                    "delivery_urgency": "交付时间需要人工同事结合排期再确认。",
+                },
+            },
             "intent_rules": [],
             "updated_at": "",
         }

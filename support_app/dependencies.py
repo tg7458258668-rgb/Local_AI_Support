@@ -15,6 +15,7 @@ from support_app.services.behavior_config_service import BehaviorConfigService
 from support_app.services.behavior_tuning_service import BehaviorTuningService
 from support_app.services.chat_service import ChatService
 from support_app.services.configuration_quote_service import ConfigurationQuoteService
+from support_app.services.conversation_state_store import ConversationStateStore
 from support_app.services.conversation_history_service import ConversationHistoryService
 from support_app.services.customer_memory_service import CustomerMemoryService
 from support_app.services.document_analysis_service import DocumentAnalysisService
@@ -24,12 +25,15 @@ from support_app.services.knowledge_gap_service import KnowledgeGapService
 from support_app.services.learning_service import LearningService
 from support_app.services.model_settings_service import ModelSettingsService
 from support_app.services.ollama_client import OllamaClient
+from support_app.services.post_rule_check_service import PostRuleCheckService
 from support_app.services.pricing_catalog_service import PricingCatalogService
 from support_app.services.quote_catalog_service import QuoteCatalogService
 from support_app.services.quote_archive_service import QuoteArchiveService
 from support_app.services.quote_policy_service import QuotePolicyService
 from support_app.services.quote_service import QuoteService
 from support_app.services.retrieval_service import RetrievalService
+from support_app.services.risk_policy_service import RiskPolicyService
+from support_app.services.understand_plan_adapter import UnderstandPlanAdapter
 from support_app.settings import settings
 
 
@@ -90,6 +94,11 @@ def get_customer_memory_service() -> CustomerMemoryService:
 @lru_cache
 def get_conversation_history_service() -> ConversationHistoryService:
     return ConversationHistoryService(JsonFileRepository(settings.data_dir / "conversation_history.json"))
+
+
+@lru_cache
+def get_conversation_state_store() -> ConversationStateStore:
+    return ConversationStateStore(settings.data_dir / "conversation_state.json")
 
 
 @lru_cache
@@ -187,8 +196,27 @@ def get_learning_service() -> LearningService:
 
 
 @lru_cache
+def get_risk_policy_service() -> RiskPolicyService:
+    try:
+        behavior_rules = get_behavior_config_service().get_behavior_rules()
+    except Exception:
+        behavior_rules = {}
+    return RiskPolicyService(behavior_rules)
+
+
+@lru_cache
+def get_post_rule_check_service() -> PostRuleCheckService:
+    return PostRuleCheckService()
+
+
+@lru_cache
+def get_understand_plan_adapter() -> UnderstandPlanAdapter:
+    return UnderstandPlanAdapter()
+
+
+@lru_cache
 def get_chat_service() -> ChatService:
-    return ChatService(
+    service = ChatService(
         settings=settings,
         ollama=get_ollama_client(),
         retrieval_service=get_retrieval_service(),
@@ -201,6 +229,11 @@ def get_chat_service() -> ChatService:
         behavior_config_service=get_behavior_config_service(),
         conversation_history_service=get_conversation_history_service(),
     )
+    service.risk_policy_service = get_risk_policy_service()
+    service.post_rule_check_service = get_post_rule_check_service()
+    service.conversation_state_store = get_conversation_state_store()
+    service.understand_plan_adapter = get_understand_plan_adapter()
+    return service
 
 
 @lru_cache

@@ -17,6 +17,7 @@ from support_app.services.ollama_client import OllamaClient
 from support_app.services.prompt_builder import build_docs_prompt, build_faq_prompt, build_handoff_answer
 from support_app.services.quote_service import QuoteService
 from support_app.services.retrieval_service import RetrievalCandidate, RetrievalService
+from support_app.services.sales_strategy_service import SalesStrategyService
 from support_app.settings import Settings
 
 
@@ -46,6 +47,7 @@ class ChatService:
         self.knowledge_gap_service = knowledge_gap_service
         self.behavior_config_service = behavior_config_service
         self.conversation_history_service = conversation_history_service
+        self.sales_strategy_service = SalesStrategyService(self.behavior_config_service.sales_strategy_policy())
 
     def answer(self, request: ChatRequest) -> ChatResponse:
         return AnswerPipeline(self).answer(request)
@@ -66,6 +68,42 @@ class ChatService:
         faq_top_score = 0.0
         doc_top_score = 0.0
         base_metadata = self._base_metadata(request)
+        self._attach_state_before(request, base_metadata)
+        risk_plan = self._risk_precheck(request, base_metadata)
+        if self._is_blocked_risk_handoff(risk_plan):
+            timings.total_ms = self._elapsed(start)
+            metadata = dict(base_metadata)
+            metadata["risk_precheck"] = risk_plan
+            metadata["risk_plan"] = risk_plan
+            self._append_decision_trace(metadata, "risk_blocked_handoff")
+            metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                user_query,
+                "handoff",
+                0,
+                0,
+                memory,
+                metadata,
+                True,
+            )
+            response = ChatResponse(
+                answer=str(risk_plan.get("safe_answer") or "这个问题涉及商业承诺，需要人工同事进一步确认。"),
+                route="handoff",
+                need_human=True,
+                hint="本回答建议人工进一步确认",
+                matched_rule="RiskPolicyService",
+                faq_top_score=0,
+                doc_top_score=0,
+                sources=[],
+                retrieval_debug=[],
+                memory=memory,
+                timings=timings,
+                channel=request.channel,
+                conversation_id=request.conversation_id,
+                user_id=request.user_id,
+                metadata=metadata,
+            )
+            self._audit(request_id, request, response)
+            return response
 
         try:
             t = time.perf_counter()
@@ -79,6 +117,8 @@ class ChatService:
             t = time.perf_counter()
             context_plan = self._build_context_plan(user_query, request, memory, history)
             timings.context_plan_ms = self._elapsed(t)
+            sales_plan = self.sales_strategy_service.plan(user_query, self._intent_plan(request), context_plan, memory, history)
+            context_plan = self._context_plan_with_sales(request, context_plan, sales_plan)
             memory_for_context = self._memory_with_context(memory, context_plan)
             context_blocks = [
                 self.memory_service.render_prompt_block(memory_for_context),
@@ -89,6 +129,8 @@ class ChatService:
                 "context_plan": self._public_context_plan(context_plan),
                 "conversation_context": self.conversation_history_service.debug_summary(history) if self.conversation_history_service else [],
             })
+            self._apply_sales_metadata(base_metadata, sales_plan)
+            self._apply_cache_policy_enforce(request, context_plan, base_metadata)
 
             identity_answer = self._identity_answer(user_query)
             if identity_answer:
@@ -199,7 +241,7 @@ class ChatService:
             t = time.perf_counter()
             matched_rule = self.rule_repo.match(user_query)
             timings.rule_match_ms = self._elapsed(t)
-            if self._requires_handoff(user_query) or self._intent_is(request, "handoff"):
+            if self._requires_handoff(user_query) or self._intent_is(request, "handoff") or sales_plan.sales_stage == "handoff":
                 answer = build_handoff_answer(user_query, matched_rule)
                 t = time.perf_counter()
                 memory = self.memory_service.update_from_turn(request, answer, "handoff")
@@ -274,7 +316,12 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
-            if context_plan["contextual_query"] and not context_plan["anchors"] and not self._has_explicit_product_anchor(user_query):
+            if (
+                context_plan["contextual_query"]
+                and not context_plan["anchors"]
+                and not self._has_explicit_product_anchor(user_query)
+                and not sales_plan.should_direct_answer
+            ):
                 answer = "我需要先确认你说的是哪一款或上一轮哪个方案。你可以补一句型号，比如 GRA、MINI、AIR、EXT 或 PRO。"
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
@@ -296,6 +343,48 @@ class ChatService:
                     faq_top_score=0,
                     doc_top_score=0,
                     sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
+            if self._should_use_sales_quote(request, user_query, sales_plan, context_plan):
+                quote_request = self._request_for_intent(request)
+                t = time.perf_counter()
+                quote_result = self.quote_service.draft(quote_request, memory_for_context, [])
+                timings.route_decision_ms = self._elapsed(t)
+                if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
+                    quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
+                t = time.perf_counter()
+                memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
+                timings.memory_ms += self._elapsed(t)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["quote_draft"] = quote_result["draft"]
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "quote_draft",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    bool(sales_plan.should_quote or self._intent_is(request, "quote_price")),
+                )
+                response = ChatResponse(
+                    answer=quote_result["answer"],
+                    route="quote_draft",
+                    need_human=bool(sales_plan.should_quote or self._intent_is(request, "quote_price")),
+                    hint="已按销售策略生成参考方向，正式价格和交付安排需人工确认" if not sales_plan.should_quote else "已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=self._quote_sources(quote_result["draft"]),
                     retrieval_debug=[],
                     memory=memory,
                     timings=timings,
@@ -340,11 +429,13 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
-            if self._intent_needs_quote(request, user_query):
+            if self._intent_needs_quote(request, user_query) and not sales_plan.should_direct_answer:
                 quote_request = self._request_for_intent(request)
                 t = time.perf_counter()
                 quote_result = self.quote_service.draft(quote_request, memory_for_context, [])
                 timings.route_decision_ms = self._elapsed(t)
+                if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
+                    quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
                 t = time.perf_counter()
                 memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
                 timings.memory_ms += self._elapsed(t)
@@ -363,8 +454,8 @@ class ChatService:
                 response = ChatResponse(
                     answer=quote_result["answer"],
                     route="quote_draft",
-                    need_human=True,
-                    hint="已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
+                    need_human=bool(sales_plan.should_quote or self._intent_is(request, "quote_price")),
+                    hint="已按销售策略生成参考方向，正式价格和交付安排需人工确认" if not sales_plan.should_quote else "已按结构化报价规则库生成推荐，正式价格和交付安排需人工确认",
                     matched_rule=matched_rule["rule_name"] if matched_rule else None,
                     faq_top_score=0,
                     doc_top_score=0,
@@ -441,11 +532,13 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
-            if self._intent_needs_quote(request, user_query):
+            if self._intent_needs_quote(request, user_query) and not sales_plan.should_direct_answer:
                 quote_request = self._request_for_intent(request)
                 t = time.perf_counter()
                 quote_result = self.quote_service.draft(quote_request, memory_for_context, doc_candidates)
                 timings.route_decision_ms = self._elapsed(t)
+                if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
+                    quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
                 sources = self._format_sources(doc_candidates, "doc")
                 t = time.perf_counter()
                 memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
@@ -465,8 +558,8 @@ class ChatService:
                 response = ChatResponse(
                     answer=quote_result["answer"],
                     route="quote_draft",
-                    need_human=True,
-                    hint="这是报价草案，正式价格、优惠、交付和合同需人工确认",
+                    need_human=bool(sales_plan.should_quote or self._intent_is(request, "quote_price")),
+                    hint="已按销售策略生成参考方向，正式价格、优惠、交付和合同需人工确认" if not sales_plan.should_quote else "这是报价草案，正式价格、优惠、交付和合同需人工确认",
                     matched_rule=matched_rule["rule_name"] if matched_rule else None,
                     faq_top_score=faq_top_score,
                     doc_top_score=doc_top_score,
@@ -580,7 +673,13 @@ class ChatService:
         previous_words = policy.get("previous_context_words") or ["上次", "之前", "刚才", "前面", "上一轮", "那个", "这款"]
         contextual_words = list(dict.fromkeys([
             *previous_words,
+            *(
+                self.behavior_config_service.sales_strategy_policy().get("contextual_followup_words", [])
+                if hasattr(self.behavior_config_service, "sales_strategy_policy")
+                else []
+            ),
             "继续",
+            "那",
             "上面",
             "刚刚",
             "它",
@@ -589,9 +688,11 @@ class ChatService:
             "该款",
             "这套",
             "这个方案",
+            "要不要轨道",
+            "还有轨道",
         ]))
         has_explicit_anchor = self._has_explicit_product_anchor(text)
-        short_price_followup = any(word in text for word in ("多少钱", "价格", "费用", "报价", "保修多久")) and not has_explicit_anchor and len(text) <= 18
+        short_price_followup = any(word in text for word in ("多少钱", "价格", "费用", "报价")) and not has_explicit_anchor and len(text) <= 18
         short_history_turn = bool(history) and len(text) <= 28 and not self._intent_is(request, "identity", "handoff", "correction_learning")
         contextual_query = any(word in text for word in contextual_words) or short_price_followup or short_history_turn or bool(intent_plan.get("contextual_followup"))
         history_anchors = self.conversation_history_service.product_anchors(history) if self.conversation_history_service else []
@@ -631,6 +732,38 @@ class ChatService:
         }
 
     @staticmethod
+    def _context_plan_with_sales(request: ChatRequest, context_plan: dict, sales_plan) -> dict:
+        intent_plan = ChatService._intent_plan(request)
+        plan = dict(context_plan)
+        product_anchors = [
+            str(item).strip()
+            for item in intent_plan.get("product_anchors", [])
+            if str(item).strip()
+        ] if isinstance(intent_plan.get("product_anchors"), list) else []
+        product_anchors.extend(str(item).strip() for item in plan.get("anchors", []) if str(item).strip())
+        known = sales_plan.known_needs or {}
+        if isinstance(known.get("product_anchors"), list):
+            product_anchors.extend(str(item).strip() for item in known["product_anchors"] if str(item).strip())
+        product_anchors = list(dict.fromkeys(product_anchors))[:8]
+        sales_stage = str(sales_plan.sales_stage or "")
+        intent = str(intent_plan.get("intent", "") or "")
+        cache_parts = [
+            plan.get("cache_context", ""),
+            f"intent={intent}",
+            f"stage={sales_stage}",
+            f"anchors={','.join(product_anchors)}",
+        ]
+        plan["cache_context"] = "|".join(part for part in cache_parts if part)
+        plan["cache_policy"] = plan.get("cache_policy") or "context_scoped"
+        plan["sales_stage"] = sales_stage
+        plan["intent"] = intent
+        plan["product_anchors"] = product_anchors
+        if sales_stage in {"recommend", "quote_ready"} and bool(intent_plan.get("contextual_followup")):
+            plan["bypass_cache"] = True
+            plan["cache_policy"] = "bypass_contextual"
+        return plan
+
+    @staticmethod
     def _public_context_plan(context_plan: dict) -> dict:
         return {
             "used_history": bool(context_plan.get("used_history")),
@@ -640,8 +773,26 @@ class ChatService:
             "reason": context_plan.get("reason", ""),
             "history_turn_count": int(context_plan.get("history_turn_count") or 0),
             "anchors": context_plan.get("anchors", []),
+            "product_anchors": context_plan.get("product_anchors", []),
+            "sales_stage": context_plan.get("sales_stage", ""),
+            "intent": context_plan.get("intent", ""),
             "direct_answer_allowed": bool(context_plan.get("direct_answer_allowed", True)),
         }
+
+    @staticmethod
+    def _apply_sales_metadata(metadata: dict, sales_plan) -> None:
+        plan = sales_plan.to_metadata()
+        metadata["sales_plan"] = plan
+        metadata["sales_stage"] = plan["sales_stage"]
+        metadata["known_needs"] = plan["known_needs"]
+        metadata["missing_fields"] = plan["missing_fields"]
+        metadata["route_reason"] = plan["route_reason"]
+        metadata["cache_policy"] = (metadata.get("context_plan") or {}).get("cache_policy", "")
+        metadata["recommendation_basis"] = plan["recommendation_basis"]
+        metadata["quote_readiness"] = plan["quote_readiness"]
+        metadata["sales_decision_trace"] = plan["decision_trace"]
+        metadata["soft_question"] = plan["soft_question"]
+        metadata["recommendation_goal"] = plan["recommendation_goal"]
 
     @staticmethod
     def _memory_with_context(memory: dict | None, context_plan: dict) -> dict | None:
@@ -900,6 +1051,64 @@ class ChatService:
             answer += f"\n如果你要我继续追问客户，我建议先问：{questions[0]}"
         return answer
 
+    @staticmethod
+    def _render_quote_not_ready_answer(sales_plan, draft: dict) -> str:
+        known = sales_plan.known_needs or {}
+        config = draft.get("configuration_quote") if isinstance(draft.get("configuration_quote"), dict) else {}
+        modules = config.get("modules", []) if isinstance(config.get("modules"), list) else []
+        package = config.get("package") if isinstance(config.get("package"), dict) else {}
+        core = next((item for item in modules if item.get("module_type") == "core_arm"), {})
+        required = [
+            str(item.get("name", "")).strip()
+            for item in modules
+            if item.get("role") == "required" and str(item.get("name", "")).strip()
+        ][:5]
+        recommended = [
+            str(item.get("name", "")).strip()
+            for item in modules
+            if item.get("role") != "required" and str(item.get("name", "")).strip()
+        ][:4]
+        facts = []
+        if known.get("scenario") == "group_live":
+            facts.append("团播/直播间")
+        elif known.get("scenario") == "film_pro":
+            facts.append("影视/TVC/拍摄")
+        elif known.get("scenario") == "broadcast":
+            facts.append("广电/演播室")
+        if known.get("live_room_area"):
+            facts.append(f"{known['live_room_area']} 平")
+        if known.get("camera_count"):
+            facts.append(f"{known['camera_count']} 个机位")
+        if known.get("track_preference"):
+            facts.append(str(known["track_preference"]))
+        package_name = package.get("name") or "对应场景方案"
+        core_name = core.get("name") or (config.get("recommended_arm") or {}).get("name") or "U-MOCO 机械臂"
+        lines = [
+            f"可以先给你一个参考配置方向：按{('、'.join(facts) if facts else '当前信息')}看，先以 {package_name} 的 {core_name} 作为候选核心来核。",
+            "大概会围绕机械臂本体、控制软件、镜头/现场控制和必要交付培训来拆；如果要横移、环绕或大范围走位，轨道和轨道电机会单独作为选配核算。",
+        ]
+        if required:
+            lines.append(f"当前参考配置里会优先看：{'、'.join(required)}。")
+        if recommended:
+            lines.append(f"可选项再按现场需要加，比如 {'、'.join(recommended)}。")
+        missing = [str(item) for item in sales_plan.missing_fields if str(item)]
+        if missing:
+            labels = {
+                "budget": "预算区间",
+                "live_room_area": "直播间面积/走位范围",
+                "camera_count": "相机或机位数量",
+                "track_preference": "是否需要轨道",
+                "camera_payload": "相机镜头负载",
+                "freed_required": "是否需要 FreeD/XR",
+                "delivery_urgency": "期望交付时间",
+                "scenario": "使用场景",
+            }
+            lines.append("要把价格收得更准，还差：" + "、".join(labels.get(item, item) for item in missing[:4]) + "。")
+        if sales_plan.soft_question:
+            lines.append(sales_plan.soft_question)
+        lines.append("以上只能作为参考配置口径，正式价格、优惠、合同和交付安排需要人工同事按最终配置确认。")
+        return "\n".join(lines)
+
     def _memory_recall_answer(self, user_query: str, memory: dict | None) -> str:
         if not memory:
             return ""
@@ -930,6 +1139,42 @@ class ChatService:
         }
         return metadata
 
+    def _risk_precheck(self, request: ChatRequest, metadata: dict) -> dict | None:
+        service = getattr(self, "risk_policy_service", None)
+        if not service:
+            return None
+        try:
+            risk_plan = service.precheck(request.message, state=None)
+            if isinstance(risk_plan, dict):
+                metadata["risk_precheck"] = risk_plan
+                metadata["risk_plan"] = risk_plan
+                return risk_plan
+            return None
+        except Exception as exc:
+            metadata["risk_precheck_error"] = f"{type(exc).__name__}: {exc}"
+            return None
+
+    @staticmethod
+    def _is_blocked_risk_handoff(risk_plan: dict | None) -> bool:
+        if not isinstance(risk_plan, dict):
+            return False
+        level = str(risk_plan.get("risk_level", "") or "")
+        route = str(risk_plan.get("route", "") or "")
+        return level == "blocked" and route == "handoff"
+
+    @staticmethod
+    def _append_decision_trace(metadata: dict, decision: str) -> None:
+        trace = metadata.get("decision_trace")
+        if not isinstance(trace, list):
+            trace = []
+        trace.append(decision)
+        metadata["decision_trace"] = trace
+        sales_trace = metadata.get("sales_decision_trace")
+        if not isinstance(sales_trace, list):
+            sales_trace = []
+        sales_trace.append(decision)
+        metadata["sales_decision_trace"] = sales_trace
+
     @staticmethod
     def _intent_plan(request: ChatRequest) -> dict:
         metadata = request.metadata or {}
@@ -946,6 +1191,17 @@ class ChatService:
         if plan.get("intent"):
             return bool(plan.get("needs_quote_tool"))
         return self.quote_service.is_quote_request(user_query)
+
+    def _should_use_sales_quote(self, request: ChatRequest, user_query: str, sales_plan, context_plan: dict) -> bool:
+        if sales_plan.should_direct_answer or sales_plan.sales_stage == "handoff":
+            return False
+        if sales_plan.sales_stage not in {"recommend", "quote_ready"}:
+            return False
+        if self._intent_needs_quote(request, user_query):
+            return True
+        known = sales_plan.known_needs or {}
+        has_sales_context = bool(known.get("scenario") or known.get("product_anchors") or context_plan.get("anchors"))
+        return bool(context_plan.get("contextual_query") and has_sales_context)
 
     @classmethod
     def _request_for_intent(cls, request: ChatRequest) -> ChatRequest:
@@ -1059,11 +1315,15 @@ class ChatService:
         return rows
 
     def _audit(self, request_id: str, request: ChatRequest, response: ChatResponse) -> None:
+        self._apply_post_rule_check_before_persist(response)
+        self._observe_conversation_state(request, response)
+        metadata = dict(response.metadata or {})
         try:
             if self.conversation_history_service:
                 self.conversation_history_service.append_turn(request, response)
-        except Exception:
-            pass
+        except Exception as exc:
+            metadata["conversation_history_error"] = f"{type(exc).__name__}: {exc}"
+            response.metadata = metadata
         try:
             self.audit_service.record({
                 "request_id": request_id,
@@ -1071,15 +1331,220 @@ class ChatService:
                 "user_id": request.user_id,
                 "conversation_id": request.conversation_id,
                 "route": response.route,
+                "answer": str(response.answer or "")[:700],
+                "need_human": bool(response.need_human),
+                "matched_rule": response.matched_rule,
                 "faq_top_score": response.faq_top_score,
                 "doc_top_score": response.doc_top_score,
                 "cache_hit": response.timings.retrieval_cache_hit,
                 "total_ms": response.timings.total_ms,
                 "message": request.message[:200],
+                "metadata": self._jsonable(response.metadata or {}),
+                "sources": self._jsonable([item.model_dump() for item in response.sources[:5]]),
+                "retrieval_debug": self._jsonable(response.retrieval_debug[:10]),
             })
-        except Exception:
-            pass
+        except Exception as exc:
+            metadata = dict(response.metadata or {})
+            metadata["audit_record_error"] = f"{type(exc).__name__}: {exc}"
+            response.metadata = metadata
+
+    def _apply_post_rule_check_before_persist(self, response: ChatResponse) -> None:
+        metadata = dict(response.metadata or {})
+        original_answer = response.answer
+        original_need_human = bool(response.need_human)
+        original_route = response.route
+        metadata["post_rule_enforce_applied"] = bool(metadata.get("post_rule_enforce_applied", False))
+        post_rule_check = metadata.get("post_rule_check") if isinstance(metadata.get("post_rule_check"), dict) else None
+        service = getattr(self, "post_rule_check_service", None)
+
+        if post_rule_check is None and service:
+            quote_readiness = metadata.get("quote_readiness")
+            if not quote_readiness and isinstance(metadata.get("sales_plan"), dict):
+                quote_readiness = metadata["sales_plan"].get("quote_readiness")
+            try:
+                check_result = service.check(
+                    route=response.route,
+                    answer=response.answer,
+                    risk_plan=metadata.get("risk_plan") or metadata.get("risk_precheck"),
+                    quote_readiness=quote_readiness,
+                    metadata=metadata,
+                )
+                post_rule_check = check_result if isinstance(check_result, dict) else {}
+            except Exception as exc:
+                metadata["post_rule_check_error"] = f"{type(exc).__name__}: {exc}"
+                post_rule_check = {}
+        if post_rule_check is not None:
+            metadata["post_rule_check"] = post_rule_check
+
+        try:
+            post_check = metadata.get("post_rule_check") if isinstance(metadata.get("post_rule_check"), dict) else {}
+            blocked = bool(post_check.get("blocked"))
+            safe_answer_raw = post_check.get("safe_answer")
+            safe_answer_text = str(safe_answer_raw).strip() if safe_answer_raw is not None else ""
+            if blocked and safe_answer_text:
+                response.answer = safe_answer_text
+                response.need_human = True
+                metadata["post_rule_enforce_applied"] = True
+                metadata.setdefault("original_answer", original_answer)
+                metadata.setdefault("original_need_human", original_need_human)
+                metadata.setdefault("original_route", original_route)
+                metadata["enforce_reason"] = "post_rule_blocked"
+        except Exception as exc:
+            response.answer = original_answer
+            response.need_human = original_need_human
+            metadata["post_rule_enforce_applied"] = False
+            metadata["post_rule_enforce_error"] = f"{type(exc).__name__}: {exc}"
+        response.metadata = metadata
+
+    def _attach_state_before(self, request: ChatRequest, metadata: dict) -> None:
+        try:
+            store = getattr(self, "conversation_state_store", None)
+            if not store:
+                metadata["conversation_state_before"] = {}
+                return
+            state = store.get_state(
+                conversation_id=str(request.conversation_id or ""),
+                channel=str(request.channel or "default"),
+            )
+            metadata["conversation_state_before"] = state if isinstance(state, dict) else {}
+        except Exception as exc:
+            metadata["conversation_state_before"] = {}
+            metadata["conversation_state_error"] = f"{type(exc).__name__}: {exc}"
+
+    def _observe_conversation_state(self, request: ChatRequest, response: ChatResponse) -> None:
+        metadata = dict(response.metadata or {})
+        before = metadata.get("conversation_state_before")
+        if not isinstance(before, dict):
+            before = {}
+            metadata["conversation_state_before"] = before
+        store = getattr(self, "conversation_state_store", None)
+        if not store:
+            metadata["conversation_state_after"] = before
+            response.metadata = metadata
+            return
+        if not str(request.conversation_id or "").strip():
+            metadata["conversation_state_after"] = before
+            response.metadata = metadata
+            return
+        try:
+            updates = self._state_updates_from_response(response, metadata)
+            after = store.update_state(
+                conversation_id=str(request.conversation_id or ""),
+                state_updates=updates,
+                channel=str(request.channel or "default"),
+            )
+            metadata["conversation_state_after"] = after if isinstance(after, dict) else before
+        except Exception as exc:
+            metadata["conversation_state_after"] = before
+            metadata["conversation_state_update_error"] = f"{type(exc).__name__}: {exc}"
+        response.metadata = metadata
+
+    @staticmethod
+    def _state_updates_from_response(response: ChatResponse, metadata: dict) -> dict[str, object]:
+        intent_plan = metadata.get("intent_plan") if isinstance(metadata.get("intent_plan"), dict) else {}
+        sales_plan = metadata.get("sales_plan") if isinstance(metadata.get("sales_plan"), dict) else {}
+        risk_plan = metadata.get("risk_plan") if isinstance(metadata.get("risk_plan"), dict) else {}
+        risk_precheck = metadata.get("risk_precheck") if isinstance(metadata.get("risk_precheck"), dict) else {}
+        context_plan = metadata.get("context_plan") if isinstance(metadata.get("context_plan"), dict) else {}
+
+        updates: dict[str, object] = {
+            "last_assistant_route": response.route,
+            "human_handoff_required": bool(response.need_human or response.route == "handoff"),
+        }
+
+        intent = str(intent_plan.get("intent") or intent_plan.get("primary_intent") or "").strip()
+        if intent:
+            updates["last_user_intent"] = intent
+
+        stage = str(sales_plan.get("sales_stage") or sales_plan.get("stage") or "").strip()
+        if stage:
+            updates["stage"] = stage
+
+        known_needs = sales_plan.get("known_needs")
+        if isinstance(known_needs, dict):
+            updates["known_needs"] = known_needs
+
+        missing_fields = sales_plan.get("missing_fields")
+        if isinstance(missing_fields, list):
+            updates["missing_fields"] = missing_fields
+
+        quote_readiness = sales_plan.get("quote_readiness")
+        if quote_readiness not in (None, "", []):
+            updates["quote_readiness"] = quote_readiness
+
+        risk_reasons = risk_plan.get("risk_reasons") if isinstance(risk_plan.get("risk_reasons"), list) else []
+        if not risk_reasons:
+            risk_reasons = risk_precheck.get("risk_reasons") if isinstance(risk_precheck.get("risk_reasons"), list) else []
+        if risk_reasons:
+            updates["risk_flags"] = [str(item) for item in risk_reasons if str(item)]
+
+        if updates.get("human_handoff_required"):
+            reason = next((str(item) for item in risk_reasons if str(item)), "")
+            if reason:
+                updates["last_need_human_reason"] = reason
+
+        product_anchors = intent_plan.get("product_anchors") if isinstance(intent_plan.get("product_anchors"), list) else []
+        if product_anchors:
+            first_anchor = str(product_anchors[0]).strip()
+            if first_anchor:
+                updates["product_anchor"] = first_anchor
+        elif isinstance(context_plan.get("product_anchor"), str) and context_plan.get("product_anchor").strip():
+            updates["product_anchor"] = context_plan.get("product_anchor").strip()
+
+        scenario_anchor = ""
+        if isinstance(known_needs, dict):
+            scenario_anchor = str(known_needs.get("scenario") or "").strip()
+        if not scenario_anchor and isinstance(context_plan.get("scenario_anchor"), str):
+            scenario_anchor = context_plan.get("scenario_anchor").strip()
+        if scenario_anchor:
+            updates["scenario_anchor"] = scenario_anchor
+
+        if response.route in {"quote_draft", "doc", "faq"}:
+            preview = str(response.answer or "").strip().replace("\n", " ")
+            if preview:
+                updates["last_recommendation"] = preview[:120]
+
+        return updates
+
+    @staticmethod
+    def _apply_cache_policy_enforce(request: ChatRequest, context_plan: dict, metadata: dict) -> None:
+        original_bypass_cache = bool(context_plan.get("bypass_cache"))
+        metadata["cache_policy_enforce_mode"] = "minimal"
+        metadata["original_bypass_cache"] = original_bypass_cache
+        metadata["final_bypass_cache"] = original_bypass_cache
+        metadata["cache_policy_enforce_applied"] = False
+        metadata["cache_policy_enforce_reason_codes"] = []
+
+        try:
+            raw_policy = (request.metadata or {}).get("cache_policy_metadata")
+            if not isinstance(raw_policy, dict):
+                metadata["cache_policy_enforce_skipped_reason"] = "no_cache_policy_metadata"
+                return
+            reason_codes = raw_policy.get("reason_codes")
+            if not isinstance(reason_codes, list):
+                metadata["cache_policy_enforce_skipped_reason"] = "no_reason_codes"
+                return
+            allowed = {"contextual_followup", "risk_sensitive", "handoff_state", "pronoun_reference", "price_or_track_question"}
+            enforce_reason_codes = [str(item) for item in reason_codes if str(item) in allowed]
+            if not enforce_reason_codes:
+                metadata["cache_policy_enforce_skipped_reason"] = "no_enforce_reason_codes"
+                return
+            final_bypass_cache = bool(original_bypass_cache or bool(enforce_reason_codes))
+            context_plan["bypass_cache"] = final_bypass_cache
+            metadata["cache_policy_enforce_applied"] = True
+            metadata["cache_policy_enforce_reason_codes"] = list(dict.fromkeys(enforce_reason_codes))
+            metadata["final_bypass_cache"] = final_bypass_cache
+        except Exception as exc:
+            context_plan["bypass_cache"] = original_bypass_cache
+            metadata["cache_policy_enforce_applied"] = False
+            metadata["cache_policy_enforce_reason_codes"] = []
+            metadata["final_bypass_cache"] = original_bypass_cache
+            metadata["cache_policy_enforce_error"] = f"{type(exc).__name__}: {exc}"
 
     @staticmethod
     def _elapsed(start: float) -> float:
         return round((time.perf_counter() - start) * 1000, 1)
+
+    @staticmethod
+    def _jsonable(value):
+        return json.loads(json.dumps(value, ensure_ascii=False, default=str))

@@ -7,10 +7,13 @@ from support_app.schemas import ChatRequest, ChatResponse
 from support_app.services.chat_service import ChatService
 from support_app.services.configuration_quote_service import ConfigurationQuoteService
 from support_app.services.conversation_history_service import ConversationHistoryService
+from support_app.services.conversation_state_store import ConversationStateStore
 from support_app.services.quote_catalog_service import QuoteCatalogService
 from support_app.services.quote_policy_service import QuotePolicyService
 from support_app.services.quote_service import QuoteService
 from support_app.services.retrieval_service import RetrievalService
+from support_app.services.risk_policy_service import RiskPolicyService
+from support_app.services.post_rule_check_service import PostRuleCheckService
 
 
 class FakeSettings:
@@ -91,6 +94,15 @@ class FakeQuoteService:
         }
 
 
+class FakeRiskyQuoteService(FakeQuoteService):
+    def draft(self, request, memory, doc_candidates):
+        self.draft_calls += 1
+        return {
+            "answer": "我们保证现货，明天就能发。",
+            "draft": {"sources": [], "recommended_products": []},
+        }
+
+
 class FakeLearningService:
     def maybe_learn_from_request(self, request):
         return {"detected": False}
@@ -112,10 +124,16 @@ class FakeBehaviorConfig:
     def fallback_policy(self):
         return {"active_gap_prompt_on_test_page": True}
 
+    def sales_strategy_policy(self):
+        return {}
+
 
 class FakeAudit:
+    def __init__(self):
+        self.records = []
+
     def record(self, payload):
-        pass
+        self.records.append(payload)
 
 
 class FakeQuoteArchive:
@@ -153,9 +171,35 @@ class FakePricingCatalog:
         return []
 
 
+class BrokenRiskPolicyService:
+    def precheck(self, message, state=None):
+        raise RuntimeError("risk precheck crashed")
+
+
+class BrokenReadConversationStateStore:
+    def get_state(self, conversation_id, channel="default"):
+        raise RuntimeError("state read failed")
+
+    def update_state(self, conversation_id, state_updates, channel="default"):
+        return {}
+
+
+class BrokenWriteConversationStateStore:
+    def get_state(self, conversation_id, channel="default"):
+        return {}
+
+    def update_state(self, conversation_id, state_updates, channel="default"):
+        raise RuntimeError("state write failed")
+
+
+class BadReasonCode:
+    def __str__(self):
+        raise RuntimeError("bad reason code")
+
+
 class ContextPlanningTests(unittest.TestCase):
-    def make_chat(self, history_service=None, quote_service=None):
-        return ChatService(
+    def make_chat(self, history_service=None, quote_service=None, risk_policy_service=None, conversation_state_store=None):
+        chat = ChatService(
             settings=FakeSettings(),
             ollama=FakeOllama(),
             retrieval_service=RetrievalService(FakeSettings(), FakeOllama(), FakeVectorRepo()),
@@ -168,6 +212,11 @@ class ContextPlanningTests(unittest.TestCase):
             behavior_config_service=FakeBehaviorConfig(),
             conversation_history_service=history_service,
         )
+        if risk_policy_service is not None:
+            chat.risk_policy_service = risk_policy_service
+        if conversation_state_store is not None:
+            chat.conversation_state_store = conversation_state_store
+        return chat
 
     def make_real_quote_service(self):
         policy = QuotePolicyService(FakeObjectStore())
@@ -403,6 +452,443 @@ class ContextPlanningTests(unittest.TestCase):
             self.assertIn("现场层高", answer)
             self.assertNotIn("团播方案的价值", answer)
             self.assertNotIn("团播直播间", answer)
+
+    def test_group_live_sales_strategy_recommends_without_quote_readiness(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            chat = self.make_chat(history, quote_service=self.make_real_quote_service())
+
+            response = chat.answer(ChatRequest(
+                message="我们是做团播的，给我推荐一下你们的产品",
+                channel="api",
+                conversation_id="sales_group_live",
+            ))
+
+            self.assertEqual(response.route, "quote_draft")
+            self.assertEqual(response.metadata["sales_stage"], "recommend")
+            self.assertEqual(response.metadata["known_needs"]["scenario"], "group_live")
+            self.assertIn("live_room_area", response.metadata["missing_fields"])
+            self.assertIn("camera_count", response.metadata["missing_fields"])
+            self.assertFalse(response.metadata["quote_readiness"]["ready"])
+            self.assertIn("U-MOCO GRA", response.answer)
+            self.assertIn("直播间面积", response.answer)
+            self.assertNotIn("直播间大概多大", response.answer)
+
+    def test_group_live_followup_inherits_needs_for_more_specific_recommendation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            chat = self.make_chat(history, quote_service=self.make_real_quote_service())
+            conversation_id = "sales_followup_needs"
+
+            chat.answer(ChatRequest(
+                message="我们是做团播的，给我推荐一下你们的产品",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+            response = chat.answer(ChatRequest(
+                message="直播间大概30平，两台相机",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+
+            self.assertEqual(response.route, "quote_draft")
+            self.assertEqual(response.metadata["sales_stage"], "recommend")
+            self.assertEqual(response.metadata["known_needs"]["scenario"], "group_live")
+            self.assertEqual(response.metadata["known_needs"]["live_room_area"], "30")
+            self.assertEqual(response.metadata["known_needs"]["camera_count"], "2")
+            self.assertNotIn("你是什么场景", response.answer)
+
+    def test_price_followup_not_quote_ready_gives_reference_configuration_direction(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            chat = self.make_chat(history, quote_service=self.make_real_quote_service())
+            conversation_id = "sales_price_followup"
+
+            chat.answer(ChatRequest(
+                message="我们是做团播的，给我推荐一下你们的产品",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+            chat.answer(ChatRequest(
+                message="直播间大概30平，两台相机",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+            response = chat.answer(ChatRequest(
+                message="大概多少钱",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+
+            self.assertEqual(response.route, "quote_draft")
+            self.assertEqual(response.metadata["sales_stage"], "recommend")
+            self.assertFalse(response.metadata["quote_readiness"]["ready"])
+            self.assertIn("参考配置方向", response.answer)
+            self.assertIn("正式价格", response.answer)
+            self.assertIn("预算区间", response.answer)
+
+    def test_after_sales_question_is_direct_answer_strategy_not_sales_flow(self):
+        chat = self.make_chat()
+
+        response = chat.answer(ChatRequest(message="电池保修多久？", channel="api"))
+
+        self.assertNotEqual(response.route, "quote_draft")
+        self.assertEqual(response.metadata["sales_stage"], "direct_answer")
+        self.assertTrue(response.metadata["sales_plan"]["should_direct_answer"])
+
+    def test_contract_confirmation_requires_handoff_strategy(self):
+        chat = self.make_chat()
+
+        response = chat.answer(ChatRequest(message="合同能直接确认吗？", channel="api"))
+
+        self.assertEqual(response.route, "handoff")
+        self.assertTrue(response.need_human)
+        self.assertEqual(response.metadata["sales_stage"], "handoff")
+
+    def test_contextual_followups_use_sales_context_and_bypass_cache(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            chat = self.make_chat(history, quote_service=self.make_real_quote_service())
+            conversation_id = "sales_contextual_followups"
+
+            chat.answer(ChatRequest(
+                message="我们是做团播的，给我推荐一下你们的产品",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+            first = chat.answer(ChatRequest(
+                message="这个适合多大直播间？",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+            second = chat.answer(ChatRequest(
+                message="那要不要轨道？",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+
+            self.assertEqual(first.metadata["context_plan"]["cache_policy"], "bypass_contextual")
+            self.assertEqual(second.metadata["context_plan"]["cache_policy"], "bypass_contextual")
+            self.assertEqual(first.metadata["sales_stage"], "recommend")
+            self.assertEqual(second.metadata["sales_stage"], "recommend")
+
+    def test_blocked_contract_question_short_circuits_to_handoff(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+
+        response = chat.answer(ChatRequest(message="合同能直接确认吗？", channel="api"))
+
+        self.assertEqual(response.route, "handoff")
+        self.assertTrue(response.need_human)
+        self.assertIn(response.metadata["risk_plan"]["risk_level"], {"blocked", "high"})
+        if response.metadata["risk_plan"]["risk_level"] == "blocked":
+            self.assertEqual(response.matched_rule, "RiskPolicyService")
+            self.assertIn("risk_blocked_handoff", response.metadata.get("decision_trace", []))
+
+    def test_lowest_price_behavior_follows_risk_level_without_wrong_forcing(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+
+        response = chat.answer(ChatRequest(message="最低价多少？", channel="api"))
+        risk_level = response.metadata["risk_plan"]["risk_level"]
+
+        self.assertIn(risk_level, {"blocked", "high"})
+        if risk_level == "blocked":
+            self.assertEqual(response.route, "handoff")
+            self.assertTrue(response.need_human)
+        else:
+            self.assertIn("risk_plan", response.metadata)
+
+    def test_medium_price_question_records_risk_plan_but_does_not_short_circuit(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+
+        response = chat.answer(ChatRequest(message="大概多少钱？", channel="api"))
+
+        self.assertIn("risk_precheck", response.metadata)
+        self.assertIn("risk_plan", response.metadata)
+        self.assertEqual(response.metadata["risk_plan"]["risk_level"], "medium")
+        self.assertNotEqual(response.route, "handoff")
+
+    def test_warranty_question_is_not_blocked_by_risk_precheck(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+
+        response = chat.answer(ChatRequest(message="电池保修多久？", channel="api"))
+
+        self.assertIn("risk_plan", response.metadata)
+        self.assertEqual(response.metadata["risk_plan"]["risk_level"], "low")
+        self.assertNotEqual(response.route, "handoff")
+
+    def test_risk_precheck_exception_does_not_break_chat_flow(self):
+        chat = self.make_chat(risk_policy_service=BrokenRiskPolicyService())
+
+        response = chat.answer(ChatRequest(message="大概多少钱？", channel="api"))
+
+        self.assertIn("risk_precheck_error", response.metadata)
+        self.assertIn(response.route, {"quote_draft", "faq", "doc", "fallback"})
+
+    def test_state_observation_adds_before_and_after_metadata(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            response = chat.answer(ChatRequest(message="我们是做团播的给我推荐产品", channel="api", conversation_id="state_obs_1"))
+
+            self.assertIn("conversation_state_before", response.metadata)
+            self.assertIn("conversation_state_after", response.metadata)
+
+    def test_new_conversation_has_default_state_before(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            response = chat.answer(ChatRequest(message="你好", channel="api", conversation_id="new_state_user"))
+
+            self.assertEqual(response.metadata["conversation_state_before"].get("stage", ""), "")
+            self.assertIn("known_needs", response.metadata["conversation_state_before"])
+
+    def test_state_after_tracks_last_route(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            response = chat.answer(ChatRequest(message="电池保修多久？", channel="api", conversation_id="route_state_user"))
+
+            self.assertEqual(response.metadata["conversation_state_after"]["last_assistant_route"], response.route)
+
+    def test_need_human_updates_handoff_flag(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            response = chat.answer(ChatRequest(message="合同能直接确认吗？", channel="api", conversation_id="need_human_state_user"))
+
+            self.assertTrue(response.need_human)
+            self.assertTrue(response.metadata["conversation_state_after"]["human_handoff_required"])
+
+    def test_sales_known_needs_written_to_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            response = chat.answer(ChatRequest(message="我们是做团播的，直播间30平，两台相机", channel="api", conversation_id="known_needs_user"))
+
+            known = response.metadata["conversation_state_after"].get("known_needs", {})
+            self.assertIn("scenario", known)
+            self.assertEqual(known.get("scenario"), "group_live")
+            self.assertEqual(known.get("live_room_area"), "30")
+            self.assertEqual(known.get("camera_count"), "2")
+
+    def test_conversation_state_isolation_by_conversation_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+
+            first = chat.answer(ChatRequest(message="我们是做团播的给我推荐产品", channel="api", conversation_id="conv_a"))
+            second = chat.answer(ChatRequest(message="我们做影视广告，推荐一下", channel="api", conversation_id="conv_b"))
+
+            self.assertNotEqual(
+                first.metadata["conversation_state_after"].get("known_needs", {}).get("scenario"),
+                second.metadata["conversation_state_after"].get("known_needs", {}).get("scenario"),
+            )
+
+    def test_state_read_error_does_not_break_flow_and_sets_metadata(self):
+        chat = self.make_chat(
+            risk_policy_service=RiskPolicyService(),
+            conversation_state_store=BrokenReadConversationStateStore(),
+        )
+
+        response = chat.answer(ChatRequest(message="大概多少钱？", channel="api", conversation_id="read_err_user"))
+
+        self.assertIn("conversation_state_error", response.metadata)
+        self.assertIn(response.route, {"quote_draft", "faq", "doc", "fallback", "handoff", "identity"})
+
+    def test_state_write_error_does_not_break_flow_and_sets_metadata(self):
+        chat = self.make_chat(
+            risk_policy_service=RiskPolicyService(),
+            conversation_state_store=BrokenWriteConversationStateStore(),
+        )
+
+        response = chat.answer(ChatRequest(message="大概多少钱？", channel="api", conversation_id="write_err_user"))
+
+        self.assertIn("conversation_state_update_error", response.metadata)
+        self.assertIn(response.route, {"quote_draft", "faq", "doc", "fallback", "handoff", "identity"})
+
+    def test_state_observation_does_not_change_answer_route_or_need_human(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            conversation_id = "observation_compare_user"
+            request = ChatRequest(message="大概多少钱？", channel="api", conversation_id=conversation_id)
+
+            chat_without_state = self.make_chat(risk_policy_service=RiskPolicyService())
+            baseline = chat_without_state.answer(request)
+
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat_with_state = self.make_chat(risk_policy_service=RiskPolicyService(), conversation_state_store=state_store)
+            observed = chat_with_state.answer(request)
+
+            self.assertEqual(observed.answer, baseline.answer)
+            self.assertEqual(observed.route, baseline.route)
+            self.assertEqual(observed.need_human, baseline.need_human)
+
+    def test_cache_policy_enforce_contextual_followup_sets_final_bypass_true(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": ["contextual_followup"]}},
+        ))
+
+        self.assertTrue(response.metadata["cache_policy_enforce_applied"])
+        self.assertTrue(response.metadata["final_bypass_cache"])
+        self.assertEqual(response.metadata["cache_policy_enforce_mode"], "minimal")
+
+    def test_cache_policy_enforce_risk_sensitive_sets_final_bypass_true(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": ["risk_sensitive"]}},
+        ))
+
+        self.assertTrue(response.metadata["cache_policy_enforce_applied"])
+        self.assertTrue(response.metadata["final_bypass_cache"])
+
+    def test_cache_policy_enforce_pronoun_reference_sets_final_bypass_true(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": ["pronoun_reference"]}},
+        ))
+
+        self.assertTrue(response.metadata["cache_policy_enforce_applied"])
+        self.assertTrue(response.metadata["final_bypass_cache"])
+
+    def test_cache_policy_quote_intent_only_remains_observation(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="你好",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": ["quote_intent"]}},
+        ))
+
+        self.assertFalse(response.metadata["cache_policy_enforce_applied"])
+        self.assertFalse(response.metadata["final_bypass_cache"])
+        self.assertEqual(response.metadata["cache_policy_enforce_skipped_reason"], "no_enforce_reason_codes")
+
+    def test_existing_true_bypass_is_not_downgraded(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="这款多少钱",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": ["quote_intent"]}},
+        ))
+
+        self.assertTrue(response.metadata["original_bypass_cache"])
+        self.assertTrue(response.metadata["final_bypass_cache"])
+        self.assertFalse(response.metadata["cache_policy_enforce_applied"])
+
+    def test_missing_cache_policy_metadata_keeps_original_behavior(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(message="电池保修多久？", channel="api"))
+
+        self.assertFalse(response.metadata["cache_policy_enforce_applied"])
+        self.assertFalse(response.metadata["original_bypass_cache"])
+        self.assertFalse(response.metadata["final_bypass_cache"])
+        self.assertIn("cache_policy_metadata", response.metadata)
+        self.assertEqual(response.metadata["cache_policy_enforce_skipped_reason"], "no_enforce_reason_codes")
+
+    def test_cache_policy_enforce_exception_keeps_original_behavior(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"cache_policy_metadata": {"reason_codes": [BadReasonCode()]}},
+        ))
+
+        self.assertIn("cache_policy_enforce_error", response.metadata)
+        self.assertFalse(response.metadata["cache_policy_enforce_applied"])
+        self.assertFalse(response.metadata["original_bypass_cache"])
+        self.assertFalse(response.metadata["final_bypass_cache"])
+
+    def test_followup_price_question_triggers_real_bypass_true(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(message="那大概多少钱？", channel="api", conversation_id="bypass_followup"))
+
+        self.assertTrue(response.metadata["final_bypass_cache"])
+
+    def test_low_risk_after_sales_not_forced_bypass(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(message="电池保修多久？", channel="api", conversation_id="no_force_bypass"))
+
+        self.assertFalse(response.metadata["final_bypass_cache"])
+
+    def test_audit_record_uses_final_response_after_blocked_post_rule_enforce(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            audit = FakeAudit()
+            chat = ChatService(
+                settings=FakeSettings(),
+                ollama=FakeOllama(),
+                retrieval_service=RetrievalService(FakeSettings(), FakeOllama(), FakeVectorRepo()),
+                rule_repo=FakeRuleRepo(),
+                memory_service=FakeMemoryService(),
+                audit_service=audit,
+                quote_service=FakeRiskyQuoteService(),
+                learning_service=FakeLearningService(),
+                knowledge_gap_service=FakeKnowledgeGapService(),
+                behavior_config_service=FakeBehaviorConfig(),
+                conversation_history_service=history,
+            )
+            chat.risk_policy_service = RiskPolicyService()
+            chat.conversation_state_store = state_store
+            chat.post_rule_check_service = PostRuleCheckService()
+
+            conversation_id = "blocked_post_rule_persist_consistency"
+            request = ChatRequest(message="报价大概多少钱？", channel="api", conversation_id=conversation_id)
+            response = ChatResponse(
+                answer="我们保证现货，明天就能发。",
+                route="quote_draft",
+                need_human=False,
+                channel="api",
+                conversation_id=conversation_id,
+                metadata={
+                    "risk_plan": {"risk_level": "high", "need_human": False},
+                    "conversation_state_before": {},
+                },
+            )
+            chat._audit("req_post_rule_consistency", request, response)
+
+            self.assertTrue(response.metadata["post_rule_check"]["blocked"])
+            self.assertTrue(response.metadata["post_rule_enforce_applied"])
+            self.assertTrue(response.need_human)
+            self.assertEqual(response.answer, response.metadata["post_rule_check"]["safe_answer"])
+            self.assertEqual(response.metadata.get("original_answer"), "我们保证现货，明天就能发。")
+
+            turns = history.recent_for_request(ChatRequest(message="继续", channel="api", conversation_id=conversation_id))
+            self.assertTrue(turns)
+            self.assertEqual(turns[-1]["answer"], response.answer)
+            self.assertEqual(turns[-1]["route"], response.route)
+
+            self.assertIn("conversation_state_after", response.metadata)
+            self.assertTrue(response.metadata["conversation_state_after"]["human_handoff_required"])
+            self.assertEqual(response.metadata["conversation_state_after"]["last_assistant_route"], response.route)
+
+            self.assertTrue(audit.records)
+            latest_audit = audit.records[-1]
+            self.assertEqual(latest_audit["answer"], response.answer)
+            self.assertEqual(latest_audit["route"], response.route)
+            self.assertTrue(latest_audit["need_human"])
+
+    def test_medium_high_post_rule_stays_observation_without_enforce(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService(), quote_service=FakeQuoteService())
+        chat.post_rule_check_service = PostRuleCheckService()
+
+        response = chat.answer(ChatRequest(message="大概多少钱？", channel="api", conversation_id="medium_observation_only"))
+
+        self.assertIn("post_rule_check", response.metadata)
+        self.assertTrue(response.metadata["post_rule_check"]["need_rewrite"])
+        self.assertFalse(response.metadata["post_rule_check"]["blocked"])
+        self.assertFalse(response.metadata["post_rule_enforce_applied"])
+        self.assertNotEqual(response.answer, "")
 
 
 if __name__ == "__main__":
