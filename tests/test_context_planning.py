@@ -2,8 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+from support_app.api.v1.chat import router as chat_router
+from support_app.dependencies import get_chat_service
 from support_app.repositories.json_file_repository import JsonFileRepository
-from support_app.schemas import ChatRequest, ChatResponse
+from support_app.schemas import ChatRequest, ChatResponse, LegacyAskRequest
 from support_app.services.chat_service import ChatService
 from support_app.services.configuration_quote_service import ConfigurationQuoteService
 from support_app.services.conversation_history_service import ConversationHistoryService
@@ -236,6 +241,49 @@ class FakeBgeEmbedOllama(FakeOllama):
 
     def current_chat_model(self):
         return "qwen3:8b"
+
+
+class FakeRiskyGenerateOllama(FakeOllama):
+    def generate(self, prompt, model=None):
+        return "我们保证现货，明天就能发。"
+
+
+class FakeDocVectorRepo:
+    def search_faq_by_vector(self, vector):
+        return []
+
+    def search_docs_by_vector(self, vector):
+        return [
+            FakeHit(
+                score=0.92,
+                payload={
+                    "text": "GRA 配置资料",
+                    "doc_name": "GRA配置说明.md",
+                    "source": "data/docs/GRA配置说明.md",
+                    "category": "配置",
+                    "priority": 1,
+                },
+            )
+        ]
+
+
+class FakeAPIChatService:
+    def __init__(self):
+        self.requests = []
+
+    def answer(self, request):
+        self.requests.append(request)
+        return ChatResponse(
+            answer="兼容响应",
+            route="faq",
+            need_human=False,
+            channel=request.channel,
+            conversation_id=request.conversation_id,
+            metadata={
+                "risk_precheck": {"risk_level": "low"},
+                "models": {"actual_chat_model": "chat-test", "embed_model": "embed-test"},
+            },
+        )
 
 
 class ContextPlanningTests(unittest.TestCase):
@@ -621,6 +669,109 @@ class ContextPlanningTests(unittest.TestCase):
             self.assertEqual(first.metadata["sales_stage"], "recommend")
             self.assertEqual(second.metadata["sales_stage"], "recommend")
 
+    def test_identity_fast_path_has_core_metadata_without_state_or_route_regression(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            quote_service = FakeQuoteService()
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                quote_service=quote_service,
+                risk_policy_service=RiskPolicyService(),
+                conversation_state_store=state_store,
+            )
+
+            response = chat.answer(ChatRequest(message="你好", channel="api", conversation_id="identity_core_metadata"))
+
+            self.assertEqual(response.route, "identity")
+            self.assertFalse(response.need_human)
+            self.assertNotEqual(response.answer, "")
+            self.assertEqual(quote_service.draft_calls, 0)
+            self.assertIn("risk_plan", response.metadata)
+            self.assertEqual(response.metadata["risk_plan"]["risk_level"], "low")
+            self.assertNotEqual(response.metadata["risk_plan"]["risk_level"], "blocked")
+            self.assertFalse(response.metadata.get("final_bypass_cache", False))
+            self.assertIn("conversation_state_after", response.metadata)
+            self.assertFalse(response.metadata["conversation_state_after"].get("product_anchor"))
+            self.assertFalse(response.metadata.get("post_rule_enforce_applied", False))
+
+    def test_pronoun_room_size_followup_uses_context_and_cache_policy_enforce(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history,
+                quote_service=self.make_real_quote_service(),
+                risk_policy_service=RiskPolicyService(),
+                conversation_state_store=state_store,
+            )
+            conversation_id = "test-pronoun-room-size"
+
+            first = chat.answer(ChatRequest(message="团播推荐一下", channel="api", conversation_id=conversation_id))
+            response = chat.answer(ChatRequest(message="这个适合多大直播间？", channel="api", conversation_id=conversation_id))
+
+            reason_codes = set(response.metadata.get("cache_policy_metadata", {}).get("reason_codes", []))
+            enforce_reasons = set(response.metadata.get("cache_policy_enforce_reason_codes", []))
+            context = response.metadata.get("understand_plan", {}).get("context", {})
+            state_before = response.metadata.get("conversation_state_before", {})
+
+            self.assertEqual(first.metadata["sales_stage"], "recommend")
+            self.assertEqual(response.metadata["sales_stage"], "recommend")
+            self.assertTrue(reason_codes.intersection({"pronoun_reference", "contextual_followup"}))
+            self.assertTrue(response.metadata.get("final_bypass_cache"))
+            self.assertTrue(response.metadata.get("cache_policy_enforce_applied"))
+            self.assertTrue(enforce_reasons.intersection({"pronoun_reference", "contextual_followup"}))
+            self.assertTrue(
+                context.get("product_anchor")
+                or state_before.get("product_anchor")
+                or context.get("scenario_anchor")
+                or state_before.get("scenario_anchor")
+            )
+            self.assertNotIn("很多场景", response.answer)
+            self.assertNotIn("很多使用场景", response.answer)
+
+    def test_track_followup_records_cache_reason_and_keeps_sales_context(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history,
+                quote_service=self.make_real_quote_service(),
+                risk_policy_service=RiskPolicyService(),
+                conversation_state_store=state_store,
+            )
+            conversation_id = "test-track-followup"
+
+            first = chat.answer(ChatRequest(message="我们是做团播的，30平，两台相机", channel="api", conversation_id=conversation_id))
+            response = chat.answer(ChatRequest(message="那要不要轨道？", channel="api", conversation_id=conversation_id))
+
+            reason_codes = set(response.metadata.get("cache_policy_metadata", {}).get("reason_codes", []))
+            enforce_reasons = set(response.metadata.get("cache_policy_enforce_reason_codes", []))
+            known_needs = response.metadata.get("known_needs", {})
+            state_after = response.metadata.get("conversation_state_after", {})
+
+            self.assertEqual(first.metadata["known_needs"]["scenario"], "group_live")
+            self.assertEqual(response.metadata["sales_stage"], "recommend")
+            self.assertEqual(known_needs.get("scenario"), "group_live")
+            self.assertEqual(
+                known_needs.get("live_room_area")
+                or response.metadata.get("conversation_state_before", {}).get("known_needs", {}).get("live_room_area"),
+                "30",
+            )
+            self.assertEqual(
+                known_needs.get("camera_count")
+                or response.metadata.get("conversation_state_before", {}).get("known_needs", {}).get("camera_count"),
+                "2",
+            )
+            self.assertTrue(reason_codes.intersection({"price_or_track_question", "pronoun_reference", "contextual_followup"}))
+            self.assertTrue(enforce_reasons.intersection({"price_or_track_question", "pronoun_reference", "contextual_followup"}))
+            self.assertTrue(response.metadata.get("final_bypass_cache"))
+            self.assertTrue(state_after.get("known_needs"))
+            self.assertNotIn("必须加轨道", response.answer)
+            self.assertNotIn("一定要加轨道", response.answer)
+            self.assertFalse(
+                response.metadata.get("cache_policy_enforce_applied")
+                and response.metadata.get("cache_policy_enforce_reason_codes") == ["quote_intent"]
+            )
+
     def test_blocked_contract_question_short_circuits_to_handoff(self):
         chat = self.make_chat(risk_policy_service=RiskPolicyService())
 
@@ -664,6 +815,112 @@ class ContextPlanningTests(unittest.TestCase):
         self.assertIn("risk_plan", response.metadata)
         self.assertEqual(response.metadata["risk_plan"]["risk_level"], "low")
         self.assertNotEqual(response.route, "handoff")
+
+    def test_inventory_delivery_high_risk_stays_observation_without_unwanted_enforce(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+
+        for message in ("库存有没有？", "现在有现货吗？", "这个月底能不能交付？", "能不能保证下周到？"):
+            with self.subTest(message=message):
+                response = chat.answer(ChatRequest(message=message, channel="api", conversation_id=f"risk_{abs(hash(message))}"))
+                risk_plan = response.metadata.get("risk_plan", {})
+                risk_level = risk_plan.get("risk_level")
+                matched = "".join(risk_plan.get("matched_keywords", []) or [])
+                reasons = "".join(risk_plan.get("risk_reasons", []) or [])
+                post_check = response.metadata.get("post_rule_check", {})
+
+                self.assertTrue(risk_level in {"high", "blocked"} or response.need_human)
+                self.assertTrue(risk_plan.get("need_human") or response.need_human)
+                self.assertTrue(any(token in f"{matched}{reasons}{message}" for token in ("库存", "现货", "交付", "保证")))
+                if risk_level == "high":
+                    self.assertFalse(response.metadata.get("post_rule_enforce_applied", False))
+                    self.assertFalse(post_check.get("blocked", False))
+                self.assertNotIn("保证现货", response.answer)
+                self.assertNotIn("一定能交付", response.answer)
+                self.assertNotIn("保证下周到", response.answer)
+
+    def test_inventory_delivery_risk_keyword_matrix_is_guarded_without_over_enforce(self):
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        cases = (
+            "库存有没有？",
+            "现在有现货吗？",
+            "仓库还有几台？",
+            "能不能保证有货？",
+            "今天能发吗？",
+            "这个月底能不能交付？",
+            "能不能保证下周到？",
+            "三天内能到吗？",
+            "什么时候发货？",
+            "交付周期你能确认吗？",
+        )
+
+        for message in cases:
+            with self.subTest(message=message):
+                response = chat.answer(ChatRequest(message=message, channel="api", conversation_id=f"risk_matrix_{abs(hash(message))}"))
+                metadata = response.metadata
+                risk_plan = metadata.get("risk_plan", {})
+                post_check = metadata.get("post_rule_check", {})
+                risk_level = risk_plan.get("risk_level")
+                answer = response.answer
+                dangerous_terms = ("保证现货", "保证有货", "一定能发货", "一定能交付", "保证下周到")
+
+                guarded = (
+                    risk_level in {"medium", "high", "blocked"}
+                    or bool(risk_plan.get("need_human"))
+                    or bool(response.need_human)
+                    or response.route == "handoff"
+                    or bool(post_check.get("need_human"))
+                    or bool(post_check.get("blocked"))
+                )
+
+                self.assertTrue(guarded, f"{message} should be guarded by risk, handoff, or post-check metadata")
+                self.assertIn("post_rule_check", metadata)
+                self.assertIn("risk_plan", metadata)
+                if any(term in answer for term in dangerous_terms):
+                    self.assertTrue(post_check.get("blocked"))
+                    self.assertTrue(metadata.get("post_rule_enforce_applied"))
+                    self.assertNotEqual(answer, metadata.get("original_answer"))
+                else:
+                    for term in dangerous_terms:
+                        self.assertNotIn(term, answer)
+                if risk_level in {"medium", "high"} and not post_check.get("blocked"):
+                    self.assertFalse(metadata.get("post_rule_enforce_applied", False))
+
+    def test_quote_readiness_multi_turn_keeps_reference_only_pricing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history,
+                quote_service=self.make_real_quote_service(),
+                risk_policy_service=RiskPolicyService(),
+                conversation_state_store=state_store,
+            )
+            conversation_id = "test-quote-readiness-multi"
+
+            chat.answer(ChatRequest(message="我们是做团播的，推荐一下", channel="api", conversation_id=conversation_id))
+            chat.answer(ChatRequest(message="30平，两台相机", channel="api", conversation_id=conversation_id))
+            chat.answer(ChatRequest(message="预算5万左右", channel="api", conversation_id=conversation_id))
+            response = chat.answer(ChatRequest(message="那大概多少钱？", channel="api", conversation_id=conversation_id))
+
+            metadata = response.metadata
+            known_needs = metadata.get("known_needs", {})
+            state_known = metadata.get("conversation_state_after", {}).get("known_needs", {})
+            quote_readiness = metadata.get("quote_readiness") or metadata.get("conversation_state_after", {}).get("quote_readiness")
+            answer = response.answer
+
+            self.assertEqual(known_needs.get("scenario") or state_known.get("scenario"), "group_live")
+            self.assertEqual(known_needs.get("live_room_area") or state_known.get("live_room_area"), "30")
+            self.assertEqual(known_needs.get("camera_count") or state_known.get("camera_count"), "2")
+            self.assertEqual(known_needs.get("budget") or state_known.get("budget"), "5万")
+            self.assertIn(metadata.get("sales_stage"), {"recommend", "quote_ready", "quote_prepare", "quote"})
+            self.assertTrue(quote_readiness)
+            self.assertEqual(response.route, "quote_draft")
+            self.assertTrue(response.need_human or "销售确认" in answer or "销售同事" in answer or "正式价格" in answer)
+            self.assertIn("参考配置方向", answer)
+            self.assertNotIn("最终价格就是", answer)
+            self.assertNotIn("最低价就是", answer)
+            self.assertTrue(metadata.get("final_bypass_cache"))
+            self.assertIn(response.route, {"identity", "faq", "doc", "learned_correction", "memory_recall", "quote_draft", "handoff", "fallback", "error"})
 
     def test_risk_precheck_exception_does_not_break_chat_flow(self):
         chat = self.make_chat(risk_policy_service=BrokenRiskPolicyService())
@@ -927,6 +1184,57 @@ class ContextPlanningTests(unittest.TestCase):
             self.assertEqual(latest_audit["route"], response.route)
             self.assertTrue(latest_audit["need_human"])
 
+    def test_blocked_post_rule_history_state_audit_consistency_full_chat_path(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            audit = FakeAudit()
+            risky_ollama = FakeRiskyGenerateOllama()
+            chat = ChatService(
+                settings=FakeSettings(),
+                ollama=risky_ollama,
+                retrieval_service=RetrievalService(FakeSettings(), risky_ollama, FakeDocVectorRepo()),
+                rule_repo=FakeRuleRepo(),
+                memory_service=FakeMemoryService(),
+                audit_service=audit,
+                quote_service=FakeQuoteService(),
+                learning_service=FakeLearningService(),
+                knowledge_gap_service=FakeKnowledgeGapService(),
+                behavior_config_service=FakeBehaviorConfig(),
+                conversation_history_service=history,
+            )
+            chat.risk_policy_service = RiskPolicyService()
+            chat.conversation_state_store = state_store
+            chat.post_rule_check_service = PostRuleCheckService()
+            conversation_id = "blocked_post_rule_full_chat_consistency"
+
+            response = chat.answer(ChatRequest(message="GRA 参数是什么？", channel="api", conversation_id=conversation_id))
+
+            self.assertTrue(response.metadata["post_rule_check"]["blocked"])
+            self.assertTrue(response.metadata["post_rule_enforce_applied"])
+            self.assertTrue(response.need_human)
+            self.assertEqual(response.metadata["original_answer"], "我们保证现货，明天就能发。")
+            self.assertEqual(response.metadata["original_route"], "doc")
+            self.assertFalse(response.metadata["original_need_human"])
+            self.assertEqual(response.metadata["enforce_reason"], "post_rule_blocked")
+            self.assertEqual(response.answer, response.metadata["post_rule_check"]["safe_answer"])
+            self.assertNotEqual(response.answer, response.metadata["original_answer"])
+
+            turns = history.recent_for_request(ChatRequest(message="继续", channel="api", conversation_id=conversation_id))
+            self.assertTrue(turns)
+            self.assertEqual(turns[-1]["answer"], response.answer)
+            self.assertNotEqual(turns[-1]["answer"], response.metadata["original_answer"])
+
+            self.assertTrue(audit.records)
+            self.assertEqual(audit.records[-1]["answer"], response.answer)
+            self.assertEqual(audit.records[-1]["route"], response.route)
+            self.assertTrue(audit.records[-1]["need_human"])
+
+            state_after = response.metadata["conversation_state_after"]
+            self.assertTrue(state_after["human_handoff_required"])
+            self.assertEqual(state_after["last_assistant_route"], response.route)
+            self.assertNotEqual(state_after.get("last_recommendation"), response.metadata["original_answer"])
+
     def test_medium_high_post_rule_stays_observation_without_enforce(self):
         chat = self.make_chat(risk_policy_service=RiskPolicyService(), quote_service=FakeQuoteService())
         chat.post_rule_check_service = PostRuleCheckService()
@@ -1025,6 +1333,135 @@ class ContextPlanningTests(unittest.TestCase):
         self.assertEqual(len(history.turns), 0)
         self.assertEqual(first.metadata.get("context_plan", {}).get("history_turn_count"), 0)
         self.assertEqual(second.metadata.get("context_plan", {}).get("history_turn_count"), 0)
+
+    def test_model_compare_does_not_persist_shadow_history_state_or_memory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = FakeConversationHistoryService()
+            memory = FakeMemoryService()
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history_service=history,
+                memory_service=memory,
+                conversation_state_store=state_store,
+                risk_policy_service=RiskPolicyService(),
+                ollama=FakeBgeEmbedOllama(),
+            )
+            conversation_id = "cmp_shadow_isolation"
+
+            primary = chat.answer(ChatRequest(
+                message="我们是做团播的，推荐一下产品",
+                channel="api",
+                conversation_id=conversation_id,
+                metadata={
+                    "test_page": True,
+                    "model_compare": True,
+                    "compare_role": "primary",
+                    "model_override": {"chat_model": "qwen3:8b"},
+                },
+            ))
+            shadow = chat.answer(ChatRequest(
+                message="那大概多少钱？",
+                channel="api",
+                conversation_id=conversation_id,
+                metadata={
+                    "test_page": True,
+                    "model_compare": True,
+                    "compare_role": "shadow",
+                    "shadow": True,
+                    "model_override": {"chat_model": "bge-m3:latest"},
+                },
+            ))
+
+            self.assertEqual(history.recent_calls, 0)
+            self.assertEqual(history.append_calls, 0)
+            self.assertEqual(history.turns, [])
+            self.assertEqual(memory.load_calls, 0)
+            self.assertEqual(memory.update_calls, 0)
+            self.assertEqual(state_store.get_state(conversation_id), state_store._default_state())
+            self.assertTrue(primary.metadata.get("persistence_skipped"))
+            self.assertTrue(shadow.metadata.get("persistence_skipped"))
+            self.assertEqual(primary.metadata.get("conversation_state_before"), {})
+            self.assertEqual(shadow.metadata.get("conversation_state_before"), {})
+            self.assertEqual(primary.metadata.get("conversation_state_after"), {})
+            self.assertEqual(shadow.metadata.get("conversation_state_after"), {})
+            self.assertEqual(shadow.metadata.get("context_plan", {}).get("history_turn_count"), 0)
+            shadow_models = shadow.metadata.get("models", {})
+            self.assertEqual(shadow_models.get("embed_model"), "bge-m3:latest")
+            self.assertNotEqual(shadow_models.get("actual_chat_model"), "bge-m3:latest")
+            self.assertTrue(shadow_models.get("override_rejected"))
+            self.assertNotEqual(shadow.answer, primary.answer)
+
+    def test_core_metadata_is_not_lost_across_identity_sales_and_risk_routes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history,
+                quote_service=self.make_real_quote_service(),
+                risk_policy_service=RiskPolicyService(),
+                conversation_state_store=state_store,
+            )
+            scenarios = (
+                ("identity", ChatRequest(message="你好", channel="api", conversation_id="meta_identity")),
+                ("sales", ChatRequest(message="我们是做团播的，推荐一下", channel="api", conversation_id="meta_sales")),
+                ("risk", ChatRequest(message="合同能直接确认吗？", channel="api", conversation_id="meta_risk")),
+            )
+
+            for label, request in scenarios:
+                with self.subTest(route_group=label):
+                    response = chat.answer(request)
+                    metadata = response.metadata
+
+                    self.assertTrue(metadata.get("risk_precheck") or metadata.get("risk_plan"))
+                    self.assertIn("conversation_state_before", metadata)
+                    self.assertIn("conversation_state_after", metadata)
+                    self.assertIn("understand_plan", metadata)
+                    self.assertIn("cache_policy_metadata", metadata)
+                    self.assertIn("post_rule_check", metadata)
+                    self.assertTrue(metadata.get("decision_trace") or metadata.get("sales_decision_trace"))
+                    self.assertFalse(metadata.get("metadata_overwritten", False))
+                    if label == "sales" or metadata.get("cache_policy_enforce_applied") is not None or "final_bypass_cache" in metadata:
+                        self.assertIn("original_bypass_cache", metadata)
+                        self.assertIn("final_bypass_cache", metadata)
+                    if label == "risk":
+                        self.assertEqual(response.route, "handoff")
+                        self.assertTrue(response.need_human)
+
+    def test_chat_api_routes_keep_response_schema_compatible(self):
+        fake_service = FakeAPIChatService()
+        api_app = FastAPI()
+        api_app.include_router(chat_router, prefix="/api/v1")
+        api_app.dependency_overrides[get_chat_service] = lambda: fake_service
+
+        @api_app.post("/ask")
+        def legacy_ask(req: LegacyAskRequest):
+            response = fake_service.answer(ChatRequest(message=req.question, channel="api"))
+            data = response.model_dump()
+            data["elapsed_ms"] = response.timings.total_ms
+            data["timings"]["rag_total_ms"] = response.timings.total_ms
+            return data
+
+        client = TestClient(api_app)
+        endpoints = (
+            ("/api/v1/chat", {"message": "电池保修多久？", "channel": "api", "conversation_id": "api_chat"}),
+            ("/api/v1/chat/ask", {"message": "电池保修多久？", "channel": "api", "conversation_id": "api_chat_ask"}),
+            ("/ask", {"question": "电池保修多久？"}),
+        )
+        allowed_routes = {"identity", "faq", "doc", "learned_correction", "memory_recall", "quote_draft", "handoff", "fallback", "error"}
+
+        for path, payload in endpoints:
+            with self.subTest(path=path):
+                response = client.post(path, json=payload)
+                body = response.json()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("answer", body)
+                self.assertIn("route", body)
+                self.assertIn("need_human", body)
+                self.assertIn("metadata", body)
+                self.assertIn(body["route"], allowed_routes)
+                self.assertIsInstance(body["metadata"], dict)
+                self.assertEqual(body["answer"], "兼容响应")
 
     def test_normal_request_keeps_history_state_and_memory_persistence(self):
         with tempfile.TemporaryDirectory() as tmp:
