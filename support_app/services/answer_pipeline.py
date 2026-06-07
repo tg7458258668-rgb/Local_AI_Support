@@ -259,7 +259,7 @@ class AnswerPipeline:
         history_service = getattr(self.legacy_chat_service, "conversation_history_service", None)
         history = []
         product_anchors = []
-        if history_service:
+        if history_service and not self._is_transient_test_request(request):
             try:
                 history = history_service.recent_for_request(request)
                 product_anchors = history_service.product_anchors(history)
@@ -281,6 +281,22 @@ class AnswerPipeline:
             "history_product_anchors": product_anchors,
             "history_anchor_summary": self._history_anchor_summary(last_message, last_answer, product_anchors),
         }
+
+    @staticmethod
+    def _is_transient_test_request(request: ChatRequest) -> bool:
+        metadata = request.metadata or {}
+        if bool(metadata.get("model_compare")):
+            return True
+        if bool(metadata.get("transient_test")):
+            return True
+        if bool(metadata.get("shadow")):
+            return True
+        compare_role = str(
+            metadata.get("compare_role")
+            or metadata.get("model_compare_role")
+            or ""
+        ).strip().lower()
+        return compare_role in {"primary", "shadow"}
 
     @staticmethod
     def _history_anchor_summary(last_message: str, last_answer: str, product_anchors: list[str]) -> str:

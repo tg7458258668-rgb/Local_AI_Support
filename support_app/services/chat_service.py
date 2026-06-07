@@ -57,7 +57,9 @@ class ChatService:
         timings = TimingInfo()
         user_query = request.message.strip()
         request_id = str((request.metadata or {}).get("request_id") or uuid.uuid4())
-        chat_model_override = self._chat_model_override(request)
+        transient_request = self._is_transient_test_request(request)
+        model_runtime = self._resolve_chat_model_runtime(request)
+        chat_model_name = str(model_runtime.get("actual_chat_model") or self.ollama.current_chat_model())
 
         faq_hits = []
         doc_hits = []
@@ -67,7 +69,7 @@ class ChatService:
         memory = None
         faq_top_score = 0.0
         doc_top_score = 0.0
-        base_metadata = self._base_metadata(request)
+        base_metadata = self._base_metadata(request, model_runtime=model_runtime, transient_request=transient_request)
         self._attach_state_before(request, base_metadata)
         risk_plan = self._risk_precheck(request, base_metadata)
         if self._is_blocked_risk_handoff(risk_plan):
@@ -106,13 +108,26 @@ class ChatService:
             return response
 
         try:
-            t = time.perf_counter()
-            memory = self.memory_service.load_for_request(request)
-            timings.memory_ms = self._elapsed(t)
+            def _persist_memory(answer_text: str, route_name: str) -> dict | None:
+                nonlocal memory
+                if transient_request:
+                    return memory
+                t0 = time.perf_counter()
+                memory = self.memory_service.update_from_turn(request, answer_text, route_name)
+                timings.memory_ms += self._elapsed(t0)
+                return memory
 
-            t = time.perf_counter()
-            history = self.conversation_history_service.recent_for_request(request) if self.conversation_history_service else []
-            timings.history_ms = self._elapsed(t)
+            if transient_request:
+                memory = None
+                history = []
+            else:
+                t = time.perf_counter()
+                memory = self.memory_service.load_for_request(request)
+                timings.memory_ms = self._elapsed(t)
+
+                t = time.perf_counter()
+                history = self.conversation_history_service.recent_for_request(request) if self.conversation_history_service else []
+                timings.history_ms = self._elapsed(t)
 
             t = time.perf_counter()
             context_plan = self._build_context_plan(user_query, request, memory, history)
@@ -203,9 +218,7 @@ class ChatService:
             learning = self.learning_service.maybe_learn_from_request(request)
             if learning.get("detected"):
                 if learning.get("saved"):
-                    t = time.perf_counter()
-                    memory = self.memory_service.update_from_turn(request, learning["message"], "learned_correction")
-                    timings.memory_ms += self._elapsed(t)
+                    memory = _persist_memory(learning["message"], "learned_correction")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["learning"] = learning
@@ -243,9 +256,7 @@ class ChatService:
             timings.rule_match_ms = self._elapsed(t)
             if self._requires_handoff(user_query) or self._intent_is(request, "handoff") or sales_plan.sales_stage == "handoff":
                 answer = build_handoff_answer(user_query, matched_rule)
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, answer, "handoff")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(answer, "handoff")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
@@ -282,9 +293,7 @@ class ChatService:
                 and not self._is_reference_quote_lookup(user_query, matched_rule)
             ):
                 answer = build_handoff_answer(user_query, matched_rule)
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, answer, "handoff")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(answer, "handoff")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
@@ -361,9 +370,7 @@ class ChatService:
                 timings.route_decision_ms = self._elapsed(t)
                 if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
                     quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(quote_result["answer"], "quote_draft")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["quote_draft"] = quote_result["draft"]
@@ -436,9 +443,7 @@ class ChatService:
                 timings.route_decision_ms = self._elapsed(t)
                 if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
                     quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(quote_result["answer"], "quote_draft")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["quote_draft"] = quote_result["draft"]
@@ -498,9 +503,7 @@ class ChatService:
                 and context_plan["direct_answer_allowed"]
             ):
                 answer = self._direct_learned_answer(learned_candidate)
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, answer, "learned_correction")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(answer, "learned_correction")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
@@ -540,9 +543,7 @@ class ChatService:
                 if sales_plan.sales_stage == "recommend" and not sales_plan.should_quote and self._intent_is(request, "quote_price"):
                     quote_result["answer"] = self._render_quote_not_ready_answer(sales_plan, quote_result.get("draft", {}))
                 sources = self._format_sources(doc_candidates, "doc")
-                t = time.perf_counter()
-                memory = self.memory_service.update_from_turn(request, quote_result["answer"], "quote_draft")
-                timings.memory_ms += self._elapsed(t)
+                memory = _persist_memory(quote_result["answer"], "quote_draft")
                 timings.total_ms = self._elapsed(start)
                 metadata = dict(base_metadata)
                 metadata["quote_draft"] = quote_result["draft"]
@@ -596,8 +597,9 @@ class ChatService:
             sources: list[SourceItem] = []
             if route in ("faq", "doc") and prompt:
                 t = time.perf_counter()
-                answer = self.ollama.generate(prompt, model=chat_model_override)
+                answer = self.ollama.generate(prompt, model=chat_model_name)
                 timings.answer_generation_ms = self._elapsed(t)
+                self._mark_generation_metadata(base_metadata, timings.answer_generation_ms)
 
                 t = time.perf_counter()
                 candidates = faq_candidates if source_type == "faq" else doc_candidates
@@ -610,9 +612,7 @@ class ChatService:
             elif route == "learned_correction":
                 sources = self._format_sources(doc_candidates, "doc")
 
-            t = time.perf_counter()
-            memory = self.memory_service.update_from_turn(request, answer, route)
-            timings.memory_ms += self._elapsed(t)
+            memory = _persist_memory(answer, route)
 
             timings.total_ms = self._elapsed(start)
             metadata = dict(base_metadata)
@@ -1127,16 +1127,29 @@ class ChatService:
         template = self.behavior_config_service.memory_recall_template()
         return template.format(product=recent) if template else f"你上次记录里关注的是 {recent}。"
 
-    def _base_metadata(self, request: ChatRequest) -> dict:
+    def _base_metadata(self, request: ChatRequest, model_runtime: dict | None = None, transient_request: bool = False) -> dict:
         metadata = dict(request.metadata or {})
         metadata["behavior_rules_hit"] = []
         metadata["memory_policy"] = self.behavior_config_service.memory_policy()
-        override = self._chat_model_override(request)
+        runtime = model_runtime or self._resolve_chat_model_runtime(request)
+        configured_chat_model = str(runtime.get("configured_chat_model") or self.ollama.current_chat_model())
+        requested_chat_model = str(runtime.get("requested_chat_model") or "")
+        actual_chat_model = str(runtime.get("actual_chat_model") or configured_chat_model)
+        embed_model = str(runtime.get("embed_model") or self.ollama.current_embed_model())
         metadata["models"] = {
-            "chat_model": override or self.ollama.current_chat_model(),
-            "embed_model": self.ollama.current_embed_model(),
-            "override_used": bool(override),
+            "chat_model": actual_chat_model,
+            "configured_chat_model": configured_chat_model,
+            "requested_chat_model": requested_chat_model,
+            "actual_chat_model": actual_chat_model,
+            "embed_model": embed_model,
+            "override_used": bool(runtime.get("override_used")),
+            "override_rejected": bool(runtime.get("override_rejected")),
+            "override_rejected_reason": str(runtime.get("override_rejected_reason") or ""),
+            "generation_called": False,
+            "generation_ms": 0.0,
         }
+        if transient_request:
+            self._apply_persistence_skip_metadata(metadata, "model_compare")
         return metadata
 
     def _risk_precheck(self, request: ChatRequest, metadata: dict) -> dict | None:
@@ -1255,16 +1268,63 @@ class ChatService:
         subject = f"{scenario} / {products}" if products else scenario
         return f"我看到你提到了{subject}。你是想了解它的适用场景、核心配置、价格口径，还是想让我帮你写一份可发客户的方案？"
 
-    @staticmethod
-    def _chat_model_override(request: ChatRequest) -> str | None:
+    def _chat_model_override(self, request: ChatRequest) -> str | None:
+        runtime = self._resolve_chat_model_runtime(request)
+        if runtime.get("override_used"):
+            return str(runtime.get("actual_chat_model") or "").strip() or None
+        return None
+
+    def _resolve_chat_model_runtime(self, request: ChatRequest) -> dict:
+        configured_chat_model = str(self.ollama.current_chat_model() or "").strip()
+        embed_model = str(self.ollama.current_embed_model() or "").strip()
+        metadata = request.metadata or {}
+        requested_chat_model = ""
+        override_rejected = False
+        override_rejected_reason = ""
+        actual_chat_model = configured_chat_model
         metadata = request.metadata or {}
         if not metadata.get("test_page"):
-            return None
+            return {
+                "configured_chat_model": configured_chat_model,
+                "requested_chat_model": requested_chat_model,
+                "actual_chat_model": actual_chat_model,
+                "embed_model": embed_model,
+                "override_used": False,
+                "override_rejected": False,
+                "override_rejected_reason": "",
+            }
         override = metadata.get("model_override")
         if not isinstance(override, dict):
-            return None
-        model = str(override.get("chat_model", "") or "").strip()
-        return model or None
+            return {
+                "configured_chat_model": configured_chat_model,
+                "requested_chat_model": requested_chat_model,
+                "actual_chat_model": actual_chat_model,
+                "embed_model": embed_model,
+                "override_used": False,
+                "override_rejected": False,
+                "override_rejected_reason": "",
+            }
+        requested_chat_model = str(override.get("chat_model", "") or "").strip()
+        if requested_chat_model:
+            requested_lower = requested_chat_model.lower()
+            embed_lower = embed_model.lower()
+            if requested_lower == embed_lower:
+                override_rejected = True
+                override_rejected_reason = "requested_model_equals_embed_model"
+            elif any(token in requested_lower for token in ("bge", "embed", "embedding")):
+                override_rejected = True
+                override_rejected_reason = "requested_model_looks_like_embedding_model"
+            else:
+                actual_chat_model = requested_chat_model
+        return {
+            "configured_chat_model": configured_chat_model,
+            "requested_chat_model": requested_chat_model,
+            "actual_chat_model": actual_chat_model,
+            "embed_model": embed_model,
+            "override_used": bool(requested_chat_model and not override_rejected),
+            "override_rejected": override_rejected,
+            "override_rejected_reason": override_rejected_reason,
+        }
 
     @staticmethod
     def _is_reference_quote_lookup(user_query: str, matched_rule: dict | None) -> bool:
@@ -1319,8 +1379,11 @@ class ChatService:
         self._observe_conversation_state(request, response)
         metadata = dict(response.metadata or {})
         try:
-            if self.conversation_history_service:
+            if self.conversation_history_service and not self._is_transient_test_request(request):
                 self.conversation_history_service.append_turn(request, response)
+            elif self._is_transient_test_request(request):
+                self._apply_persistence_skip_metadata(metadata, "model_compare")
+                response.metadata = metadata
         except Exception as exc:
             metadata["conversation_history_error"] = f"{type(exc).__name__}: {exc}"
             response.metadata = metadata
@@ -1397,6 +1460,10 @@ class ChatService:
         response.metadata = metadata
 
     def _attach_state_before(self, request: ChatRequest, metadata: dict) -> None:
+        if self._is_transient_test_request(request):
+            metadata["conversation_state_before"] = {}
+            self._apply_persistence_skip_metadata(metadata, "model_compare")
+            return
         try:
             store = getattr(self, "conversation_state_store", None)
             if not store:
@@ -1417,6 +1484,11 @@ class ChatService:
         if not isinstance(before, dict):
             before = {}
             metadata["conversation_state_before"] = before
+        if self._is_transient_test_request(request):
+            metadata["conversation_state_after"] = before
+            self._apply_persistence_skip_metadata(metadata, "model_compare")
+            response.metadata = metadata
+            return
         store = getattr(self, "conversation_state_store", None)
         if not store:
             metadata["conversation_state_after"] = before
@@ -1540,6 +1612,36 @@ class ChatService:
             metadata["cache_policy_enforce_reason_codes"] = []
             metadata["final_bypass_cache"] = original_bypass_cache
             metadata["cache_policy_enforce_error"] = f"{type(exc).__name__}: {exc}"
+
+    @staticmethod
+    def _is_transient_test_request(request: ChatRequest) -> bool:
+        metadata = request.metadata or {}
+        if bool(metadata.get("model_compare")):
+            return True
+        if bool(metadata.get("transient_test")):
+            return True
+        if bool(metadata.get("shadow")):
+            return True
+        compare_role = str(
+            metadata.get("compare_role")
+            or metadata.get("model_compare_role")
+            or ""
+        ).strip().lower()
+        return compare_role in {"primary", "shadow"}
+
+    @staticmethod
+    def _apply_persistence_skip_metadata(metadata: dict, reason: str) -> None:
+        metadata["transient_test"] = True
+        metadata["persistence_skipped"] = True
+        metadata["persistence_skip_reason"] = reason
+
+    @staticmethod
+    def _mark_generation_metadata(metadata: dict, generation_ms: float) -> None:
+        models = metadata.get("models")
+        if not isinstance(models, dict):
+            return
+        models["generation_called"] = True
+        models["generation_ms"] = float(generation_ms or 0.0)
 
     @staticmethod
     def _elapsed(start: float) -> float:

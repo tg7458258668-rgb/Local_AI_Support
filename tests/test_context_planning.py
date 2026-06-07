@@ -57,13 +57,19 @@ class FakeVectorRepo:
 
 
 class FakeMemoryService:
+    def __init__(self):
+        self.load_calls = 0
+        self.update_calls = 0
+
     def load_for_request(self, request):
+        self.load_calls += 1
         return None
 
     def render_prompt_block(self, memory):
         return ""
 
     def update_from_turn(self, request, answer, route):
+        self.update_calls += 1
         return None
 
 
@@ -197,14 +203,57 @@ class BadReasonCode:
         raise RuntimeError("bad reason code")
 
 
+class FakeConversationHistoryService:
+    def __init__(self):
+        self.turns = []
+        self.recent_calls = 0
+        self.append_calls = 0
+
+    def recent_for_request(self, request, limit=None):
+        self.recent_calls += 1
+        return list(self.turns)
+
+    def append_turn(self, request, response):
+        self.append_calls += 1
+        self.turns.append({"message": request.message, "route": response.route, "answer": response.answer})
+
+    def prompt_block(self, history):
+        return ""
+
+    def debug_summary(self, history):
+        return list(history)
+
+    def product_anchors(self, history):
+        return []
+
+    def fingerprint(self, history):
+        return ""
+
+
+class FakeBgeEmbedOllama(FakeOllama):
+    def current_embed_model(self):
+        return "bge-m3:latest"
+
+    def current_chat_model(self):
+        return "qwen3:8b"
+
+
 class ContextPlanningTests(unittest.TestCase):
-    def make_chat(self, history_service=None, quote_service=None, risk_policy_service=None, conversation_state_store=None):
+    def make_chat(
+        self,
+        history_service=None,
+        quote_service=None,
+        risk_policy_service=None,
+        conversation_state_store=None,
+        memory_service=None,
+        ollama=None,
+    ):
         chat = ChatService(
             settings=FakeSettings(),
-            ollama=FakeOllama(),
-            retrieval_service=RetrievalService(FakeSettings(), FakeOllama(), FakeVectorRepo()),
+            ollama=ollama or FakeOllama(),
+            retrieval_service=RetrievalService(FakeSettings(), ollama or FakeOllama(), FakeVectorRepo()),
             rule_repo=FakeRuleRepo(),
-            memory_service=FakeMemoryService(),
+            memory_service=memory_service or FakeMemoryService(),
             audit_service=FakeAudit(),
             quote_service=quote_service or FakeQuoteService(),
             learning_service=FakeLearningService(),
@@ -889,6 +938,119 @@ class ContextPlanningTests(unittest.TestCase):
         self.assertFalse(response.metadata["post_rule_check"]["blocked"])
         self.assertFalse(response.metadata["post_rule_enforce_applied"])
         self.assertNotEqual(response.answer, "")
+
+    def test_override_embed_model_is_rejected_and_falls_back_to_configured_chat(self):
+        chat = self.make_chat()
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"test_page": True, "model_override": {"chat_model": "embed-test"}},
+        ))
+
+        models = response.metadata.get("models", {})
+        self.assertEqual(models.get("configured_chat_model"), "chat-test")
+        self.assertEqual(models.get("embed_model"), "embed-test")
+        self.assertEqual(models.get("requested_chat_model"), "embed-test")
+        self.assertEqual(models.get("actual_chat_model"), "chat-test")
+        self.assertTrue(models.get("override_rejected"))
+        self.assertTrue(models.get("override_rejected_reason"))
+        self.assertEqual(response.route, "faq")
+
+    def test_override_bge_model_is_rejected_and_not_used_as_actual_chat(self):
+        chat = self.make_chat(ollama=FakeBgeEmbedOllama())
+        response = chat.answer(ChatRequest(
+            message="电池保修多久？",
+            channel="api",
+            metadata={"test_page": True, "model_override": {"chat_model": "bge-m3:latest"}},
+        ))
+
+        models = response.metadata.get("models", {})
+        self.assertEqual(models.get("embed_model"), "bge-m3:latest")
+        self.assertNotEqual(models.get("actual_chat_model"), "bge-m3:latest")
+        self.assertTrue(models.get("override_rejected"))
+
+    def test_model_compare_request_skips_history_state_and_memory_persistence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = FakeConversationHistoryService()
+            memory = FakeMemoryService()
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history_service=history,
+                memory_service=memory,
+                conversation_state_store=state_store,
+                risk_policy_service=RiskPolicyService(),
+            )
+            response = chat.answer(ChatRequest(
+                message="那大概多少钱？",
+                channel="api",
+                conversation_id="cmp_skip_1",
+                metadata={"test_page": True, "model_compare": True, "compare_role": "primary"},
+            ))
+
+            self.assertEqual(history.recent_calls, 0)
+            self.assertEqual(history.append_calls, 0)
+            self.assertEqual(memory.load_calls, 0)
+            self.assertEqual(memory.update_calls, 0)
+            self.assertTrue(response.metadata.get("transient_test"))
+            self.assertTrue(response.metadata.get("persistence_skipped"))
+            self.assertEqual(response.metadata.get("persistence_skip_reason"), "model_compare")
+            self.assertEqual(response.metadata.get("conversation_state_before"), {})
+            self.assertEqual(response.metadata.get("conversation_state_after"), {})
+
+    def test_model_compare_two_requests_do_not_pollute_history_between_a_b(self):
+        history = FakeConversationHistoryService()
+        memory = FakeMemoryService()
+        chat = self.make_chat(
+            history_service=history,
+            memory_service=memory,
+            risk_policy_service=RiskPolicyService(),
+        )
+        req_primary = ChatRequest(
+            message="我们是做团播的，推荐一下产品",
+            channel="api",
+            conversation_id="cmp_ab_1",
+            metadata={"test_page": True, "model_compare": True, "compare_role": "primary"},
+        )
+        req_shadow = ChatRequest(
+            message="那大概多少钱？",
+            channel="api",
+            conversation_id="cmp_ab_1",
+            metadata={"test_page": True, "model_compare": True, "compare_role": "shadow", "shadow": True},
+        )
+        first = chat.answer(req_primary)
+        second = chat.answer(req_shadow)
+
+        self.assertEqual(history.recent_calls, 0)
+        self.assertEqual(history.append_calls, 0)
+        self.assertEqual(len(history.turns), 0)
+        self.assertEqual(first.metadata.get("context_plan", {}).get("history_turn_count"), 0)
+        self.assertEqual(second.metadata.get("context_plan", {}).get("history_turn_count"), 0)
+
+    def test_normal_request_keeps_history_state_and_memory_persistence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            history = ConversationHistoryService(JsonFileRepository(Path(tmp) / "conversation_history.json"))
+            memory = FakeMemoryService()
+            state_store = ConversationStateStore(path=Path(tmp) / "conversation_state.json")
+            chat = self.make_chat(
+                history_service=history,
+                memory_service=memory,
+                conversation_state_store=state_store,
+                risk_policy_service=RiskPolicyService(),
+            )
+            conversation_id = "normal_persist_1"
+            response = chat.answer(ChatRequest(
+                message="电池保修多久？",
+                channel="api",
+                conversation_id=conversation_id,
+            ))
+
+            turns = history.recent_for_request(ChatRequest(message="继续", channel="api", conversation_id=conversation_id))
+            self.assertTrue(turns)
+            self.assertGreater(memory.load_calls, 0)
+            self.assertGreater(memory.update_calls, 0)
+            self.assertFalse(response.metadata.get("persistence_skipped", False))
+            self.assertIn("conversation_state_after", response.metadata)
+            self.assertNotEqual(response.metadata.get("conversation_state_after"), {})
 
 
 if __name__ == "__main__":
