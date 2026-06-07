@@ -325,18 +325,50 @@ function syncCompareMode() {
   document.querySelectorAll(".compare-only").forEach((el) => el.classList.toggle("hidden", !compare));
 }
 
+function isLikelyEmbeddingModel(name) {
+  const value = String(name || "").trim().toLowerCase();
+  if (!value) return false;
+  return value.includes("bge") || value.includes("embed") || value.includes("embedding");
+}
+
+function getChatModelOptions() {
+  const embedModel = String(modelState.settings?.embed_model || "").trim().toLowerCase();
+  const names = Array.isArray(modelState.models) ? modelState.models.map((item) => String(item?.name || "").trim()) : [];
+  const options = [];
+  for (const name of names) {
+    if (!name) continue;
+    const lower = name.toLowerCase();
+    if (embedModel && lower === embedModel) continue;
+    if (isLikelyEmbeddingModel(name)) continue;
+    options.push(name);
+  }
+  return Array.from(new Set(options));
+}
+
 function populateModelSelects() {
-  const options = modelState.models.map((item) => `<option value="${escapeHtml(item.name)}">${escapeHtml(item.name)}</option>`).join("");
+  const chatModelOptions = getChatModelOptions();
+  const options = chatModelOptions.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
   const current = modelState.settings.chat_model || "";
   for (const select of [modelAInput, modelBInput]) {
     if (!select) continue;
-    select.innerHTML = options || `<option value="">未读取到模型</option>`;
+    select.innerHTML = options || `<option value="">未读取到可用回答模型</option>`;
   }
-  if (modelAInput) modelAInput.value = localStorage.getItem("chat_model_a") || current;
+
+  if (modelAInput) {
+    const savedA = localStorage.getItem("chat_model_a") || "";
+    const fallbackA = chatModelOptions.includes(current) ? current : (chatModelOptions[0] || "");
+    const selectedA = [savedA, fallbackA].find((name) => chatModelOptions.includes(name)) || "";
+    modelAInput.value = selectedA;
+  }
+
   if (modelBInput) {
     const savedB = localStorage.getItem("chat_model_b") || "";
-    const fallbackB = modelState.models.find((item) => item.name !== modelAInput?.value)?.name || current;
-    modelBInput.value = savedB || fallbackB;
+    const fallbackB = chatModelOptions.find((name) => name && name !== modelAInput?.value) || "";
+    const selectedB = [savedB, fallbackB].find((name) => chatModelOptions.includes(name) && name !== modelAInput?.value) || "";
+    if (!selectedB && !modelBInput.querySelector('option[value=""]')) {
+      modelBInput.insertAdjacentHTML("beforeend", `<option value="">无可用对比模型</option>`);
+    }
+    modelBInput.value = selectedB;
   }
 }
 
@@ -773,11 +805,36 @@ function buildRetrievalDebug(data, sources) {
 function buildModelDebug(metadata) {
   const models = metadata?.models;
   if (!models || typeof models !== "object") return "";
+  const configured = models.configured_chat_model || models.chat_model || "";
+  const requested = models.requested_chat_model || "";
+  const actual = models.actual_chat_model || models.chat_model || "";
+  const embed = models.embed_model || "";
+  const overrideUsed = !!models.override_used;
+  const overrideRejected = !!models.override_rejected;
+  const overrideRejectedReason = models.override_rejected_reason || "";
+  const generationCalled = !!models.generation_called;
+  const generationMs = models.generation_ms ?? 0;
   return buildKeyValueRows([
-    ["回答模型", models.chat_model],
-    ["向量模型", models.embed_model],
-    ["临时覆盖", models.override_used ? "是" : "否"]
+    ["配置回答模型", configured],
+    ["请求覆盖模型", requested],
+    ["实际回答模型", actual],
+    ["向量模型", embed],
+    ["临时覆盖", overrideUsed ? "是" : "否"],
+    ["覆盖被拒绝", overrideRejected ? "是" : "否"],
+    ["拒绝原因", overrideRejectedReason],
+    ["是否调用生成", generationCalled ? "是" : "否"],
+    ["生成耗时", formatElapsed(generationMs)]
   ]);
+}
+
+function resolveAnswerModel(metadata) {
+  const models = metadata?.models || {};
+  const actual = String(models.actual_chat_model || "").trim();
+  const legacy = String(models.chat_model || "").trim();
+  const embed = String(models.embed_model || "").trim();
+  if (actual) return actual;
+  if (legacy && (!embed || legacy !== embed)) return legacy;
+  return legacy;
 }
 
 function scrollToBottom() {
@@ -868,6 +925,8 @@ function appendAiMessage(data, question = "") {
   const gapHtml = buildGapDebug(data.metadata || {});
   const modelHtml = buildModelDebug(data.metadata || {});
   const snapshot = responseSnapshot(data, question);
+  const answerModel = resolveAnswerModel(data.metadata || {});
+  const avatarTitle = answerModel ? `AI【${answerModel}】` : "AI";
 
   renderMemorySummary(data.memory || null);
   renderGapStatus(data.metadata || {});
@@ -876,7 +935,7 @@ function appendAiMessage(data, question = "") {
   const wrap = document.createElement("div");
   wrap.className = "msg msg-ai";
   wrap.innerHTML = `
-    <div class="msg-avatar">AI</div>
+    <div class="msg-avatar">${escapeHtml(avatarTitle)}</div>
     <div class="msg-bubble">
       <div class="msg-text">${formatRichText(answer)}</div>
       <div class="elapsed-line"><strong>接口总耗时：</strong>${escapeHtml(elapsedText)}</div>
@@ -1008,10 +1067,22 @@ async function sendCompareQuestions(question, config, models) {
           timings: {},
           hint: "请检查模型是否可用",
           sources: [],
-          metadata: { models: { chat_model: model, embed_model: modelState.settings.embed_model, override_used: true } }
+          metadata: {
+            models: {
+              chat_model: model,
+              configured_chat_model: modelState.settings.chat_model || "",
+              requested_chat_model: model,
+              actual_chat_model: model,
+              embed_model: modelState.settings.embed_model || "",
+              override_used: true,
+              override_rejected: false,
+              override_rejected_reason: "",
+              generation_called: false,
+              generation_ms: 0
+            }
+          }
         }, question);
       } else {
-        data.answer = `【${model}】\n${data.answer || ""}`;
         appendAiMessage(data, question);
       }
     } catch (err) {
@@ -1023,7 +1094,20 @@ async function sendCompareQuestions(question, config, models) {
         timings: {},
         hint: "请检查后端服务是否正常运行",
         sources: [],
-        metadata: { models: { chat_model: model, embed_model: modelState.settings.embed_model, override_used: true } }
+        metadata: {
+          models: {
+            chat_model: model,
+            configured_chat_model: modelState.settings.chat_model || "",
+            requested_chat_model: model,
+            actual_chat_model: model,
+            embed_model: modelState.settings.embed_model || "",
+            override_used: true,
+            override_rejected: false,
+            override_rejected_reason: "",
+            generation_called: false,
+            generation_ms: 0
+          }
+        }
       }, question);
     }
   }
