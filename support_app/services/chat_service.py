@@ -363,6 +363,45 @@ class ChatService:
                 self._audit(request_id, request, response)
                 return response
 
+            overview_detail = self._overview_route_detail(request)
+            if overview_detail:
+                answer = self._product_overview_answer(overview_detail)
+                timings.total_ms = self._elapsed(start)
+                metadata = dict(base_metadata)
+                metadata["route_detail"] = overview_detail
+                metadata["normalized_route"] = overview_detail
+                metadata["quote_catalog_skipped"] = True
+                metadata["quote_catalog_skip_reason"] = overview_detail
+                metadata["context_plan"]["fast_path"] = overview_detail
+                metadata["knowledge_gaps"] = self.knowledge_gap_service.analyze(
+                    user_query,
+                    "faq",
+                    0,
+                    0,
+                    memory,
+                    metadata,
+                    False,
+                )
+                response = ChatResponse(
+                    answer=answer,
+                    route="faq",
+                    need_human=False,
+                    hint="已按产品与服务总览直接回答",
+                    matched_rule=matched_rule["rule_name"] if matched_rule else None,
+                    faq_top_score=0,
+                    doc_top_score=0,
+                    sources=[],
+                    retrieval_debug=[],
+                    memory=memory,
+                    timings=timings,
+                    channel=request.channel,
+                    conversation_id=request.conversation_id,
+                    user_id=request.user_id,
+                    metadata=metadata,
+                )
+                self._audit(request_id, request, response)
+                return response
+
             if self._should_use_sales_quote(request, user_query, sales_plan, context_plan):
                 quote_request = self._request_for_intent(request)
                 t = time.perf_counter()
@@ -1204,6 +1243,25 @@ class ChatService:
         if plan.get("intent"):
             return bool(plan.get("needs_quote_tool"))
         return self.quote_service.is_quote_request(user_query)
+
+    @classmethod
+    def _overview_route_detail(cls, request: ChatRequest) -> str:
+        intent = str(cls._intent_plan(request).get("intent", "") or "")
+        return intent if intent in {"product_overview", "company_intro", "service_overview"} else ""
+
+    @staticmethod
+    def _product_overview_answer(route_detail: str = "product_overview") -> str:
+        if route_detail == "service_overview":
+            lead = "您好，我们主要围绕 U-MOCO 影视机械臂提供设备销售、项目租赁，以及特殊场景的定制化解决方案。"
+        elif route_detail == "company_intro":
+            lead = "您好，我们主要做 U-MOCO 影视机械臂相关业务，覆盖设备销售、项目租赁，以及特殊场景的定制化解决方案。"
+        else:
+            lead = "您好，我们主要做 U-MOCO 影视机械臂，提供设备销售、项目租赁，以及特殊场景的定制化解决方案。"
+        return "\n\n".join([
+            lead,
+            "常见应用方向包括影视广告/TVC、自媒体工作室、直播/团播、电视台演播厅、晚会、演唱会、学校教学和定制项目等。不同场景会对应不同机械臂型号、控制软件和选配方案。",
+            "您这边是想先了解整体产品线，还是已经有具体使用场景？比如影视拍摄、直播团播、广播级现场或定制项目，我可以按您的方向给您介绍更合适的方案。",
+        ])
 
     def _should_use_sales_quote(self, request: ChatRequest, user_query: str, sales_plan, context_plan: dict) -> bool:
         if sales_plan.should_direct_answer or sales_plan.sales_stage == "handoff":

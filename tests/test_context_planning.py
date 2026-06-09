@@ -772,6 +772,82 @@ class ContextPlanningTests(unittest.TestCase):
                 and response.metadata.get("cache_policy_enforce_reason_codes") == ["quote_intent"]
             )
 
+    def test_product_overview_questions_do_not_trigger_quote_catalog_or_quote_draft(self):
+        overview_cases = {
+            "你们有什么产品": "product_overview",
+            "你们是做什么的": "company_intro",
+            "你们有哪些服务": "service_overview",
+            "你们有哪些机械臂": "product_overview",
+        }
+        forbidden_terms = (
+            "客户预算",
+            "客户想要",
+            "客户问题",
+            "该客户",
+            "该用户",
+            "预算",
+            "轨道",
+            "报价草案",
+            "参考价",
+            "¥",
+            "元",
+            "U-MOCO GRA",
+        )
+
+        for message, expected_detail in overview_cases.items():
+            with self.subTest(message=message):
+                quote_service = FakeQuoteService()
+                chat = self.make_chat(quote_service=quote_service, risk_policy_service=RiskPolicyService())
+
+                response = chat.answer(ChatRequest(message=message, channel="api", conversation_id=f"overview_{abs(hash(message))}"))
+
+                self.assertNotEqual(response.route, "quote_draft")
+                self.assertEqual(response.route, "faq")
+                self.assertEqual(response.metadata.get("route_detail"), expected_detail)
+                self.assertEqual(response.metadata.get("normalized_route"), expected_detail)
+                self.assertEqual(response.metadata.get("intent_plan", {}).get("intent"), expected_detail)
+                self.assertFalse(response.metadata.get("intent_plan", {}).get("needs_quote_tool"))
+                self.assertTrue(response.metadata.get("quote_catalog_skipped"))
+                self.assertEqual(response.metadata.get("quote_catalog_skip_reason"), expected_detail)
+                self.assertNotIn("quote_draft", response.metadata)
+                self.assertEqual(quote_service.draft_calls, 0)
+                self.assertIn("影视机械臂", response.answer)
+                self.assertIn("设备销售", response.answer)
+                self.assertIn("项目租赁", response.answer)
+                self.assertIn("定制化", response.answer)
+                if expected_detail == "service_overview":
+                    self.assertIn("特殊场景", response.answer)
+                for term in forbidden_terms:
+                    self.assertNotIn(term, response.answer)
+
+    def test_product_overview_guard_does_not_block_existing_quote_and_risk_paths(self):
+        quote_sensitive_cases = (
+            ("团播推荐一下", "quote_recommendation", {"quote_draft"}),
+            ("给我出个配置单", "quote_configuration_sheet", {"quote_draft"}),
+            ("大概多少钱", "quote_price", {"quote_draft", "fallback"}),
+        )
+
+        for message, expected_intent, allowed_routes in quote_sensitive_cases:
+            with self.subTest(message=message):
+                quote_service = FakeQuoteService()
+                chat = self.make_chat(quote_service=quote_service, risk_policy_service=RiskPolicyService())
+
+                response = chat.answer(ChatRequest(message=message, channel="api", conversation_id=f"guard_{abs(hash(message))}"))
+
+                self.assertEqual(response.metadata.get("intent_plan", {}).get("intent"), expected_intent)
+                self.assertNotIn(response.metadata.get("route_detail"), {"product_overview", "company_intro", "service_overview"})
+                self.assertFalse(response.metadata.get("quote_catalog_skipped", False))
+                self.assertIn(response.route, allowed_routes)
+                if response.route == "quote_draft":
+                    self.assertGreater(quote_service.draft_calls, 0)
+
+        chat = self.make_chat(risk_policy_service=RiskPolicyService())
+        response = chat.answer(ChatRequest(message="最低价多少", channel="api", conversation_id="guard_lowest_price"))
+
+        self.assertIn(response.metadata.get("risk_plan", {}).get("risk_level"), {"blocked", "high"})
+        self.assertTrue(response.need_human or response.route == "handoff")
+        self.assertNotIn(response.metadata.get("route_detail"), {"product_overview", "company_intro", "service_overview"})
+
     def test_blocked_contract_question_short_circuits_to_handoff(self):
         chat = self.make_chat(risk_policy_service=RiskPolicyService())
 

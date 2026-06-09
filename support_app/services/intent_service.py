@@ -61,6 +61,9 @@ class IntentService:
         "quote_price",
         "quote_recommendation",
         "quote_configuration_sheet",
+        "product_overview",
+        "company_intro",
+        "service_overview",
         "knowledge_lookup",
         "handoff",
         "correction_learning",
@@ -143,7 +146,19 @@ class IntentService:
     PRICE_TERMS = ("多少钱", "价格", "报价", "费用", "预算", "优惠", "便宜", "采购", "总价", "合计", "多少")
     RECOMMEND_TERMS = ("推荐", "选型", "怎么选", "用哪款", "哪款", "哪个型号", "什么产品", "产品推荐")
     SHEET_TERMS = ("配置单", "配置清单", "方案单", "报价单", "清单")
-    WRITE_SEND_TERMS = ("写一份", "出一份", "做一份", "生成", "整理", "寄出", "发客户", "发给客户", "给客户")
+    WRITE_SEND_TERMS = ("写一份", "出一份", "出个", "做一份", "生成", "整理", "寄出", "发客户", "发给客户", "给客户")
+    PRODUCT_OVERVIEW_PHRASES = (
+        "有什么产品",
+        "有哪些产品",
+        "什么产品",
+        "哪些产品",
+        "产品线",
+        "有哪些机械臂",
+        "有什么机械臂",
+        "机械臂产品",
+    )
+    COMPANY_INTRO_PHRASES = ("你们是做什么的", "你们做什么的", "介绍一下你们公司", "介绍下你们公司", "公司介绍")
+    SERVICE_OVERVIEW_PHRASES = ("有哪些服务", "有什么服务", "提供哪些服务", "服务有哪些")
     KNOWLEDGE_PHRASES = (
         "有什么配置",
         "配置是什么",
@@ -229,6 +244,29 @@ class IntentService:
                 False,
                 "涉及价格、交付、合同、库存或服务承诺风险",
                 risk_flags=["commercial_commitment"],
+            )
+
+        overview_intent = self._overview_intent(
+            text,
+            scenario_terms,
+            product_anchors,
+            price_terms,
+            recommend_terms,
+            sheet_terms,
+            write_terms,
+            knowledge_terms,
+        )
+        if overview_intent:
+            return self._result(
+                overview_intent,
+                0.93,
+                "knowledge",
+                scenario_terms,
+                [overview_intent],
+                product_anchors,
+                False,
+                False,
+                "用户在了解公司、产品线或服务总览，先做轻量介绍，不进入报价",
             )
 
         if (
@@ -416,8 +454,9 @@ class IntentService:
     def _intent_prompt(self, query: str, fallback: IntentResult, context: dict[str, Any]) -> str:
         return f"""
 你是客服系统的轻量意图分类器。只输出 JSON，不要解释。
-允许 intent：identity, memory_followup, quote_price, quote_recommendation, quote_configuration_sheet, knowledge_lookup, handoff, correction_learning, clarify, fallback。
+允许 intent：identity, memory_followup, quote_price, quote_recommendation, quote_configuration_sheet, product_overview, company_intro, service_overview, knowledge_lookup, handoff, correction_learning, clarify, fallback。
 判断原则：
+- “你们有什么产品、你们有哪些服务、你们是做什么的”是产品/公司/服务总览，不是报价。
 - “团播、直播间、机械臂、产品、配置、轨道”只是场景/实体词，单独出现不能触发报价。
 - 有“多少钱、价格、报价、预算、费用”等动作才是 quote_price。
 - 有“推荐、选型、用哪款”等动作才是 quote_recommendation。
@@ -434,6 +473,8 @@ class IntentService:
     def _route_policy_for_intent(self, intent: str) -> str:
         if intent in {"quote_price", "quote_recommendation", "quote_configuration_sheet"}:
             return "quote_draft"
+        if intent in {"product_overview", "company_intro", "service_overview"}:
+            return "knowledge"
         if intent == "identity":
             return "identity"
         if intent == "handoff":
@@ -481,6 +522,51 @@ class IntentService:
             resolved_query=resolved_query,
             history_anchor_summary=history_anchor_summary,
         )
+
+    @classmethod
+    def _overview_intent(
+        cls,
+        text: str,
+        scenario_terms: list[str],
+        product_anchors: list[str],
+        price_terms: list[str],
+        recommend_terms: list[str],
+        sheet_terms: list[str],
+        write_terms: list[str],
+        knowledge_terms: list[str],
+    ) -> str:
+        if not text:
+            return ""
+        strong_scenarios = [term for term in scenario_terms if term not in {"产品", "机械臂"}]
+        strong_recommend_terms = [term for term in recommend_terms if term not in {"什么产品"}]
+        blocked_by_quote_signal = bool(
+            price_terms
+            or sheet_terms
+            or write_terms
+            or product_anchors
+            or strong_scenarios
+            or strong_recommend_terms
+            or any(term in text for term in cls.CONTEXT_TERMS)
+            or cls._has_config_slots(text)
+        )
+        if blocked_by_quote_signal:
+            return ""
+        if any(phrase in text for phrase in cls.SERVICE_OVERVIEW_PHRASES):
+            return "service_overview"
+        if any(phrase in text for phrase in cls.COMPANY_INTRO_PHRASES):
+            return "company_intro"
+        if any(phrase in text for phrase in cls.PRODUCT_OVERVIEW_PHRASES):
+            # “有什么配置”等知识查询不要被泛化成产品总览。
+            if knowledge_terms and not any(term in {"产品"} for term in scenario_terms):
+                return ""
+            return "product_overview"
+        return ""
+
+    @staticmethod
+    def _has_config_slots(text: str) -> bool:
+        if any(word in text for word in ("预算", "轨道", "相机", "机位", "配置单", "报价单")):
+            return True
+        return bool(re.search(r"\d+(?:\.\d+)?\s*(?:平|平方|平方米|㎡|万|元|米)", text))
 
     @classmethod
     def _is_short_followup(

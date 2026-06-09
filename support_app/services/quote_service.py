@@ -170,7 +170,17 @@ class QuoteService:
 
     @classmethod
     def _should_use_configuration_quote(cls, message: str, memory: dict | None) -> bool:
-        return bool(str(message or "").strip())
+        text = str(message or "").strip()
+        if not text:
+            return False
+        if cls._is_pure_overview_message(text):
+            return False
+        return True
+
+    @staticmethod
+    def _is_pure_overview_message(message: str) -> bool:
+        plan = IntentService().classify_rules(message)
+        return str(plan.intent or "") in {"product_overview", "company_intro", "service_overview"}
 
     @classmethod
     def _scenario_for_configuration_quote(cls, message: str, memory: dict | None, intent_plan: dict[str, Any]) -> str:
