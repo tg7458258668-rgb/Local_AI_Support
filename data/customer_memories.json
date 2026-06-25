@@ -120,5 +120,27 @@
     "robot_arm_count": "",
     "track_preference": "需要进一步确认轨道",
     "updated_at": "2026-05-26 03:44:02"
+  },
+  "api:customer_20260609_pg30": {
+    "channel": "api",
+    "user_id": "customer_20260609_pg30",
+    "customer_name": "",
+    "contact": "",
+    "products": [],
+    "preferences": [],
+    "common_questions": [],
+    "risk_flags": [],
+    "scenario": "",
+    "budget": "",
+    "project_time": "",
+    "decision_status": "",
+    "concerns": [],
+    "quoted_schemes": [],
+    "notes": "",
+    "live_room_area": "",
+    "camera_count": "",
+    "robot_arm_count": "",
+    "track_preference": "",
+    "updated_at": "2026-06-09 21:00:05"
   }
 }
